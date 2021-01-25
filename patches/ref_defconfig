@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/riscv 5.11.0-rc4 Kernel Configuration
+# Linux/riscv 5.11.0-rc5 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="riscv64-linux-gcc (GCC) 10.1.0"
 CONFIG_CC_IS_GCC=y
@@ -2688,7 +2688,6 @@ CONFIG_VHOST_MENU=y
 # CONFIG_STAGING is not set
 CONFIG_GOLDFISH=y
 # CONFIG_GOLDFISH_PIPE is not set
-CONFIG_SURFACE_PLATFORMS=y
 CONFIG_HAVE_CLK=y
 CONFIG_CLKDEV_LOOKUP=y
 CONFIG_HAVE_CLK_PREPARE=y
