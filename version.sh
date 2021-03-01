@@ -41,11 +41,11 @@ DEBARCH=riscv64
 toolchain="gcc_10_riscv64"
 
 #Kernel
-KERNEL_REL=5.11
-KERNEL_TAG=${KERNEL_REL}
+KERNEL_REL=5.12
+KERNEL_TAG=${KERNEL_REL}-rc1
 kernel_rt=".x-rty"
 #Kernel Build
-BUILD=${build_prefix}5
+BUILD=${build_prefix}0
 
 #v5.X-rcX + upto SHA
 #prev_KERNEL_SHA=""
@@ -56,4 +56,3 @@ BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
 
 DISTRO=xross
 #
-
