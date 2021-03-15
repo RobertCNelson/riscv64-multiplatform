@@ -139,7 +139,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	branch="v5.10.x"
+	branch="v5.12.x"
 	https_repo="https://github.com/beagleboard/BeagleBoard-DeviceTrees"
 	work_dir="BeagleBoard-DeviceTrees"
 	#regenerate="enable"
@@ -159,6 +159,7 @@ beagleboard_dtbs () {
 		fi
 		cd ./KERNEL/
 
+		mkdir -p arch/arm/boot/dts/overlays/
 		cp -vr ../${work_dir}/src/arm/* arch/arm/boot/dts/
 		cp -vr ../${work_dir}/include/dt-bindings/* ./include/dt-bindings/
 
