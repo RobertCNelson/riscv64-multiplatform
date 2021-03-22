@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/riscv 5.12.0-rc3 Kernel Configuration
+# Linux/riscv 5.12.0-rc4 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="riscv64-linux-gcc (GCC) 10.1.0"
 CONFIG_CC_IS_GCC=y
@@ -760,6 +760,7 @@ CONFIG_VIRTIO_BLK=y
 # CONFIG_ALTERA_STAPL is not set
 # CONFIG_ECHO is not set
 # CONFIG_MISC_RTSX_USB is not set
+# CONFIG_UACCE is not set
 # end of Misc devices
 
 #
@@ -2164,6 +2165,9 @@ CONFIG_SYNC_FILE=y
 
 # CONFIG_AUXDISPLAY is not set
 # CONFIG_UIO is not set
+CONFIG_VFIO=y
+# CONFIG_VFIO_NOIOMMU is not set
+# CONFIG_VFIO_MDEV is not set
 # CONFIG_VIRT_DRIVERS is not set
 CONFIG_VIRTIO=y
 CONFIG_VIRTIO_MENU=y
@@ -2218,6 +2222,7 @@ CONFIG_RISCV_TIMER=y
 # end of Clock Source drivers
 
 # CONFIG_MAILBOX is not set
+CONFIG_IOMMU_API=y
 CONFIG_IOMMU_SUPPORT=y
 
 #
@@ -2226,6 +2231,8 @@ CONFIG_IOMMU_SUPPORT=y
 # end of Generic IOMMU Pagetable Support
 
 # CONFIG_IOMMU_DEBUGFS is not set
+# CONFIG_IOMMU_DEFAULT_PASSTHROUGH is not set
+CONFIG_OF_IOMMU=y
 
 #
 # Remoteproc drivers
