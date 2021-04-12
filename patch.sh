@@ -240,31 +240,23 @@ patch_backports (){
 }
 
 backports () {
-	backport_tag="v5.4.18"
+	backport_tag="xyz"
 
-	subsystem="brcm80211"
+	subsystem="xyz"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		pre_backports
 
-		cp -rv ~/linux-src/drivers/net/wireless/broadcom/brcm80211/* ./drivers/net/wireless/broadcom/brcm80211/
-		cp -v ~/linux-src/include/linux/mmc/sdio_ids.h ./include/linux/mmc/sdio_ids.h
-		#cp -v ~/linux-src/include/linux/firmware.h ./include/linux/firmware.h
+		cp -rv ~/linux-src/drivers/net/wireless/ti/* ./drivers/net/wireless/ti/
 
 		post_backports
 		exit 2
 	else
 		patch_backports
 	fi
-
-	#regenerate="enable"
-	dir 'cypress/brcmfmac'
-	#exit 2
-	dir 'cypress/fixes'
 }
 
 reverts () {
-	echo "dir: reverts"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		start_cleanup
@@ -273,7 +265,7 @@ reverts () {
 	## notes
 	##git revert --no-edit xyz -s
 
-	#${git} "${DIR}/patches/reverts/0001-Revert-xyz.patch"
+	dir 'reverts'
 
 	if [ "x${regenerate}" = "xenable" ] ; then
 		wdir="reverts"
@@ -299,7 +291,7 @@ reverts () {
 packaging () {
 	#do_backport="enable"
 	if [ "x${do_backport}" = "xenable" ] ; then
-		backport_tag="v5.6-rc4"
+		backport_tag="v5.10.11"
 
 		subsystem="bindeb-pkg"
 		#regenerate="enable"
