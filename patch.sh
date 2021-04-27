@@ -226,6 +226,7 @@ post_backports () {
 		cd -
 	fi
 
+	rm -f arch/arm/boot/dts/overlays/*.dtbo || true
 	${git_bin} add .
 	${git_bin} commit -a -m "backports: ${subsystem}: from: linux.git" -m "Reference: ${backport_tag}" -s
 	if [ ! -d ../patches/backports/${subsystem}/ ] ; then
@@ -291,7 +292,7 @@ reverts () {
 packaging () {
 	#do_backport="enable"
 	if [ "x${do_backport}" = "xenable" ] ; then
-		backport_tag="v5.10.11"
+		backport_tag="v5.10.31"
 
 		subsystem="bindeb-pkg"
 		#regenerate="enable"
