@@ -1,0 +1,61 @@
+From 58c17d24beb11ec0f2bbb060d28601592a224b60 Mon Sep 17 00:00:00 2001
+From: Tom <support@vamrs.com>
+Date: Tue, 20 Apr 2021 01:38:18 +0800
+Subject: [PATCH 28/38] drivers/mmc: get the last SDIO host pointer for WiFi
+ driver
+
+---
+ drivers/mmc/core/host.c   | 6 +++---
+ drivers/mmc/host/dw_mmc.c | 5 +++--
+ 2 files changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+index 952d600977c4..e6015bccb45a 100644
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -520,7 +520,7 @@ EXPORT_SYMBOL(mmc_alloc_host);
+  *	prepared to start servicing requests before this function
+  *	completes.
+  */
+-struct mmc_host *primary_sdio_host;
++struct mmc_host *primary_sdio_host = NULL;
+ 
+ int mmc_add_host(struct mmc_host *host)
+ {
+@@ -542,8 +542,8 @@ int mmc_add_host(struct mmc_host *host)
+ 	mmc_start_host(host);
+ 	mmc_register_pm_notifier(host);
+ 
+-	//if (host->restrict_caps & RESTRICT_CARD_TYPE_SDIO)
+-	primary_sdio_host = host;
++	if (host->caps & MMC_CAP_NONREMOVABLE)
++		primary_sdio_host = host;
+ 
+ 	return 0;
+ }
+diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
+index 5d1bdf2e535e..27ef6b9e2af7 100644
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -1224,6 +1224,7 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
+ 		sdmmc_cmd_bits |= SDMMC_CMD_VOLT_SWITCH;
+ 
+ 	slot->mmc->actual_clock = 0;
++
+ 	if (!clock) {
+ 		mci_writel(host, CLKENA, 0);
+ 		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
+@@ -1597,8 +1598,8 @@ static int dw_mci_set_sdio_status(struct mmc_host *mmc, int val)
+ 	struct dw_mci_slot *slot = mmc_priv(mmc);
+ 	struct dw_mci *host = slot->host;
+ 
+-	//	if (!(mmc->restrict_caps & RESTRICT_CARD_TYPE_SDIO))
+-	//	return 0;
++	if (!(mmc->caps & MMC_CAP_NONREMOVABLE))
++		return 0;
+ 	printk("this is debug %s %s %d\n",__FILE__,__func__,__LINE__);
+ 	spin_lock_bh(&host->lock);
+ 
+-- 
+2.30.0
+

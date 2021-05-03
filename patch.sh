@@ -32,7 +32,7 @@ git_bin=$(which git)
 #git hard requirements:
 #git: --no-edit
 
-git="${git_bin} am"
+git="${git_bin} am --3way --whitespace=fix"
 #git_patchset=""
 #git_opts
 
@@ -278,15 +278,19 @@ reverts () {
 #
 #}
 
-#soc () {
-#
-#}
+soc () {
+	echo "dir: soc/beaglev (esmil-linux-5.12, starfive branch)"
+	PATCHES=$(find "${DIR}/patches/soc/beaglev/" -name \*.patch | sort)
+	for patch in "$PATCHES"; do
+		${git} $patch
+	done
+}
 
 ###
 #backports
 #reverts
 #drivers
-#soc
+soc
 
 packaging () {
 	#do_backport="enable"
