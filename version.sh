@@ -4,7 +4,7 @@ ARCH=$(uname -m)
 
 config="defconfig"
 
-build_prefix="-riscv64-x"
+build_prefix="-riscv64-r"
 branch_prefix="v"
 branch_postfix=".x"
 
@@ -39,15 +39,15 @@ branch_postfix=".x"
 KERNEL_ARCH=riscv
 DEBARCH=riscv64
 #toolchain="gcc_8_riscv64"
-#toolchain="gcc_9_riscv64"
-toolchain="gcc_10_riscv64"
+toolchain="gcc_9_riscv64"
+#toolchain="gcc_10_riscv64"
 
 #Kernel
 KERNEL_REL=5.12
-KERNEL_TAG=${KERNEL_REL}
+KERNEL_TAG=${KERNEL_REL}.1
 kernel_rt=".x-rty"
 #Kernel Build
-BUILD=${build_prefix}0
+BUILD=${build_prefix}8.1
 
 #v5.X-rcX + upto SHA
 #prev_KERNEL_SHA=""
