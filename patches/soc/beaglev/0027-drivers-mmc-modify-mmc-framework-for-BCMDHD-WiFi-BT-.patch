@@ -1,0 +1,186 @@
+From 9dfbd5ff1e12746f9f1e7a0d0dfcf0060d4924ec Mon Sep 17 00:00:00 2001
+From: Huan Feng <huan.feng@starfivetech.com>
+Date: Mon, 19 Apr 2021 04:26:26 +0800
+Subject: [PATCH 27/38] drivers/mmc: modify mmc framework for BCMDHD WiFi/BT
+ driver
+
+---
+ drivers/mmc/core/host.c   | 48 +++++++++++++++++++++++++++++++++++++++
+ drivers/mmc/core/sdio.c   | 31 +++++++++++++++++++++++++
+ drivers/mmc/host/dw_mmc.c | 24 +++++++++++++++++++-
+ include/linux/mmc/host.h  |  1 +
+ 4 files changed, 103 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/core/host.c b/drivers/mmc/core/host.c
+index 9b89a91b6b47..952d600977c4 100644
+--- a/drivers/mmc/core/host.c
++++ b/drivers/mmc/core/host.c
+@@ -520,6 +520,8 @@ EXPORT_SYMBOL(mmc_alloc_host);
+  *	prepared to start servicing requests before this function
+  *	completes.
+  */
++struct mmc_host *primary_sdio_host;
++
+ int mmc_add_host(struct mmc_host *host)
+ {
+ 	int err;
+@@ -540,6 +542,9 @@ int mmc_add_host(struct mmc_host *host)
+ 	mmc_start_host(host);
+ 	mmc_register_pm_notifier(host);
+ 
++	//if (host->restrict_caps & RESTRICT_CARD_TYPE_SDIO)
++	primary_sdio_host = host;
++
+ 	return 0;
+ }
+ 
+@@ -582,3 +587,46 @@ void mmc_free_host(struct mmc_host *host)
+ }
+ 
+ EXPORT_SYMBOL(mmc_free_host);
++
++/**
++ * mmc_host_rescan - triger software rescan flow
++ * @host: mmc host
++ *
++ * rescan slot attach in the assigned host.
++ * If @host is NULL, default rescan primary_sdio_host
++ * saved by mmc_add_host().
++ * OR, rescan host from argument.
++ *
++ */
++int mmc_host_rescan(struct mmc_host *host, int val, int is_cap_sdio_irq)
++{
++	if (NULL != primary_sdio_host) {
++		if (!host)
++			  host = primary_sdio_host;
++		else
++			pr_info("%s: mmc_host_rescan pass in host from argument!\n",
++				mmc_hostname(host));
++	} else {
++		pr_err("sdio: host isn't  initialization successfully.\n");
++		return -ENOMEDIUM;
++	}
++
++	pr_info("%s:mmc host rescan start!\n", mmc_hostname(host));
++
++	/*  0: oob  1:cap-sdio-irq */
++	if (is_cap_sdio_irq == 1) {
++		host->caps |= MMC_CAP_SDIO_IRQ;
++	} else if (is_cap_sdio_irq == 0) {
++		host->caps &= ~MMC_CAP_SDIO_IRQ;
++	} else {
++		dev_err(&host->class_dev,
++			"sdio: host doesn't identify oob or sdio_irq mode!\n");
++		return -ENOMEDIUM;
++	}
++
++	if (!(host->caps & MMC_CAP_NONREMOVABLE) && host->ops->set_sdio_status)
++		host->ops->set_sdio_status(host, val);
++
++	return 0;
++}
++EXPORT_SYMBOL(mmc_host_rescan);
+diff --git a/drivers/mmc/core/sdio.c b/drivers/mmc/core/sdio.c
+index 0fda7784cab2..cd36c11df37d 100644
+--- a/drivers/mmc/core/sdio.c
++++ b/drivers/mmc/core/sdio.c
+@@ -1290,3 +1290,34 @@ int mmc_attach_sdio(struct mmc_host *host)
+ 	return err;
+ }
+ 
++int sdio_reset_comm(struct mmc_card *card)
++{
++	struct mmc_host *host = card->host;
++	u32 ocr;
++	u32 rocr;
++	int err;
++
++	mmc_claim_host(host);
++	mmc_go_idle(host);
++	mmc_set_clock(host, host->f_min);
++	err = mmc_send_io_op_cond(host, 0, &ocr);
++	if (err)
++		goto err;
++	rocr = mmc_select_voltage(host, ocr);
++	if (!rocr) {
++		err = -EINVAL;
++		goto err;
++	}
++	err = mmc_sdio_init_card(host, rocr, card);
++	if (err)
++		goto err;
++	mmc_release_host(host);
++	return 0;
++ err:
++	pr_err("%s: Error resetting SDIO communications (%d)\n",
++	       mmc_hostname(host), err);
++	mmc_release_host(host);
++	return err;
++}
++
++EXPORT_SYMBOL(sdio_reset_comm);
+diff --git a/drivers/mmc/host/dw_mmc.c b/drivers/mmc/host/dw_mmc.c
+index 42d93366e449..5d1bdf2e535e 100644
+--- a/drivers/mmc/host/dw_mmc.c
++++ b/drivers/mmc/host/dw_mmc.c
+@@ -1224,7 +1224,6 @@ static void dw_mci_setup_bus(struct dw_mci_slot *slot, bool force_clkinit)
+ 		sdmmc_cmd_bits |= SDMMC_CMD_VOLT_SWITCH;
+ 
+ 	slot->mmc->actual_clock = 0;
+-
+ 	if (!clock) {
+ 		mci_writel(host, CLKENA, 0);
+ 		mci_send_cmd(slot, sdmmc_cmd_bits, 0);
+@@ -1593,6 +1592,28 @@ static int dw_mci_get_ro(struct mmc_host *mmc)
+ 	return read_only;
+ }
+ 
++static int dw_mci_set_sdio_status(struct mmc_host *mmc, int val)
++{
++	struct dw_mci_slot *slot = mmc_priv(mmc);
++	struct dw_mci *host = slot->host;
++
++	//	if (!(mmc->restrict_caps & RESTRICT_CARD_TYPE_SDIO))
++	//	return 0;
++	printk("this is debug %s %s %d\n",__FILE__,__func__,__LINE__);
++	spin_lock_bh(&host->lock);
++
++	if (val)
++		set_bit(DW_MMC_CARD_PRESENT, &slot->flags);
++	else
++		clear_bit(DW_MMC_CARD_PRESENT, &slot->flags);
++
++	spin_unlock_bh(&host->lock);
++
++	mmc_detect_change(slot->mmc, 20);
++
++	return 0;
++}
++
+ static void dw_mci_hw_reset(struct mmc_host *mmc)
+ {
+ 	struct dw_mci_slot *slot = mmc_priv(mmc);
+@@ -1792,6 +1813,7 @@ static const struct mmc_host_ops dw_mci_ops = {
+ 	.pre_req		= dw_mci_pre_req,
+ 	.post_req		= dw_mci_post_req,
+ 	.set_ios		= dw_mci_set_ios,
++	.set_sdio_status	= dw_mci_set_sdio_status,
+ 	.get_ro			= dw_mci_get_ro,
+ 	.get_cd			= dw_mci_get_cd,
+ 	.hw_reset               = dw_mci_hw_reset,
+diff --git a/include/linux/mmc/host.h b/include/linux/mmc/host.h
+index 26a3c7bc29ae..4c69cda52826 100644
+--- a/include/linux/mmc/host.h
++++ b/include/linux/mmc/host.h
+@@ -155,6 +155,7 @@ struct mmc_host_ops {
+ 
+ 	/* Check if the card is pulling dat[0:3] low */
+ 	int	(*card_busy)(struct mmc_host *host);
++	int	(*set_sdio_status)(struct mmc_host *host, int val);
+ 
+ 	/* The tuning command opcode value is different for SD and eMMC cards */
+ 	int	(*execute_tuning)(struct mmc_host *host, u32 opcode);
+-- 
+2.30.0
+
