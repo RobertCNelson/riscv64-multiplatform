@@ -2,13 +2,15 @@
 # Automatically generated file; DO NOT EDIT.
 # Linux/riscv 5.12.0 Kernel Configuration
 #
-CONFIG_CC_VERSION_TEXT="riscv64-linux-gcc (GCC) 10.1.0"
+CONFIG_CC_VERSION_TEXT="riscv64-unknown-linux-gnu-gcc (Gentoo Hardened 10.2.0-r5 p6) 10.2.0"
 CONFIG_CC_IS_GCC=y
-CONFIG_GCC_VERSION=100100
+CONFIG_GCC_VERSION=100200
 CONFIG_CLANG_VERSION=0
 CONFIG_LD_IS_BFD=y
-CONFIG_LD_VERSION=23400
+CONFIG_LD_VERSION=23502
 CONFIG_LLD_VERSION=0
+CONFIG_CC_CAN_LINK=y
+CONFIG_CC_CAN_LINK_STATIC=y
 CONFIG_CC_HAS_ASM_GOTO=y
 CONFIG_CC_HAS_ASM_INLINE=y
 CONFIG_IRQ_WORK=y
@@ -237,6 +239,7 @@ CONFIG_LOCKDEP_SUPPORT=y
 # SoC selection
 #
 CONFIG_SOC_SIFIVE=y
+# CONFIG_SOC_STARFIVE_VIC7100 is not set
 CONFIG_SOC_VIRT=y
 # end of SoC selection
 
@@ -1522,6 +1525,7 @@ CONFIG_HW_RANDOM=y
 # CONFIG_HW_RANDOM_TIMERIOMEM is not set
 # CONFIG_HW_RANDOM_BA431 is not set
 CONFIG_HW_RANDOM_VIRTIO=y
+# CONFIG_HW_RANDOM_STARFIVE_VIC is not set
 # CONFIG_HW_RANDOM_CCTRNG is not set
 # CONFIG_HW_RANDOM_XIPHERA is not set
 # CONFIG_APPLICOM is not set
@@ -1616,6 +1620,7 @@ CONFIG_SPI_MASTER=y
 # CONFIG_SPI_AXI_SPI_ENGINE is not set
 # CONFIG_SPI_BITBANG is not set
 # CONFIG_SPI_CADENCE is not set
+# CONFIG_SPI_CADENCE_QUADSPI is not set
 # CONFIG_SPI_DESIGNWARE is not set
 # CONFIG_SPI_NXP_FLEXSPI is not set
 # CONFIG_SPI_GPIO is not set
@@ -1684,6 +1689,7 @@ CONFIG_GPIO_GENERIC=y
 # CONFIG_GPIO_MB86S7X is not set
 # CONFIG_GPIO_SAMA5D2_PIOBU is not set
 CONFIG_GPIO_SIFIVE=y
+# CONFIG_GPIO_STARFIVE_VIC is not set
 # CONFIG_GPIO_SYSCON is not set
 # CONFIG_GPIO_XILINX is not set
 # CONFIG_GPIO_AMD_FCH is not set
@@ -1915,6 +1921,7 @@ CONFIG_HWMON=y
 # CONFIG_SENSORS_TMP401 is not set
 # CONFIG_SENSORS_TMP421 is not set
 # CONFIG_SENSORS_TMP513 is not set
+# CONFIG_SENSORS_SFCTMP is not set
 # CONFIG_SENSORS_VIA686A is not set
 # CONFIG_SENSORS_VT1211 is not set
 # CONFIG_SENSORS_VT8231 is not set
@@ -2228,6 +2235,7 @@ CONFIG_FB_DEFERRED_IO=y
 # CONFIG_FB_ARK is not set
 # CONFIG_FB_PM3 is not set
 # CONFIG_FB_CARMINE is not set
+# CONFIG_FB_STARFIVE is not set
 # CONFIG_FB_SMSCUFX is not set
 # CONFIG_FB_UDL is not set
 # CONFIG_FB_IBM_GXT4500 is not set
@@ -2238,6 +2246,11 @@ CONFIG_FB_DEFERRED_IO=y
 # CONFIG_FB_SIMPLE is not set
 # CONFIG_FB_SSD1307 is not set
 # CONFIG_FB_SM712 is not set
+
+#
+# Displayer Configuration for VIC board
+#
+# end of Displayer Configuration for VIC board
 # end of Frame buffer Devices
 
 #
@@ -2798,6 +2811,8 @@ CONFIG_RPMSG_VIRTIO=y
 # end of Qualcomm SoC drivers
 
 # CONFIG_SIFIVE_L2 is not set
+# CONFIG_SIFIVE_L2_FLUSH is not set
+# CONFIG_SIFIVE_L2_IRQ_DISABLE is not set
 # CONFIG_SOC_TI is not set
 
 #

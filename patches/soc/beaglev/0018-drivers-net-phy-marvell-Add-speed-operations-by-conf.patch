@@ -1,0 +1,40 @@
+From 0c49b01b1984d0d7d89def0b5dfc7a078e99f777 Mon Sep 17 00:00:00 2001
+From: Tom <support@vamrs.com>
+Date: Sun, 18 Apr 2021 17:44:11 +0800
+Subject: [PATCH 18/38] drivers/net/phy/marvell: Add speed operations by
+ config(VIC7100 DEBUG).
+
+For VIC7100 EVB Ether.Giga **DEBUG ONLY**
+CONFIG_FPGA_GMAC_SPEED10/CONFIG_FPGA_GMAC_SPEED100
+---
+ drivers/net/phy/marvell.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index 8018ddf7f316..afd44db2417d 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -545,9 +545,20 @@ static int m88e1121_config_aneg_rgmii_delays(struct phy_device *phydev)
+ 	else
+ 		mscr = 0;
+ 
++#if defined(CONFIG_FPGA_GMAC_SPEED10)
++	return phy_modify_paged(phydev, MII_MARVELL_MSCR_PAGE,
++				MII_88E1121_PHY_MSCR_REG,
++				MII_88E1121_PHY_MSCR_DELAY_MASK|BIT(6)|BIT(13),
++				mscr);
++#elif defined(CONFIG_FPGA_GMAC_SPEED100)
++	return phy_modify_paged(phydev, MII_MARVELL_MSCR_PAGE,
++				MII_88E1121_PHY_MSCR_REG,
++				MII_88E1121_PHY_MSCR_DELAY_MASK|BIT(13), mscr);
++#else
+ 	return phy_modify_paged(phydev, MII_MARVELL_MSCR_PAGE,
+ 				MII_88E1121_PHY_MSCR_REG,
+ 				MII_88E1121_PHY_MSCR_DELAY_MASK, mscr);
++#endif
+ }
+ 
+ static int m88e1121_config_aneg(struct phy_device *phydev)
+-- 
+2.30.0
+
