@@ -38,6 +38,8 @@ branch_postfix=".x"
 #riscv64
 KERNEL_ARCH=riscv
 DEBARCH=riscv64
+#toolchain="gcc_8_riscv64"
+#toolchain="gcc_9_riscv64"
 toolchain="gcc_10_riscv64"
 
 #Kernel
