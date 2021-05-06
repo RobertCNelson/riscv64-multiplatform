@@ -280,11 +280,7 @@ reverts () {
 #}
 
 soc () {
-	echo "dir: soc/beaglev (esmil-linux-5.12, starfive branch)"
-	PATCHES=$(find "${DIR}/patches/soc/beaglev/" -name \*.patch | sort)
-	for patch in "$PATCHES"; do
-		${git} $patch
-	done
+	dir 'soc/beaglev'
 }
 
 ###
