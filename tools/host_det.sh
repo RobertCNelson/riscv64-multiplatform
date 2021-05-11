@@ -461,7 +461,7 @@ debian_regs () {
 			#20.04 focal: (EOL: April 2025) lts: focal -> xyz
 			#20.10 groovy: (EOL: July 2021)
 			#21.04 hirsute: (EOL: January 2022)
-			#21.10 hirsute: (EOL: July 2022)
+			#21.10 impish: (EOL: July 2022)
 			unset warn_eol_distro
 			;;
 		hardy|lucid|maverick|natty|oneiric|precise|quantal|raring|saucy|trusty|utopic|vivid|wily|xenial|yakkety|zesty|artful|cosmic|disco|eoan)
@@ -615,7 +615,7 @@ if [ "x${ARCH}" = "xx86_64" ] ; then
 	gcc_arm_eabi_9|gcc_arm_gnueabihf_9|gcc_arm_aarch64_gnu_9|gcc_9_riscv64)
 		ignore_32bit="true"
 		;;
-	gcc_arm_eabi_10|gcc_arm_gnueabihf_10|gcc_arm_aarch64_gnu_10|gcc_10_riscv64)
+	gcc_arm_eabi_10|gcc_arm_gnueabihf_10|gcc_arm_aarch64_gnu_10|gcc_10_arm|gcc_10_aarch64|gcc_10_riscv64)
 		ignore_32bit="true"
 		;;
 	*)
