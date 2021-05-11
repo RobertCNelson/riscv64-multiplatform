@@ -32,7 +32,7 @@ git_bin=$(which git)
 #git hard requirements:
 #git: --no-edit
 
-git="${git_bin} am --3way --whitespace=fix"
+git="${git_bin} am"
 #git_patchset=""
 #git_opts
 
@@ -139,7 +139,7 @@ dtb_makefile_append () {
 }
 
 beagleboard_dtbs () {
-	branch="v5.12.x"
+	branch="v5.13.x"
 	https_repo="https://github.com/beagleboard/BeagleBoard-DeviceTrees"
 	work_dir="BeagleBoard-DeviceTrees"
 	#regenerate="enable"
@@ -287,7 +287,7 @@ soc () {
 #backports
 #reverts
 #drivers
-soc
+#soc
 
 packaging () {
 	#do_backport="enable"
