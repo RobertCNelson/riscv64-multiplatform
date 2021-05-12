@@ -280,7 +280,7 @@ reverts () {
 #}
 
 soc () {
-	dir 'soc/beaglev'
+	dir 'soc/jh7100'
 }
 
 ###
