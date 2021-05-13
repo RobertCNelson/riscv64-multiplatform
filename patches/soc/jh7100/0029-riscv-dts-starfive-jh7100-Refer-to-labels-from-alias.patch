@@ -1,0 +1,37 @@
+From 779a2464695a6473c4973d5314bd754da4bb6242 Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Tue, 11 May 2021 15:49:03 +0200
+Subject: [PATCH 29/34] riscv: dts: starfive: jh7100: Refer to labels from
+ aliases
+
+Let the aliases refer to device nodes using their labels, instead of
+absolute paths.
+
+Fixes: 3ca51334ce06a93f ("riscv: dts: Add JH7100 and BeagleV Starlight support")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ arch/riscv/boot/dts/starfive/jh7100.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+index 36bc7e94d4f4..dd4d71417133 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+@@ -8,10 +8,10 @@ / {
+ 	compatible = "starfive,jh7100";
+ 
+ 	aliases {
+-		spi0 = "/soc/spi@11860000";
+-		mshc0 = "/soc/mmc@10000000";
+-		mshc1 = "/soc/mmc@10010000";
+-		usb0 = "/soc/usb@104c0000";
++		spi0 = &qspi;
++		mshc0 = &sdio0;
++		mshc1 = &sdio1;
++		usb0 = &usb3;
+ 	};
+ 
+ 	chosen {
+-- 
+2.30.0
+
