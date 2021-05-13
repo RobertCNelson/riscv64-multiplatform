@@ -1,0 +1,180 @@
+From 6eb895966ad8f33c70921d1bf50e645688921967 Mon Sep 17 00:00:00 2001
+From: "jack.zhu" <jack.zhu@starfivetech.com>
+Date: Sat, 6 Mar 2021 03:25:36 +0800
+Subject: [PATCH 20/34] drivers/media and video: update fb driver(flush cache)
+ and cam sensor drivers
+
+---
+ drivers/media/platform/starfive/ov5640_dvp.c  |  0
+ drivers/media/platform/starfive/sc2235.c      |  0
+ drivers/video/fbdev/core/fbcon.c              | 29 +++++++++++++++++-
+ drivers/video/fbdev/starfive/starfive_fb.c    | 30 ++++++++++++++-----
+ .../starfive => include/video}/starfive_fb.h  |  0
+ include/video/stf-vin.h                       |  0
+ 6 files changed, 51 insertions(+), 8 deletions(-)
+ mode change 100755 => 100644 drivers/media/platform/starfive/ov5640_dvp.c
+ mode change 100755 => 100644 drivers/media/platform/starfive/sc2235.c
+ rename {drivers/video/fbdev/starfive => include/video}/starfive_fb.h (100%)
+ mode change 100755 => 100644 include/video/stf-vin.h
+
+diff --git a/drivers/media/platform/starfive/ov5640_dvp.c b/drivers/media/platform/starfive/ov5640_dvp.c
+old mode 100755
+new mode 100644
+diff --git a/drivers/media/platform/starfive/sc2235.c b/drivers/media/platform/starfive/sc2235.c
+old mode 100755
+new mode 100644
+diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
+index 3406067985b1..8fba8819a17b 100644
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -80,6 +80,15 @@
+ 
+ #include "fbcon.h"
+ 
++#ifdef CONFIG_SOC_STARFIVE_VIC7100
++#include <video/starfive_fb.h>
++#include <soc/starfive/vic7100.h>
++static inline void fbcon_flush_dcache(unsigned long start, unsigned long len)
++{
++	starfive_flush_dcache(_ALIGN_DOWN(start, 64), len + start % 64);
++}
++#endif
++
+ /*
+  * FIXME: Locking
+  *
+@@ -1688,7 +1697,9 @@ static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
+ 	struct fb_info *info = registered_fb[con2fb_map[vc->vc_num]];
+ 	struct fbcon_display *p = &fb_display[vc->vc_num];
+ 	int scroll_partial = info->flags & FBINFO_PARTIAL_PAN_OK;
+-
++#ifdef CONFIG_SOC_STARFIVE_VIC7100
++	struct sf_fb_data *sf_dev = container_of(info, struct sf_fb_data, fb);
++#endif
+ 	if (fbcon_is_inactive(vc, info))
+ 		return true;
+ 
+@@ -1716,6 +1727,10 @@ static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
+ 							(b - count)),
+ 				    vc->vc_video_erase_char,
+ 				    vc->vc_size_row * count);
++#ifdef CONFIG_SOC_STARFIVE_VIC7100
++			fbcon_flush_dcache(sf_dev->fb.fix.smem_start,
++					   sf_dev->fb.screen_size);
++#endif
+ 			return true;
+ 
+ 		case SCROLL_WRAP_MOVE:
+@@ -1787,6 +1802,10 @@ static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
+ 							(b - count)),
+ 				    vc->vc_video_erase_char,
+ 				    vc->vc_size_row * count);
++#ifdef CONFIG_SOC_STARFIVE_VIC7100
++			fbcon_flush_dcache(sf_dev->fb.fix.smem_start,
++					   sf_dev->fb.screen_size);
++#endif
+ 			return true;
+ 		}
+ 		break;
+@@ -1806,6 +1825,10 @@ static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
+ 							t),
+ 				    vc->vc_video_erase_char,
+ 				    vc->vc_size_row * count);
++#ifdef CONFIG_SOC_STARFIVE_VIC7100
++			fbcon_flush_dcache(sf_dev->fb.fix.smem_start,
++					   sf_dev->fb.screen_size);
++#endif
+ 			return true;
+ 
+ 		case SCROLL_WRAP_MOVE:
+@@ -1875,6 +1898,10 @@ static bool fbcon_scroll(struct vc_data *vc, unsigned int t, unsigned int b,
+ 							t),
+ 				    vc->vc_video_erase_char,
+ 				    vc->vc_size_row * count);
++#ifdef CONFIG_SOC_STARFIVE_VIC7100
++			fbcon_flush_dcache(sf_dev->fb.fix.smem_start,
++					   sf_dev->fb.screen_size);
++#endif
+ 			return true;
+ 		}
+ 	}
+diff --git a/drivers/video/fbdev/starfive/starfive_fb.c b/drivers/video/fbdev/starfive/starfive_fb.c
+index 1986087b33f3..35b4fdac6db0 100644
+--- a/drivers/video/fbdev/starfive/starfive_fb.c
++++ b/drivers/video/fbdev/starfive/starfive_fb.c
+@@ -294,6 +294,13 @@ static int sf_fb_set_par(struct fb_info *info)
+ 			var->transp.length = 0;
+ 	}
+ 
++	if (!strcmp(sf_dev->dis_dev_name, "tda_998x_1080p")) {
++		var->red.offset   = 0;  var->red.length   = 5;
++		var->green.offset = 5;	var->green.length = 6;
++		var->blue.offset  = 11;	var->blue.length  = 5;
++		var->transp.offset = var->transp.length = 0;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -392,6 +399,13 @@ static int sf_fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
+ 			var->transp.length = 0;
+ 	}
+ 
++	if (!strcmp(sf_dev->dis_dev_name, "tda_998x_1080p")) {
++		var->red.offset   = 0;  var->red.length   = 5;
++		var->green.offset = 5;	var->green.length = 6;
++		var->blue.offset  = 11;	var->blue.length  = 5;
++		var->transp.offset = var->transp.length = 0;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -940,7 +954,11 @@ static int sf_fb_pp_video_mode_init(struct sf_fb_data *sf_dev, struct pp_video_m
+ 		src->format = sf_dev->pp[pp_id].src.format;
+ 		src->width = sf_dev->pp[pp_id].src.width;
+ 		src->height = sf_dev->pp[pp_id].src.height;
++#ifndef CONFIG_FRAMEBUFFER_CONSOLE
+ 		src->addr = 0xf9000000;
++#else
++		src->addr = 0xfb000000;
++#endif
+ 		dst->format = sf_dev->pp[pp_id].dst.format;
+ 		dst->width = sf_dev->pp[pp_id].dst.width;
+ 		dst->height = sf_dev->pp[pp_id].dst.height;
+@@ -1051,8 +1069,6 @@ static int sf_fb_parse_dt(struct device *dev, struct sf_fb_data *sf_dev) {
+ 	return ret;
+ }
+ 
+-//#define FB_BUFF_VIN
+-
+ static int starfive_fb_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -1099,11 +1115,11 @@ static int starfive_fb_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-#if defined(CONFIG_FB_STARFIVE_VIDEO)
+-/* the address 0xf9000000 is required by VIN,
+- * the case used to check VIN image data path only
+- * is not normal application.
+- */
++#ifndef CONFIG_FRAMEBUFFER_CONSOLE
++	/*the address 0xf9000000 is required in CMA modem by VIN,
++	*the case used to check VIN image data path only
++	*is not normal application.
++	*/
+ 	sf_dev->fb.fix.smem_start = 0xf9000000;
+ #endif
+ 
+diff --git a/drivers/video/fbdev/starfive/starfive_fb.h b/include/video/starfive_fb.h
+similarity index 100%
+rename from drivers/video/fbdev/starfive/starfive_fb.h
+rename to include/video/starfive_fb.h
+diff --git a/include/video/stf-vin.h b/include/video/stf-vin.h
+old mode 100755
+new mode 100644
+-- 
+2.30.0
+

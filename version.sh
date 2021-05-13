@@ -2,7 +2,7 @@
 #
 ARCH=$(uname -m)
 
-config="defconfig"
+config="starlight_defconfig"
 
 build_prefix="-riscv64-r"
 branch_prefix="v"
@@ -47,7 +47,7 @@ KERNEL_REL=5.13
 KERNEL_TAG=${KERNEL_REL}-rc1
 kernel_rt=".X-rtY"
 #Kernel Build
-BUILD=${build_prefix}0
+BUILD=${build_prefix}0.1
 
 #v5.X-rcX + upto SHA
 #prev_KERNEL_SHA=""
