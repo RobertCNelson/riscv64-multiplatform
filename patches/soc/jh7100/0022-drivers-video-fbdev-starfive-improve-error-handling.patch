@@ -1,7 +1,7 @@
-From 9b522ac36df17153e2e5c6238e8f3c957603f947 Mon Sep 17 00:00:00 2001
+From 65aa08c7daf0744927dfd7ffdd700c385a2dd4c6 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 6 May 2021 21:17:08 +0200
-Subject: [PATCH 23/34] drivers/video/fbdev/starfive: improve error handling
+Subject: [PATCH 22/29] drivers/video/fbdev/starfive: improve error handling
 
 Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
  1 file changed, 24 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/video/fbdev/starfive/starfive_fb.c b/drivers/video/fbdev/starfive/starfive_fb.c
-index e85c7fad0241..a77f7212e763 100755
+index 3561a623c6d8..f62f4711ec23 100755
 --- a/drivers/video/fbdev/starfive/starfive_fb.c
 +++ b/drivers/video/fbdev/starfive/starfive_fb.c
 @@ -640,25 +640,32 @@ static int sf_fb_map_video_memory(struct sf_fb_data *sf_dev)

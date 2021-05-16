@@ -1,7 +1,7 @@
-From 4de0ecbabcc6ae6169501a244e2f520c6e615a2a Mon Sep 17 00:00:00 2001
+From b4d503a76d3fe4282ea4e907a941580a6d50e660 Mon Sep 17 00:00:00 2001
 From: Samin Guo <samin.guo@starfivetech.com>
 Date: Fri, 5 Feb 2021 11:29:44 +0800
-Subject: [PATCH 05/34] drivers/hwmon: Add tempsensor hwmon driver for Starfive
+Subject: [PATCH 04/29] drivers/hwmon: Add tempsensor hwmon driver for Starfive
  VIC7100
 
 ---

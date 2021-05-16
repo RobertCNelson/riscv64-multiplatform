@@ -1,7 +1,7 @@
-From 19b337e49f91584b42ab2dea61d743ee64a5353f Mon Sep 17 00:00:00 2001
+From 6fdae27184ca143a31b4cd11140c2be38ce86055 Mon Sep 17 00:00:00 2001
 From: Michael Scott <mike@foundries.io>
 Date: Fri, 30 Apr 2021 18:06:40 -0700
-Subject: [PATCH 25/34] drivers/dma: Fix VIC7100 dw-axi-dmac-platform driver
+Subject: [PATCH 25/29] drivers/dma: Fix VIC7100 dw-axi-dmac-platform driver
  addition
 
 Descriptor management was simplified with commit:

@@ -1,7 +1,7 @@
-From 6eb895966ad8f33c70921d1bf50e645688921967 Mon Sep 17 00:00:00 2001
+From 9d244c7ef3640ab02c895295e1a6bffe05f89e82 Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Sat, 6 Mar 2021 03:25:36 +0800
-Subject: [PATCH 20/34] drivers/media and video: update fb driver(flush cache)
+Subject: [PATCH 19/29] drivers/media and video: update fb driver(flush cache)
  and cam sensor drivers
 
 ---
@@ -99,7 +99,7 @@ index 3406067985b1..8fba8819a17b 100644
  		}
  	}
 diff --git a/drivers/video/fbdev/starfive/starfive_fb.c b/drivers/video/fbdev/starfive/starfive_fb.c
-index 1986087b33f3..35b4fdac6db0 100644
+index 46c233f84ff8..c26a7c0f5674 100644
 --- a/drivers/video/fbdev/starfive/starfive_fb.c
 +++ b/drivers/video/fbdev/starfive/starfive_fb.c
 @@ -294,6 +294,13 @@ static int sf_fb_set_par(struct fb_info *info)

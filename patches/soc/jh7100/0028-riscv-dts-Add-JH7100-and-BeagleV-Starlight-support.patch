@@ -1,7 +1,7 @@
-From 1c0a349703b5bd1502f65ddce23163d50fdd7259 Mon Sep 17 00:00:00 2001
+From 071193f7f7215c384faed4a52c2e2f278727dead Mon Sep 17 00:00:00 2001
 From: TekkamanV <tekkamanv@starfivetech.com>
 Date: Sat, 23 Jan 2021 02:52:17 +0800
-Subject: [PATCH 28/34] riscv: dts: Add JH7100 and BeagleV Starlight support
+Subject: [PATCH 28/29] riscv: dts: Add JH7100 and BeagleV Starlight support
 
 This is the device tree from https://github.com/starfive-tech/u-boot/
 Rearranged, cleanups, fixes and TPS65086 added by Emil.
@@ -20,10 +20,10 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
  arch/riscv/boot/dts/Makefile                  |   2 +-
  arch/riscv/boot/dts/starfive/Makefile         |   2 +
- .../boot/dts/starfive/jh7100-starlight.dts    | 366 +++++++++
- arch/riscv/boot/dts/starfive/jh7100.dtsi      | 752 ++++++++++++++++++
+ .../boot/dts/starfive/jh7100-starlight.dts    | 387 ++++++++++
+ arch/riscv/boot/dts/starfive/jh7100.dtsi      | 728 ++++++++++++++++++
  include/dt-bindings/starfive_fb.h             |  47 ++
- 5 files changed, 1168 insertions(+), 1 deletion(-)
+ 5 files changed, 1165 insertions(+), 1 deletion(-)
  create mode 100644 arch/riscv/boot/dts/starfive/Makefile
  create mode 100644 arch/riscv/boot/dts/starfive/jh7100-starlight.dts
  create mode 100644 arch/riscv/boot/dts/starfive/jh7100.dtsi
@@ -50,10 +50,10 @@ index 000000000000..685e57c1bf5c
 +dtb-$(CONFIG_SOC_STARFIVE_VIC7100) += jh7100-starlight.dtb
 diff --git a/arch/riscv/boot/dts/starfive/jh7100-starlight.dts b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
 new file mode 100644
-index 000000000000..43c4a1f11e5c
+index 000000000000..39a9e160df9e
 --- /dev/null
 +++ b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
-@@ -0,0 +1,366 @@
+@@ -0,0 +1,387 @@
 +/dts-v1/;
 +#include "jh7100.dtsi"
 +#include <dt-bindings/starfive_fb.h>
@@ -67,6 +67,8 @@ index 000000000000..43c4a1f11e5c
 +	model = "BeagleV Starlight Beta";
 +
 +	aliases {
++		mshc0 = &sdio0;
++		mshc1 = &sdio1;
 +		serial0 = &uart3;
 +		serial1 = &uart0;
 +	};
@@ -89,6 +91,11 @@ index 000000000000..43c4a1f11e5c
 +			linux,default-trigger = "heartbeat";
 +			label = "ack";
 +		};
++	};
++
++	wifi_pwrseq: wifi-pwrseq {
++		compatible = "mmc-pwrseq-simple";
++		reset-gpios = <&gpio 37 GPIO_ACTIVE_LOW>;
 +	};
 +};
 +
@@ -180,14 +187,28 @@ index 000000000000..43c4a1f11e5c
 +	};
 +};
 +
-+/*
++&sdio0 {
++	bus-width = <4>;
++	cap-sd-highspeed;
++	status = "okay";
++};
++
 +&sdio1 {
-+	bcmdhd_wlan: bcmdhd_wlan@1 {
-+		compatible = "android,bcmdhd_wlan";
-+		gpios = <&gpio 26 0>;
++	#address-cells = <1>;
++	#size-cells = <0>;
++	bus-width = <4>;
++	cap-sd-highspeed;
++	cap-sdio-irq;
++	cap-power-off-card;
++	mmc-pwrseq = <&wifi_pwrseq>;
++	non-removable;
++	status = "okay";
++
++	wifi@1 {
++		compatible = "brcm,bcm4329-fmac";
++		reg = <1>;
 +	};
 +};
-+*/
 +
 +&sfivefb {
 +	/*
@@ -422,10 +443,10 @@ index 000000000000..43c4a1f11e5c
 +};
 diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
 new file mode 100644
-index 000000000000..36bc7e94d4f4
+index 000000000000..3935ef694635
 --- /dev/null
 +++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
-@@ -0,0 +1,752 @@
+@@ -0,0 +1,728 @@
 +/dts-v1/;
 +#include <dt-bindings/starfive_fb.h>
 +#include <dt-bindings/gpio/gpio.h>
@@ -434,13 +455,6 @@ index 000000000000..36bc7e94d4f4
 +	#address-cells = <2>;
 +	#size-cells = <2>;
 +	compatible = "starfive,jh7100";
-+
-+	aliases {
-+		spi0 = "/soc/spi@11860000";
-+		mshc0 = "/soc/mmc@10000000";
-+		mshc1 = "/soc/mmc@10010000";
-+		usb0 = "/soc/usb@104c0000";
-+	};
 +
 +	chosen {
 +	};
@@ -647,7 +661,7 @@ index 000000000000..36bc7e94d4f4
 +			reg = <0x0 0xc9000000 0x0 0x4000000>;
 +		};
 +
-+		nvdla_reserved:framebuffer@d0000000 {
++		nvdla_reserved: framebuffer@d0000000 {
 +			reg = <0x0 0xd0000000 0x0 0x28000000>;
 +		};
 +
@@ -1070,16 +1084,11 @@ index 000000000000..36bc7e94d4f4
 +			clocks = <&dwmmc_biuclk>;
 +			clock-names = "biu";
 +			clock-frequency = <100000000>;
-+			max-frequency = <10000000>;
-+			fifo-depth = <32>;
-+			card-detect-delay = <300>;
-+			fifo-watermark-aligned;
 +			data-addr = <0>;
-+			bus-width = <4>;
-+			cap-sd-highspeed;
-+			broken-cd;
-+			no-sdio;
-+			post-power-on-delay-ms = <200>;
++			fifo-depth = <32>;
++			fifo-watermark-aligned;
++			max-frequency = <10000000>;
++			status = "disabled";
 +		};
 +
 +		sdio1: mmc@10010000 {
@@ -1090,23 +1099,11 @@ index 000000000000..36bc7e94d4f4
 +			clocks = <&dwmmc_biuclk>;
 +			clock-names = "biu";
 +			clock-frequency = <100000000>;
-+			max-frequency = <10000000>;
-+			fifo-depth = <32>;
-+			card-detect-delay = <300>;
-+			fifo-watermark-aligned;
 +			data-addr = <0>;
-+			bus-width = <4>;
-+			cap-sd-highspeed;
-+			/*broken-cd;*/
-+			cap-sdio-irq;
-+			cap-mmc-hw-reset;
-+			non-removable;
-+			enable-sdio-wakeup;
-+			keep-power-in-suspend;
-+			/*cap-power-off-card;*/
-+			cap-mmc-highspeed;
-+			/*fixed-emmc-driver-type;*/
-+			post-power-on-delay-ms = <200>;
++			fifo-depth = <32>;
++			fifo-watermark-aligned;
++			max-frequency = <10000000>;
++			status = "disabled";
 +		};
 +
 +		sfivefb: sfivefb@12000000 {

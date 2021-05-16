@@ -1,7 +1,7 @@
-From 529610c82d2538d64280772aeb00a293f6ac47bd Mon Sep 17 00:00:00 2001
+From 6ae776b765ef4a2480288addb89b904e18a356fd Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 6 May 2021 21:16:33 +0200
-Subject: [PATCH 22/34] drivers/video/fbdev/starfive: fix compiler warnings
+Subject: [PATCH 21/29] drivers/video/fbdev/starfive: fix compiler warnings
 
 Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 ---
@@ -10,7 +10,7 @@ Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
  2 files changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/video/fbdev/starfive/starfive_comm_regs.h b/drivers/video/fbdev/starfive/starfive_comm_regs.h
-index d8ced01ede02..4b7d1551c836 100644
+index 4c19c58d9c3f..36c150bbfc51 100644
 --- a/drivers/video/fbdev/starfive/starfive_comm_regs.h
 +++ b/drivers/video/fbdev/starfive/starfive_comm_regs.h
 @@ -71,7 +71,7 @@
@@ -32,7 +32,7 @@ index d8ced01ede02..4b7d1551c836 100644
  	iowrite32(val, sf_dev->base_rst + reg);
  }
 diff --git a/drivers/video/fbdev/starfive/starfive_mipi_tx.c b/drivers/video/fbdev/starfive/starfive_mipi_tx.c
-index 0df69560d0e4..0b48882936c9 100644
+index 6ccc9780507e..931c2e53232f 100644
 --- a/drivers/video/fbdev/starfive/starfive_mipi_tx.c
 +++ b/drivers/video/fbdev/starfive/starfive_mipi_tx.c
 @@ -542,7 +542,7 @@ void dsi_main_cfg(struct sf_fb_data *sf_dev)

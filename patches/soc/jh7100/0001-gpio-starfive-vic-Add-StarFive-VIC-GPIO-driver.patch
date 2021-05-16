@@ -1,7 +1,7 @@
-From 43ff6bb390b20265d616dbdc6cfaf77f8e4f4b97 Mon Sep 17 00:00:00 2001
+From ce349518724827194e366eb3bc4cde7736dd879e Mon Sep 17 00:00:00 2001
 From: Huan Feng <huan.feng@starfivetech.com>
 Date: Fri, 8 Jan 2021 03:19:19 +0800
-Subject: [PATCH 01/34] gpio: starfive-vic: Add StarFive VIC GPIO driver
+Subject: [PATCH 01/29] gpio: starfive-vic: Add StarFive VIC GPIO driver
 
 Note: include Update GPIO driver[v0.9->v1.0]
       improves the module init and exit function to make sure that the
