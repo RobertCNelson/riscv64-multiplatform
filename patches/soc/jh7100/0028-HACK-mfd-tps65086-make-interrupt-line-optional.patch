@@ -1,7 +1,7 @@
-From b3346ca159beb0229dc2316d334c2a7d46c7fe79 Mon Sep 17 00:00:00 2001
+From 8d371cfbd7f2cb75dc97fc5fa98acce8f13c98b8 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Mon, 3 May 2021 12:09:04 +0200
-Subject: [PATCH 26/29] [HACK] mfd: tps65086: make interrupt line optional
+Subject: [PATCH 28/31] [HACK] mfd: tps65086: make interrupt line optional
 
 The BeagleV Starlight v0.9 board doesn't have the IRQB line from the
 pmic routed to the SoC, so this hack is needed to allow the driver

@@ -1,7 +1,7 @@
-From 175343f4bb267d8f21d490aaf05de6fb3f96104d Mon Sep 17 00:00:00 2001
+From 47b391fc1b897fd0df9988768df122a15a61ab67 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Fri, 8 Jan 2021 04:01:19 +0800
-Subject: [PATCH 13/29] net: stmmac: Add dcache flush functions for JH7100
+Subject: [PATCH 14/31] net: stmmac: Add dcache flush functions for JH7100
 
 Note: including uSDK v0.9->v1.0 patch
 

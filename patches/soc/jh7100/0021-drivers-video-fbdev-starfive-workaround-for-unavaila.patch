@@ -1,7 +1,7 @@
-From 6243c8b84224a8ff74d08ba599f791e5e14ef539 Mon Sep 17 00:00:00 2001
+From 7f5c1bd121a52a98020a357b0429b14480694927 Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Tue, 16 Mar 2021 23:53:55 +0800
-Subject: [PATCH 20/29] drivers/video/fbdev/starfive: workaround for
+Subject: [PATCH 21/31] drivers/video/fbdev/starfive: workaround for
  unavailable pointer of dtb
 
 Fix sf_fb_map_video_memory in starfive_fb.c

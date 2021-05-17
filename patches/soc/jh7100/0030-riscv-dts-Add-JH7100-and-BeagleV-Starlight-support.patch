@@ -1,7 +1,7 @@
-From 071193f7f7215c384faed4a52c2e2f278727dead Mon Sep 17 00:00:00 2001
+From 657d4af239de88de16b0e643caadd5757b0b98a2 Mon Sep 17 00:00:00 2001
 From: TekkamanV <tekkamanv@starfivetech.com>
 Date: Sat, 23 Jan 2021 02:52:17 +0800
-Subject: [PATCH 28/29] riscv: dts: Add JH7100 and BeagleV Starlight support
+Subject: [PATCH 30/31] riscv: dts: Add JH7100 and BeagleV Starlight support
 
 This is the device tree from https://github.com/starfive-tech/u-boot/
 Rearranged, cleanups, fixes and TPS65086 added by Emil.
@@ -20,10 +20,10 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
  arch/riscv/boot/dts/Makefile                  |   2 +-
  arch/riscv/boot/dts/starfive/Makefile         |   2 +
- .../boot/dts/starfive/jh7100-starlight.dts    | 387 ++++++++++
+ .../boot/dts/starfive/jh7100-starlight.dts    | 388 ++++++++++
  arch/riscv/boot/dts/starfive/jh7100.dtsi      | 728 ++++++++++++++++++
  include/dt-bindings/starfive_fb.h             |  47 ++
- 5 files changed, 1165 insertions(+), 1 deletion(-)
+ 5 files changed, 1166 insertions(+), 1 deletion(-)
  create mode 100644 arch/riscv/boot/dts/starfive/Makefile
  create mode 100644 arch/riscv/boot/dts/starfive/jh7100-starlight.dts
  create mode 100644 arch/riscv/boot/dts/starfive/jh7100.dtsi
@@ -50,10 +50,10 @@ index 000000000000..685e57c1bf5c
 +dtb-$(CONFIG_SOC_STARFIVE_VIC7100) += jh7100-starlight.dtb
 diff --git a/arch/riscv/boot/dts/starfive/jh7100-starlight.dts b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
 new file mode 100644
-index 000000000000..39a9e160df9e
+index 000000000000..59d2d0a54f38
 --- /dev/null
 +++ b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
-@@ -0,0 +1,387 @@
+@@ -0,0 +1,388 @@
 +/dts-v1/;
 +#include "jh7100.dtsi"
 +#include <dt-bindings/starfive_fb.h>
@@ -188,6 +188,7 @@ index 000000000000..39a9e160df9e
 +};
 +
 +&sdio0 {
++	broken-cd;
 +	bus-width = <4>;
 +	cap-sd-highspeed;
 +	status = "okay";

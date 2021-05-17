@@ -1,7 +1,7 @@
-From 1562e4ed1b139be3ad7e12ac66937f698bd973c3 Mon Sep 17 00:00:00 2001
+From 147b8902cb4e92ae775b3f879afa366c83d379f6 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Wed, 6 Jan 2021 20:31:08 +0800
-Subject: [PATCH 15/29] drivers/mmc/host/dw_mmc: Add dcache flush(VIC7100
+Subject: [PATCH 16/31] drivers/mmc/host/dw_mmc: Add dcache flush(VIC7100
  ONLY).
 
 ---

@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/riscv 5.13.0-rc1 Kernel Configuration
+# Linux/riscv 5.13.0-rc2 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="riscv64-unknown-linux-gnu-gcc (Gentoo Hardened 10.2.0-r5 p6) 10.2.0"
 CONFIG_CC_IS_GCC=y
@@ -25,7 +25,7 @@ CONFIG_INIT_ENV_ARG_LIMIT=32
 # CONFIG_COMPILE_TEST is not set
 CONFIG_LOCALVERSION=""
 # CONFIG_LOCALVERSION_AUTO is not set
-CONFIG_BUILD_SALT="v5.13-rc1-riscv64-r0.5"
+CONFIG_BUILD_SALT="v5.13-rc2-riscv64-r0.1"
 CONFIG_DEFAULT_INIT=""
 CONFIG_DEFAULT_HOSTNAME="beaglev"
 CONFIG_SWAP=y

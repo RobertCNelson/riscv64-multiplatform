@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/riscv 5.13.0-rc1 Kernel Configuration
+# Linux/riscv 5.13.0-rc2 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="riscv64-unknown-linux-gnu-gcc (Gentoo Hardened 10.2.0-r5 p6) 10.2.0"
 CONFIG_CC_IS_GCC=y

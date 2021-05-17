@@ -1,7 +1,7 @@
-From e6e90bd05d7eb218e53bb0021c7c7412dc1c8222 Mon Sep 17 00:00:00 2001
+From 584b0f7182cf1e34990f90fc30c41d29802c4abc Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Wed, 5 May 2021 20:03:04 +0200
-Subject: [PATCH 29/29] [Not for upstream] Add build instructions
+Subject: [PATCH 31/31] [Not for upstream] Add build instructions
 
 For convenience this also adds a small starlight_defconfig and the
 firmware needed for the brcmfmac driver along with the signed regulatory
@@ -35,7 +35,7 @@ Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
 diff --git a/README.md b/README.md
 new file mode 100644
-index 000000000000..0b0b1d4c114b
+index 000000000000..b64d38912802
 --- /dev/null
 +++ b/README.md
 @@ -0,0 +1,132 @@
@@ -90,13 +90,13 @@ index 000000000000..0b0b1d4c114b
 +
 +Now compile the whole thing with
 +```
-+make -j8 ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- 
++make -j8 ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu-
 +```
 +
 +
 +## Installing
 +
-+Once the build is finished the resulting kernel can be found at
++Once the build has finished the resulting kernel can be found at
 +```shell
 +arch/riscv/boot/Image
 +```

@@ -1,7 +1,7 @@
-From 9d244c7ef3640ab02c895295e1a6bffe05f89e82 Mon Sep 17 00:00:00 2001
+From eb1c3c7d70ee34a4f65bf77035c8c557caf559ac Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Sat, 6 Mar 2021 03:25:36 +0800
-Subject: [PATCH 19/29] drivers/media and video: update fb driver(flush cache)
+Subject: [PATCH 20/31] drivers/media and video: update fb driver(flush cache)
  and cam sensor drivers
 
 ---
@@ -24,7 +24,7 @@ diff --git a/drivers/media/platform/starfive/sc2235.c b/drivers/media/platform/s
 old mode 100755
 new mode 100644
 diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 3406067985b1..8fba8819a17b 100644
+index 22bb3892f6bd..e3138bfe279d 100644
 --- a/drivers/video/fbdev/core/fbcon.c
 +++ b/drivers/video/fbdev/core/fbcon.c
 @@ -80,6 +80,15 @@

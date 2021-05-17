@@ -1,7 +1,7 @@
-From 3320bda4cbce40184d78b471b02cdd4424a0beeb Mon Sep 17 00:00:00 2001
+From c9f02856ce72f3de501b56484ecdc71e261fdaa5 Mon Sep 17 00:00:00 2001
 From: Huan Feng <huan.feng@starfivetech.com>
 Date: Fri, 8 Jan 2021 03:35:42 +0800
-Subject: [PATCH 03/29] drivers/hw_random: Add Starfive VIC Random Number
+Subject: [PATCH 04/31] drivers/hw_random: Add Starfive VIC Random Number
  Generator driver
 
 ---

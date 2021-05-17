@@ -1,7 +1,7 @@
-From 8f8f059076a361d62967af05daa6fe99627836fe Mon Sep 17 00:00:00 2001
+From 76d60389d04dfd86f4a655e3b1e5b2d4dd4cc896 Mon Sep 17 00:00:00 2001
 From: Chenjieqin <Jessica.Chen@starfivetech.com>
 Date: Fri, 8 Jan 2021 03:56:54 +0800
-Subject: [PATCH 08/29] drivers/pwm: Add SiFive PWM PTC driver
+Subject: [PATCH 09/31] drivers/pwm: Add SiFive PWM PTC driver
 
 ---
  drivers/pwm/Kconfig          |  10 ++
