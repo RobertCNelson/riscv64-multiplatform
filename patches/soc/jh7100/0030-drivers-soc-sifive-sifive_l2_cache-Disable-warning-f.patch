@@ -1,0 +1,28 @@
+From 3896865f98d7efa38194c14219a458e551830d4b Mon Sep 17 00:00:00 2001
+From: TekkamanV <tekkamanv@starfivetech.com>
+Date: Thu, 13 May 2021 08:32:48 +0800
+Subject: [PATCH 1/2] drivers/soc/sifive/sifive_l2_cache: Disable warning for
+ better performance
+
+---
+ drivers/soc/sifive/sifive_l2_cache.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/soc/sifive/sifive_l2_cache.c b/drivers/soc/sifive/sifive_l2_cache.c
+index be4e141f5a0e..c808b1babd61 100644
+--- a/drivers/soc/sifive/sifive_l2_cache.c
++++ b/drivers/soc/sifive/sifive_l2_cache.c
+@@ -143,8 +143,10 @@ void sifive_l2_flush64_range(unsigned long start, unsigned long len)
+ 	if(start < CONFIG_SIFIVE_L2_FLUSH_START ||
+ 	   (start + len) > (CONFIG_SIFIVE_L2_FLUSH_START +
+ 			     CONFIG_SIFIVE_L2_FLUSH_SIZE)) {
++	/* disable warning message for better performance
+ 		pr_warn("L2CACHE: flush64 out of range: %lx(%lx), skip flush\n",
+ 			start, len);
++	*/
+ 		return;
+ 	}
+ 
+-- 
+2.30.0
+
