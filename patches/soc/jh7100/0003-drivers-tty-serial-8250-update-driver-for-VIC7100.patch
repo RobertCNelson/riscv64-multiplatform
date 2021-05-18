@@ -1,7 +1,7 @@
-From ec622b2c99d026bbdbb6efe15dc5f98ac699bc65 Mon Sep 17 00:00:00 2001
+From 470b9e4717ec234e504f24e854817494d58dcefb Mon Sep 17 00:00:00 2001
 From: Samin Guo <samin.guo@starfivetech.com>
 Date: Fri, 8 Jan 2021 03:11:04 +0800
-Subject: [PATCH 03/34] drivers/tty/serial/8250: update driver for VIC7100
+Subject: [PATCH 03/31] drivers/tty/serial/8250: update driver for VIC7100
 
 ---
  drivers/tty/serial/8250/8250_port.c | 8 ++++++++

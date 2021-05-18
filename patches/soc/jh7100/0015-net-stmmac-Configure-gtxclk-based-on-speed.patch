@@ -1,8 +1,7 @@
-From 09cccdccb149ccba88f95d73e0e915928c4b9146 Mon Sep 17 00:00:00 2001
+From 8fe4519155360534e39b2fc0d275afd379057245 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Tue, 6 Apr 2021 13:30:26 +0800
-Subject: [PATCH 15/34] drivers/net/ethernet/stmicro/stmmac: configure gtxclk
- based on speed
+Subject: [PATCH 15/31] net: stmmac: Configure gtxclk based on speed
 
 ---
  .../ethernet/stmicro/stmmac/dwmac-generic.c   | 47 +++++++++++++++++++

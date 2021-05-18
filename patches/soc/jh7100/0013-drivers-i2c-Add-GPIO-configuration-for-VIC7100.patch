@@ -1,7 +1,7 @@
-From 58c24e1f4b47aa223d84a372dbe809d9fbb0128e Mon Sep 17 00:00:00 2001
+From e306a79bb1b0c9284457dfe13e7b57b2c1c988c5 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Sat, 13 Mar 2021 15:22:38 +0800
-Subject: [PATCH 13/34] drivers/i2c: Add GPIO configuration for VIC7100.
+Subject: [PATCH 13/31] drivers/i2c: Add GPIO configuration for VIC7100.
 
 [FIXME] why we can not do it in U-boot?
 
@@ -10,8 +10,7 @@ Subject: [PATCH 13/34] drivers/i2c: Add GPIO configuration for VIC7100.
  drivers/i2c/busses/i2c-designware-core.h    |  2 +
  drivers/i2c/busses/i2c-designware-master.c  | 44 +++++++++++++++++++++
  drivers/i2c/busses/i2c-designware-platdrv.c |  5 +++
- drivers/of/of_reserved_mem.c                |  1 +
- 4 files changed, 52 insertions(+)
+ 3 files changed, 51 insertions(+)
 
 diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
 index 6a53f75abf7c..c8e2c59bc29d 100644
@@ -132,18 +131,6 @@ index 904694a19e51..1388e79bd9ef 100644
  	platform_set_drvdata(pdev, dev);
  
  	ret = dw_i2c_plat_request_regs(dev);
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 15e2417974d6..d1822fe791e7 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -21,6 +21,7 @@
- #include <linux/sort.h>
- #include <linux/slab.h>
- #include <linux/memblock.h>
-+#include <asm/io.h>
- 
- #define MAX_RESERVED_REGIONS	64
- static struct reserved_mem reserved_mem[MAX_RESERVED_REGIONS];
 -- 
 2.30.0
 

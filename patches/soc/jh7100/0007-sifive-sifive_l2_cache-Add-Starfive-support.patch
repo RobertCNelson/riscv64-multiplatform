@@ -1,7 +1,7 @@
-From 7ab9c5379563c1e41ba1c88a23979dc2d18bdcce Mon Sep 17 00:00:00 2001
+From 19bcf3d569c648c59c431fb40dbaf9567f1a270a Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Mon, 15 Feb 2021 23:59:46 +0800
-Subject: [PATCH 07/34] sifive/sifive_l2_cache: Add Starfive support
+Subject: [PATCH 07/31] sifive/sifive_l2_cache: Add Starfive support
 
 ---
  drivers/soc/sifive/sifive_l2_cache.c | 1 +

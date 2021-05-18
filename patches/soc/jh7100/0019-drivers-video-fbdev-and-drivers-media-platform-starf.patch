@@ -1,7 +1,7 @@
-From ae734c2bdfa2ca61ff8e9e0487f89da804545db3 Mon Sep 17 00:00:00 2001
+From ff76d633fd1fcc65037af860aa54b91cac544d2d Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Mon, 11 Jan 2021 04:06:22 +0800
-Subject: [PATCH 19/34] drivers/video/fbdev and drivers/media/platform:
+Subject: [PATCH 19/31] drivers/video/fbdev and drivers/media/platform:
  starfive drivers added
 
 1, add ov5640&sc2235 drivers, update stf_isp
@@ -15,7 +15,7 @@ Subject: [PATCH 19/34] drivers/video/fbdev and drivers/media/platform:
  drivers/media/platform/starfive/ov5640_dvp.c  |  456 ++++
  drivers/media/platform/starfive/sc2235.c      |  424 +++
  drivers/media/platform/starfive/stf_csi.c     |  210 ++
- drivers/media/platform/starfive/stf_csi.h     |  134 +
+ drivers/media/platform/starfive/stf_csi.h     |  135 +
  drivers/media/platform/starfive/stf_event.c   |   39 +
  drivers/media/platform/starfive/stf_isp.c     |  441 ++++
  drivers/media/platform/starfive/stf_isp.h     |   16 +
@@ -27,7 +27,7 @@ Subject: [PATCH 19/34] drivers/video/fbdev and drivers/media/platform:
  drivers/video/fbdev/starfive/adv7513.c        |  268 ++
  drivers/video/fbdev/starfive/adv7513.h        |   22 +
  drivers/video/fbdev/starfive/seeed5inch.c     |  242 ++
- .../video/fbdev/starfive/starfive_comm_regs.h |   94 +
+ .../video/fbdev/starfive/starfive_comm_regs.h |   95 +
  .../fbdev/starfive/starfive_display_dev.c     |  135 +
  .../fbdev/starfive/starfive_display_dev.h     |  273 ++
  .../video/fbdev/starfive/starfive_displayer.c |  912 +++++++
@@ -36,12 +36,12 @@ Subject: [PATCH 19/34] drivers/video/fbdev and drivers/media/platform:
  drivers/video/fbdev/starfive/starfive_lcdc.c  |  364 +++
  drivers/video/fbdev/starfive/starfive_lcdc.h  |  152 ++
  .../video/fbdev/starfive/starfive_mipi_tx.c   |  665 +++++
- .../video/fbdev/starfive/starfive_mipi_tx.h   |  202 ++
+ .../video/fbdev/starfive/starfive_mipi_tx.h   |  203 ++
  drivers/video/fbdev/starfive/starfive_vpp.c   |  588 +++++
  drivers/video/fbdev/starfive/starfive_vpp.h   |  194 ++
  drivers/video/fbdev/starfive/tda998x.c        | 2279 +++++++++++++++++
  include/video/stf-vin.h                       |  307 +++
- 34 files changed, 11262 insertions(+)
+ 34 files changed, 11265 insertions(+)
  mode change 100644 => 100755 drivers/media/platform/Kconfig
  create mode 100644 drivers/media/platform/starfive/Kconfig
  create mode 100644 drivers/media/platform/starfive/Makefile
@@ -159,7 +159,7 @@ index 000000000000..4585213935e6
 +video_stf_vin-objs += stf_vin.o stf_event.o stf_isp.o stf_csi.o
 diff --git a/drivers/media/platform/starfive/imx219_mipi.c b/drivers/media/platform/starfive/imx219_mipi.c
 new file mode 100644
-index 000000000000..56557b212b26
+index 000000000000..2bbc2abefbd4
 --- /dev/null
 +++ b/drivers/media/platform/starfive/imx219_mipi.c
 @@ -0,0 +1,425 @@
@@ -345,7 +345,7 @@ index 000000000000..56557b212b26
 +				__func__, reg,valrtn);
 +		return -1;
 +	}
-+
++	
 +	if (1 != i2c_master_recv(client, &u8RdVal, 1)) {
 +		pr_err("%s:read reg error:reg=%x,val=%x\n",
 +				__func__, reg, u8RdVal);
@@ -401,7 +401,7 @@ index 000000000000..56557b212b26
 +{
 +    // software standby
 +    imx219_write_reg(imx219->i2c_client,0x100, 0);
-+
++    
 +    imx219_gpio_reserve(imx219->reset_pin, 0, IMX219_RESET_PIN_NAME);
 +    return 0;
 +}
@@ -410,7 +410,7 @@ index 000000000000..56557b212b26
 +{
 +	int ret;
 +	u16 chip_id;
-+
++	
 +	/* Power configuration */
 +	ret = imx219_gpio_reserve(imx219->reset_pin, 0, IMX219_RESET_PIN_NAME);
 +	if (ret)
@@ -420,7 +420,7 @@ index 000000000000..56557b212b26
 +	    //gpio_direction_output(dev->reset_pin, 1);
 +	    gpio_set_value(imx219->reset_pin, 1);
 +	}
-+	udelay(200 + 32000*MCLK_INTERVAL_US);
++	udelay(200 + 32000*MCLK_INTERVAL_US); 
 +
 +	chip_id = imx219_cam_v2_read_16(imx219->i2c_client, IMX219_REG_CHIP_ID, 0xffff);
 +	if (chip_id != IMX219_CHIP_ID) {
@@ -465,7 +465,7 @@ index 000000000000..56557b212b26
 +			return 0;
 +		}
 +	}
-+
++	
 +	return -EINVAL;
 +}
 +
@@ -500,15 +500,15 @@ index 000000000000..56557b212b26
 +	imx219 = devm_kzalloc(dev, sizeof(struct imx219), GFP_KERNEL);
 +	if (!imx219)
 +		return -ENOMEM;
-+
++		
 +    imx219->i2c_client = client;
 +	imx219->dev = dev;
 +	imx219->mode = MODE_1080P_30FPS_2D;
-+
++	
 +	imx219->reset_pin = of_get_named_gpio(np, "reset-gpio", 0);
 +
 +	i2c_set_clientdata(client, imx219);
-+
++	
 +    ret = imx219_set_power_on(imx219);
 +	if (ret) {
 +	   MIPI_ERR("failed to open sensor\n");
@@ -565,7 +565,7 @@ index 000000000000..56557b212b26
 +};
 +
 +static __init int init_imx219(void)
-+{
++{ 
 +    int err;
 +
 +	err = i2c_add_driver(&imx219_i2c_driver);
@@ -1482,7 +1482,7 @@ index 000000000000..325be48d7c32
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/platform/starfive/stf_csi.c b/drivers/media/platform/starfive/stf_csi.c
 new file mode 100644
-index 000000000000..8c63a1f3690f
+index 000000000000..57516f0d3681
 --- /dev/null
 +++ b/drivers/media/platform/starfive/stf_csi.c
 @@ -0,0 +1,210 @@
@@ -1559,7 +1559,7 @@ index 000000000000..8c63a1f3690f
 +            .reserved           = 0,
 +        }
 +    };
-+
++		
 +	union dphy_lane_en dphy_lane_en = {
 +        .bits = {
 +            .gpio_en          = 0,
@@ -1574,8 +1574,8 @@ index 000000000000..8c63a1f3690f
 +    };
 +    // evb, ov4689, c0-0,d0-1,d1-2,d2-3,d3-4,c1-5
 +    //write_reg(ISP_SYSCONTROLLER_BASE_ADDR, 0x10, 0x000468d0);
-+    reg_write(vin->sysctrl_base, SYSCTRL_REG4, dphy_lane_swap.raw);
-+    reg_write(vin->sysctrl_base, SYSCTRL_DPHY_CTRL, dphy_lane_en.raw);
++    reg_write(vin->sysctrl_base, SYSCTRL_REG4, dphy_lane_swap.raw);    
++    reg_write(vin->sysctrl_base, SYSCTRL_DPHY_CTRL, dphy_lane_en.raw); 
 +    reg_write(vin->clkgen_base, CLK_DPHY_CFGCLK_ISPCORE_2X_CTRL, 0x80000008);
 +    reg_write(vin->clkgen_base, CLK_DPHY_REFCLK_ISPCORE_2X_CTRL, 0x80000010);
 +    reg_write(vin->clkgen_base, CLK_DPHY_TXCLKESC_IN_CTRL, 0x80000028);
@@ -1635,7 +1635,7 @@ index 000000000000..8c63a1f3690f
 +{
 +    int s_stream0_fifo_mode = 0;
 +    int s_stream0_fifo_fill = 0;
-+
++	
 +    union static_config config;
 +    union dphy_lane_ctrl dphy_lane_ctrl;
 +    union stream_cfg stream0_cfg = {
@@ -1655,7 +1655,7 @@ index 000000000000..8c63a1f3690f
 +    }else {
 +        return 0;
 +    }
-+
++    
 +    csi2rx_reset(vin,id);
 +
 +    // 0x08 STATIC_CFG
@@ -1665,7 +1665,7 @@ index 000000000000..8c63a1f3690f
 +    config.bits.dl1_map = cfg->dlane_map[1];
 +    config.bits.dl2_map = cfg->dlane_map[2];
 +    config.bits.dl3_map = cfg->dlane_map[3];
-+
++	
 +    reg_write(reg_base, STATIC_CFG, config.raw);
 +
 +    // 0x40 DPHY_LANE_CONTROL
@@ -1675,7 +1675,7 @@ index 000000000000..8c63a1f3690f
 +    dphy_lane_ctrl.bits.dl2_en = dphy_lane_ctrl.bits.dl2_reset = (cfg->lane_nb > 2);
 +    dphy_lane_ctrl.bits.dl3_en = dphy_lane_ctrl.bits.dl3_reset = (cfg->lane_nb > 3);
 +    dphy_lane_ctrl.bits.cl_en = dphy_lane_ctrl.bits.cl_reset = 1;
-+
++	
 +    reg_write(reg_base, DPHY_LANE_CONTROL, dphy_lane_ctrl.raw);
 +
 +    csi2rx_debug_config(reg_base, cfg->vsize);
@@ -1698,10 +1698,10 @@ index 000000000000..8c63a1f3690f
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/platform/starfive/stf_csi.h b/drivers/media/platform/starfive/stf_csi.h
 new file mode 100644
-index 000000000000..60b1adfe57e2
+index 000000000000..7ba1f7ea1996
 --- /dev/null
 +++ b/drivers/media/platform/starfive/stf_csi.h
-@@ -0,0 +1,134 @@
+@@ -0,0 +1,135 @@
 +/*
 + * StarFive isp driver
 + *
@@ -1720,7 +1720,7 @@ index 000000000000..60b1adfe57e2
 +        u32 rsvd_6 : 2;
 +        u32 v2p0_support_enable : 1;
 +        u32 rsvd_5 : 3;
-+
++        
 +        u32 lane_nb : 3;
 +        u32 rsvd_4 : 5;
 +
@@ -1827,7 +1827,7 @@ index 000000000000..60b1adfe57e2
 +		u32 dphy_enable_lan1	: 1;
 +		u32 dphy_enable_lan2	: 1;
 +		u32 dphy_enable_lan3	: 1;
-+		u32 rsvd_0 			: 16;
++		u32 rsvd_0 			: 16; 
 +	} bits;
 +};
 +
@@ -1836,6 +1836,7 @@ index 000000000000..60b1adfe57e2
 +
 +
 +#endif
++
 diff --git a/drivers/media/platform/starfive/stf_event.c b/drivers/media/platform/starfive/stf_event.c
 new file mode 100644
 index 000000000000..088354fd700f
@@ -1883,7 +1884,7 @@ index 000000000000..088354fd700f
 +MODULE_SUPPORTED_DEVICE("video");
 diff --git a/drivers/media/platform/starfive/stf_isp.c b/drivers/media/platform/starfive/stf_isp.c
 new file mode 100644
-index 000000000000..be8a264515a5
+index 000000000000..8938e1f0f28c
 --- /dev/null
 +++ b/drivers/media/platform/starfive/stf_isp.c
 @@ -0,0 +1,441 @@
@@ -1933,14 +1934,14 @@ index 000000000000..be8a264515a5
 +void isp_ddr_format_config(struct stf_vin_dev *vin)
 +{
 +	void __iomem *ispbase;
-+
++    
 +	if(vin->isp0)
 +		ispbase = vin->isp_isp0_base;
 +	else if(vin->isp1)
 +	    ispbase = vin->isp_isp1_base;
 +	else
 +		return;
-+
++	
 +	switch (vin->format.format) {
 +	case SRC_COLORBAR_VIN_ISP:
 +	    reg_write(ispbase, ISP_REG_DVP_POLARITY_CFG, 0xd);
@@ -1964,7 +1965,7 @@ index 000000000000..be8a264515a5
 +{
 +	u32 val = 0;
 +	void __iomem *ispbase;
-+
++    
 +	if(vin->isp0)
 +		ispbase = vin->isp_isp0_base;
 +	else if(vin->isp1)
@@ -1998,7 +1999,7 @@ index 000000000000..be8a264515a5
 +	reg_write(ispbase, ISP_REG_RGB_TO_YUV_COVERSION8, 0x000001E6);	// ICCONV_8
 +
 +	reg_write(ispbase, ISP_REG_CIS_MODULE_CFG, 0x00000000);
-+	reg_write(ispbase, ISP_REG_ISP_CTRL_1, 0x10000022);	//0x30000022);//
++	reg_write(ispbase, ISP_REG_ISP_CTRL_1, 0x10000022);	//0x30000022);//	
 +	reg_write(ispbase, ISP_REG_DC_AXI_ID, 0x00000000);
 +	reg_write(ispbase, 0x00000008, 0x00010005);//this reg can not be found in document
 +}
@@ -2022,7 +2023,7 @@ index 000000000000..be8a264515a5
 +{
 +	u32 isp_enable = ISP_NO_SCALE_ENABLE | ISP_MULTI_FRAME_ENABLE;
 +	void __iomem *ispbase;
-+
++    
 +	if(vin->isp0)
 +		ispbase = vin->isp_isp0_base;
 +	else if(vin->isp1)
@@ -2265,7 +2266,7 @@ index 000000000000..be8a264515a5
 +	u32 mipi_channel_sel,vin_src_chan_sel;
 +	u32 y_start = vin->buf.paddr;
 +	u32 uv_start = y_start + vin->frame.width*vin->frame.height;
-+    ISP_INFO("  y_start 0x%08x, uv_start 0x%08x\n", y_start, uv_start);
++    ISP_INFO("  y_start 0x%08x, uv_start 0x%08x\n", y_start, uv_start); 
 +	ISP_INFO("  config isp %d <-- mipi %d:\n", isp_id, vin->csi_fmt.mipi_id);
 +    ISP_INFO("  h_size %d, v_size %d\n", vin->frame.width, vin->frame.height);
 +	if(vin->isp0)
@@ -2276,10 +2277,10 @@ index 000000000000..be8a264515a5
 +		return;
 +
 +    if(vin->csi_fmt.mipi_id==0)
-+	reg_write(vin->clkgen_base, CLK_MIPI_RX0_PXL_CTRL, 0x3);
++    	reg_write(vin->clkgen_base, CLK_MIPI_RX0_PXL_CTRL, 0x3);
 +	else
 +        reg_write(vin->clkgen_base, CLK_MIPI_RX1_PXL_CTRL, 0x3);
-+
++	
 +    if(isp_id==0){
 +	    reg_write(vin->clkgen_base, CLK_ISP0_MIPI_CTRL, 0x80000000|(vin->csi_fmt.mipi_id<<24));
 +	    reg_write(vin->clkgen_base, CLK_C_ISP0_CTRL, vin->csi_fmt.mipi_id<<24);
@@ -2290,7 +2291,7 @@ index 000000000000..be8a264515a5
 +    }
 +    mipi_channel_sel = vin->csi_fmt.mipi_id*4+mipi_vc;
 +    vin_src_chan_sel = reg_read(vin->sysctrl_base, SYSCTRL_VIN_SRC_CHAN_SEL);
-+
++	
 +    if (isp_id == 0) {
 +        vin_src_chan_sel &= ~0xf;
 +        vin_src_chan_sel |= mipi_channel_sel & 0xf;
@@ -2330,7 +2331,7 @@ index 000000000000..be8a264515a5
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/media/platform/starfive/stf_isp.h b/drivers/media/platform/starfive/stf_isp.h
 new file mode 100644
-index 000000000000..b918dded372a
+index 000000000000..c35e8e559334
 --- /dev/null
 +++ b/drivers/media/platform/starfive/stf_isp.h
 @@ -0,0 +1,16 @@
@@ -2347,12 +2348,12 @@ index 000000000000..b918dded372a
 +
 +extern void isp_clk_set(struct stf_vin_dev *vin);
 +extern void isp_ddr_config(struct stf_vin_dev *vin);
-+extern void isp_config(struct stf_vin_dev *vin,int isp_id);
++extern void isp_config(struct stf_vin_dev *vin,int isp_id); 
 +
 +#endif
 diff --git a/drivers/media/platform/starfive/stf_vin.c b/drivers/media/platform/starfive/stf_vin.c
 new file mode 100644
-index 000000000000..f623f5039c09
+index 000000000000..711150399f6c
 --- /dev/null
 +++ b/drivers/media/platform/starfive/stf_vin.c
 @@ -0,0 +1,935 @@
@@ -2545,7 +2546,7 @@ index 000000000000..f623f5039c09
 +		res = platform_get_resource_byname(pdev, IORESOURCE_MEM, name);
 +		regs = devm_ioremap_resource(dev, res);
 +		if (IS_ERR(regs))
-+			return PTR_ERR(regs);
++			return PTR_ERR(regs);	
 +
 +		if(!strcmp(name, "mipi0")) {
 +			vin->mipi0_base = regs;
@@ -2609,18 +2610,18 @@ index 000000000000..f623f5039c09
 +
 +static int isp_rstgen_assert_reset(struct stf_vin_dev *vin)
 +{
-+	 u32 val;
++	 u32 val;	 
 +	 u32 val_reg_reset_config = 0x19f807;
-+
++		 
 +	 val = ioread32(vin->rstgen_base + SOFTWARE_RESET_ASSERT0);
 +	 val |= val_reg_reset_config;
 +	 iowrite32(val, vin->rstgen_base + SOFTWARE_RESET_ASSERT0);
-+
++ 
 +	 val = ioread32(vin->rstgen_base + SOFTWARE_RESET_ASSERT0);
 +	 val &= ~(val_reg_reset_config);
-+
++ 
 +	 iowrite32(val, vin->rstgen_base + SOFTWARE_RESET_ASSERT0);
-+
++		 	
 +	return 0;
 +}
 +
@@ -2873,7 +2874,7 @@ index 000000000000..f623f5039c09
 +	break;
 +
 +	case SRC_CSI2RX_VIN_ISP:
-+		isp_config(vin, 0);
++		isp_config(vin, 0);	
 +	    csi2rx_dphy_config(vin,&dphy_rx_cfg);
 +		csi2rx_config(vin,0, &csi2rx_cfg);
 +	    reset_val = reg_read(vin->rstgen_base, 0x00);
@@ -3004,8 +3005,8 @@ index 000000000000..f623f5039c09
 +	val &= 0x1;
 +	if (val != 0) {
 +        val = ioread32(vin->vin_top_clkgen_base + 0x124)>>24;
-+	    val &= ~(0x1<<24);
-+	    val |= (0x0&0x1)<<24;
++	    val &= ~(0x1<<24); 
++	    val |= (0x0&0x1)<<24; 
 +		iowrite32(val, vin->vin_top_clkgen_base + 0x124);
 +    } else {
 +        printk("nne bus clk src is already clk_cpu_axi\n");
@@ -3025,7 +3026,7 @@ index 000000000000..f623f5039c09
 +	reg_set_highest_bit(vin->clkgen_base,CLK_ISP0_CTRL);
 +	reg_set_highest_bit(vin->clkgen_base,CLK_ISP0_2X_CTRL);
 +	reg_set_highest_bit(vin->clkgen_base,CLK_ISP0_MIPI_CTRL);
-+
++	
 +	reg_set_highest_bit(vin->clkgen_base,CLK_ISP1_CTRL);
 +	reg_set_highest_bit(vin->clkgen_base,CLK_ISP1_2X_CTRL);
 +	reg_set_highest_bit(vin->clkgen_base,CLK_ISP1_MIPI_CTRL);
@@ -3043,7 +3044,7 @@ index 000000000000..f623f5039c09
 +    return 0;
 +}
 +
-+static int vin_parse_dt(struct device *dev, struct stf_vin_dev *vin)
++static int vin_parse_dt(struct device *dev, struct stf_vin_dev *vin) 
 +{
 +	int ret=0;
 +	struct device_node *np = dev->of_node;
@@ -3056,7 +3057,7 @@ index 000000000000..f623f5039c09
 +		ret = -EINVAL;
 +	}
 +	dev_info(dev,"vin->format.format = %d ,in the DT.\n",vin->format.format);
-+
++	
 +	if (of_property_read_u32(np, "frame-width", &vin->frame.width)) {
 +		dev_err(dev,"Missing frame-width property in the DT.\n");
 +		ret = -EINVAL;
@@ -3079,14 +3080,14 @@ index 000000000000..f623f5039c09
 +	of_property_read_u8(np, "csi-clane-pn-swap", &vin->csi_fmt.clane_pn_swap);
 +
 +	of_property_read_u32(np, "csi-mipiID", &vin->csi_fmt.mipi_id);
-+
-+	of_property_read_u32(np, "csi-width", &vin->csi_fmt.w);
-+
-+	of_property_read_u32(np, "csi-height", &vin->csi_fmt.h);
-+
++	
++	of_property_read_u32(np, "csi-width", &vin->csi_fmt.w); 
++	
++	of_property_read_u32(np, "csi-height", &vin->csi_fmt.h); 
++	
 +	of_property_read_u32(np, "csi-dt", &vin->csi_fmt.dt);
-+
-+	of_property_read_u32(np, "csi-lane", &vin->csi_fmt.lane);
++	
++	of_property_read_u32(np, "csi-lane", &vin->csi_fmt.lane);	
 +
 +	return ret;
 +}
@@ -3112,7 +3113,7 @@ index 000000000000..f623f5039c09
 +		pr_err("unknown format\n");
 +		return -EINVAL;
 +	}
-+
++	
 +	return ret;
 +}
 +
@@ -3207,7 +3208,7 @@ index 000000000000..f623f5039c09
 +		dev_err(&pdev->dev, "Failed to config device\n");
 +		goto out;
 +	}
-+
++	
 +	ret = vin_update_buf_size(vin);
 +	if (ret)
 +		goto out;
@@ -3285,7 +3286,7 @@ index 000000000000..f623f5039c09
 +subsys_initcall(stf_vin_init);
 +#endif
 +
-+module_exit(stf_vin_cleanup);
++module_exit(stf_vin_cleanup); 
 +
 +MODULE_AUTHOR("StarFive Technology Co., Ltd.");
 +MODULE_DESCRIPTION("Starfive VIC video in driver");
@@ -3694,7 +3695,7 @@ index 000000000000..fe98b00ff2b9
 +#endif
 diff --git a/drivers/video/fbdev/starfive/seeed5inch.c b/drivers/video/fbdev/starfive/seeed5inch.c
 new file mode 100644
-index 000000000000..95b3c841a03b
+index 000000000000..3f6fb7543936
 --- /dev/null
 +++ b/drivers/video/fbdev/starfive/seeed5inch.c
 @@ -0,0 +1,242 @@
@@ -3857,7 +3858,7 @@ index 000000000000..95b3c841a03b
 +			 "I2C adapter doesn't support I2C_FUNC_SMBUS_BYTE\n");
 +		return -EIO;
 +	}
-+
++	
 +	seeed_panel = devm_kzalloc(&client->dev, sizeof(struct seeed_panel_dev), GFP_KERNEL);
 +	if (!seeed_panel)
 +		return -ENOMEM;
@@ -3942,10 +3943,10 @@ index 000000000000..95b3c841a03b
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/video/fbdev/starfive/starfive_comm_regs.h b/drivers/video/fbdev/starfive/starfive_comm_regs.h
 new file mode 100644
-index 000000000000..d8ced01ede02
+index 000000000000..4c19c58d9c3f
 --- /dev/null
 +++ b/drivers/video/fbdev/starfive/starfive_comm_regs.h
-@@ -0,0 +1,94 @@
+@@ -0,0 +1,95 @@
 +/*
 + * StarFive Vout driver
 + *
@@ -3986,27 +3987,27 @@ index 000000000000..d8ced01ede02
 +#define SCFG_HS_PRE_ZERO_T_C	    0xd4
 +#define SCFG_TXREADY_SRC_SEL_C	    0xd8
 +
-+//reg SCFG_LX_SWAP_SEL
++//reg SCFG_LX_SWAP_SEL 
 +#define	OFFSET_CFG_L0_SWAP_SEL 	0
 +#define	OFFSET_CFG_L1_SWAP_SEL 	3
 +#define	OFFSET_CFG_L2_SWAP_SEL 	6
-+#define	OFFSET_CFG_L3_SWAP_SEL 	9
++#define	OFFSET_CFG_L3_SWAP_SEL 	9 
 +#define OFFSET_CFG_L4_SWAP_SEL 	12
 +
 +//reg SCFG_DBUS_PW_PLL_SSC_LD0
-+#define OFFSET_SCFG_CFG_DATABUD16_SEL    0
++#define OFFSET_SCFG_CFG_DATABUD16_SEL    0  
 +#define OFFSET_SCFG_PWRON_READY_N        1
 +#define OFFSET_RG_CDTX_PLL_FM_EN         2
 +#define OFFSET_SCFG_PLLSSC_EN            3
 +#define OFFSET_RG_CDTX_PLL_LDO_STB_X2_EN 4
 +
 +//reg SCFG_RG_CLANE_DLANE_TIME
-+#define OFFSET_DHS_PRE_TIME          8
++#define OFFSET_DHS_PRE_TIME          8  
 +#define OFFSET_DHS_TRIAL_TIME        16
 +#define OFFSET_DHS_ZERO_TIME         24
 +
 +//reg SCFG_RG_CLANE_HS_TIME
-+#define OFFSET_CHS_PRE_TIME          8
++#define OFFSET_CHS_PRE_TIME          8  
 +#define OFFSET_CHS_TRIAL_TIME        16
 +#define OFFSET_CHS_ZERO_TIME         24
 +
@@ -4040,6 +4041,7 @@ index 000000000000..d8ced01ede02
 +}
 +
 +#endif
++
 diff --git a/drivers/video/fbdev/starfive/starfive_display_dev.c b/drivers/video/fbdev/starfive/starfive_display_dev.c
 new file mode 100644
 index 000000000000..85c7b41139e9
@@ -5380,7 +5382,7 @@ index 000000000000..4945f81a52f3
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/video/fbdev/starfive/starfive_fb.c b/drivers/video/fbdev/starfive/starfive_fb.c
 new file mode 100644
-index 000000000000..1986087b33f3
+index 000000000000..46c233f84ff8
 --- /dev/null
 +++ b/drivers/video/fbdev/starfive/starfive_fb.c
 @@ -0,0 +1,1245 @@
@@ -5593,7 +5595,7 @@ index 000000000000..1986087b33f3
 +#if defined(CONFIG_FRAMEBUFFER_CONSOLE)
 +	if(24 == var->bits_per_pixel)
 +	{
-+		var->bits_per_pixel	= 16;//as vpp&lcdc miss support rgb888 ,config fb_console src format as rgb565
++		var->bits_per_pixel	= 16;//as vpp&lcdc miss support rgb888 ,config fb_console src format as rgb565 
 +	}
 +#endif
 +	var->pixclock		= 1000000 / (sf_dev->pixclock / 1000000);
@@ -7303,7 +7305,7 @@ index 000000000000..f07bc793d22a
 +#endif
 diff --git a/drivers/video/fbdev/starfive/starfive_mipi_tx.c b/drivers/video/fbdev/starfive/starfive_mipi_tx.c
 new file mode 100644
-index 000000000000..0df69560d0e4
+index 000000000000..6ccc9780507e
 --- /dev/null
 +++ b/drivers/video/fbdev/starfive/starfive_mipi_tx.c
 @@ -0,0 +1,665 @@
@@ -7447,9 +7449,9 @@ index 000000000000..0df69560d0e4
 +	mipi_tx_lxn_set(sf_dev, SCFG_L4N_L4P_HSTX, 0x10, 0x10);
 +
 +	if(bit_rate == 80) {
-+		pre_div=0x1,		fbk_int=2*0x33,		extd_cycle_sel=0x4,
++		pre_div=0x1,		fbk_int=2*0x33,		extd_cycle_sel=0x4, 
 +		dhs_pre_time=0xe,	dhs_zero_time=0x1d,	dhs_trial_time=0x15,
-+		chs_pre_time=0x5,	chs_zero_time=0x2b,	chs_trial_time=0xd,
++		chs_pre_time=0x5,	chs_zero_time=0x2b,	chs_trial_time=0xd, 
 +		chs_clk_pre_time=0xf,
 +		chs_clk_post_time=0x71;
 +	} else if (bit_rate == 100) {
@@ -7609,7 +7611,7 @@ index 000000000000..0df69560d0e4
 +		chs_pre_time=0x6, chs_zero_time=0x2f,	chs_trial_time=0xe,
 +		chs_clk_pre_time=0x1,
 +		chs_clk_post_time=0x16;
-+		MIPITX_ERR(" ERROR: invalid bit rate configuration!\n");
++	 	MIPITX_ERR(" ERROR: invalid bit rate configuration!\n");
 +    }
 +	sf_fb_cfgwrite32(sf_dev, SCFG_REFCLK_SEL, 0x3);
 +
@@ -7662,7 +7664,7 @@ index 000000000000..0df69560d0e4
 +	precfg = sf_fb_dsitxread32(sf_dev, VID_MCTL_MAIN_DATA_CTL) & ~cfg_link_enable;
 +	sf_fb_dsitxwrite32(sf_dev, VID_MCTL_MAIN_DATA_CTL, precfg|cfg_link_enable);
 +
-+	precfg = sf_fb_cfgread32(sf_dev, SCFG_PHY_RESETB);
++	precfg = sf_fb_cfgread32(sf_dev, SCFG_PHY_RESETB); 
 +	precfg &= ~(cfg_dsc_enable);
 +	precfg |= (resetb&cfg_dsc_enable);
 +	sf_fb_cfgwrite32(sf_dev, SCFG_PHY_RESETB, precfg);
@@ -7753,7 +7755,7 @@ index 000000000000..0df69560d0e4
 +     int total_line = div_roundup(hline_bytes, sf_dev->panel_info.dphy_lanes);
 +
 +     int blkline_pulse_pck = hline_bytes - 20 - hsa_dsi;
-+     int pulse_reg_dura = total_line - div_roundup(hsa_dsi+14,sf_dev->panel_info.dphy_lanes);
++     int pulse_reg_dura = total_line - div_roundup(hsa_dsi+14,sf_dev->panel_info.dphy_lanes);  
 +
 +     int blkline_event_pck0 = hline_bytes - 10;
 +     int event_reg_dura = total_line - div_roundup(8, sf_dev->panel_info.dphy_lanes);
@@ -7786,7 +7788,7 @@ index 000000000000..0df69560d0e4
 +	MIPITX_PRT("DSI blkeol_duration: %d\n", blkeol_dura);
 +
 +	sf_fb_dsitxwrite32(sf_dev, VID_DPHY_TIME_ADDR, dphy_time);
-+	MIPITX_PRT("DSI reg line duration: %d, wakeup time: %d\n", reg_line_duration, reg_wakeup_time>>17);
++	MIPITX_PRT("DSI reg line duration: %d, wakeup time: %d\n", reg_line_duration, reg_wakeup_time>>17); 
 +
 +	sf_fb_dsitxwrite32(sf_dev, VID_VCA_SET2_ADDR, max_line|exact_burst);
 +	MIPITX_PRT("DSI max_line: %d, max_burst: %d\n", max_line>>16, exact_burst);
@@ -7974,10 +7976,10 @@ index 000000000000..0df69560d0e4
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/video/fbdev/starfive/starfive_mipi_tx.h b/drivers/video/fbdev/starfive/starfive_mipi_tx.h
 new file mode 100644
-index 000000000000..ba3ed6b14e9c
+index 000000000000..cac15d5b16e6
 --- /dev/null
 +++ b/drivers/video/fbdev/starfive/starfive_mipi_tx.h
-@@ -0,0 +1,202 @@
+@@ -0,0 +1,203 @@
 +/*
 + * StarFive Vout driver
 + *
@@ -8180,6 +8182,7 @@ index 000000000000..ba3ed6b14e9c
 +extern int sf_mipi_init(struct sf_fb_data *sf_dev);
 +
 +#endif
++
 diff --git a/drivers/video/fbdev/starfive/starfive_vpp.c b/drivers/video/fbdev/starfive/starfive_vpp.c
 new file mode 100644
 index 000000000000..9b34ebfd2cea
