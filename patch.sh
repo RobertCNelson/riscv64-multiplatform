@@ -130,72 +130,6 @@ rt () {
 	dir 'rt'
 }
 
-dtb_makefile_append_omap4 () {
-	sed -i -e 's:omap4-panda.dtb \\:omap4-panda.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
-}
-
-dtb_makefile_append () {
-	sed -i -e 's:am335x-boneblack.dtb \\:am335x-boneblack.dtb \\\n\t'$device' \\:g' arch/arm/boot/dts/Makefile
-}
-
-beagleboard_dtbs () {
-	branch="v5.13.x"
-	https_repo="https://github.com/beagleboard/BeagleBoard-DeviceTrees"
-	work_dir="BeagleBoard-DeviceTrees"
-	#regenerate="enable"
-	if [ "x${regenerate}" = "xenable" ] ; then
-		cd ../
-		if [ ! -d ./${work_dir} ] ; then
-			${git_bin} clone -b ${branch} ${https_repo} --depth=1
-			cd ./${work_dir}
-				git_hash=$(git rev-parse HEAD)
-			cd -
-		else
-			rm -rf ./${work_dir} || true
-			${git_bin} clone -b ${branch} ${https_repo} --depth=1
-			cd ./${work_dir}
-				git_hash=$(git rev-parse HEAD)
-			cd -
-		fi
-		cd ./KERNEL/
-
-		mkdir -p arch/arm/boot/dts/overlays/
-		cp -vr ../${work_dir}/src/arm/* arch/arm/boot/dts/
-		cp -vr ../${work_dir}/include/dt-bindings/* ./include/dt-bindings/
-
-		#device="omap4-panda-es-b3.dtb" ; dtb_makefile_append_omap4
-
-		#device="am335x-abbbi.dtb" ; dtb_makefile_append
-		#device="am335x-bonegreen-gateway.dtb" ; dtb_makefile_append
-
-		#device="am335x-boneblack-uboot.dtb" ; dtb_makefile_append
-
-		#device="am335x-bone-uboot-univ.dtb" ; dtb_makefile_append
-		#device="am335x-boneblack-uboot-univ.dtb" ; dtb_makefile_append
-		#device="am335x-bonegreen-wireless-uboot-univ.dtb" ; dtb_makefile_append
-
-		${git_bin} add -f arch/arm/boot/dts/
-		${git_bin} add -f include/dt-bindings/
-		${git_bin} commit -a -m "Add BeagleBoard.org DTBS: $branch" -m "${https_repo}/tree/${branch}" -m "${https_repo}/commit/${git_hash}" -s
-		${git_bin} format-patch -1 -o ../patches/soc/ti/beagleboard_dtbs/
-		echo "BBDTBS: ${https_repo}/commit/${git_hash}" > ../patches/git/BBDTBS
-
-		rm -rf ../${work_dir}/ || true
-
-		${git_bin} reset --hard HEAD^
-
-		start_cleanup
-
-		${git} "${DIR}/patches/soc/ti/beagleboard_dtbs/0001-Add-BeagleBoard.org-DTBS-$branch.patch"
-
-		wdir="soc/ti/beagleboard_dtbs"
-		number=1
-		cleanup
-	fi
-
-	dir 'soc/ti/beagleboard_dtbs'
-}
-
 local_patch () {
 	echo "dir: dir"
 	${git} "${DIR}/patches/dir/0001-patch.patch"
@@ -203,7 +137,6 @@ local_patch () {
 
 #external_git
 #rt
-#beagleboard_dtbs
 #local_patch
 
 pre_backports () {
