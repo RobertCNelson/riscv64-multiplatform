@@ -1,0 +1,216 @@
+From 8cdb92888c2df8e77a2c9d91b14b07fa829c88ba Mon Sep 17 00:00:00 2001
+From: Stephen L Arnold <nerdboy@gentoo.org>
+Date: Sun, 16 May 2021 21:44:59 -0700
+Subject: [PATCH] arch: riscv: dts: jh7100-starlight: add thermal bindings,
+ cleanup
+
+Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
+---
+ arch/riscv/boot/dts/starfive/jh7100.dtsi | 74 ++++++++++++++++--------
+ drivers/hwmon/sfctmp.c                   |  9 ++-
+ 2 files changed, 55 insertions(+), 28 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+index 3935ef694635..afb93056857f 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+@@ -13,7 +13,7 @@ chosen {
+ 	cpus {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+-		cpu@0 {
++		cpu0: cpu@0 {
+ 			compatible = "sifive,u74-mc", "riscv";
+ 			d-cache-block-size = <64>;
+ 			d-cache-sets = <64>;
+@@ -40,7 +40,7 @@ cpu0_intc: interrupt-controller {
+ 			};
+ 		};
+ 
+-		cpu@1 {
++		cpu1: cpu@1 {
+ 			compatible = "sifive,u74-mc", "riscv";
+ 			d-cache-block-size = <64>;
+ 			d-cache-sets = <64>;
+@@ -247,7 +247,7 @@ ccache: cache-controller@2010000 {
+ 			interrupts = <128 131 129 130>;
+ 			/*next-level-cache = <&L40 &L36>;*/
+ 			reg = <0x0 0x2010000 0x0 0x1000>,
+-			      <0x0 0x8000000 0x0 0x2000000>;
++				<0x0 0x8000000 0x0 0x2000000>;
+ 			reg-names = "control", "sideband";
+ 		};
+ 
+@@ -379,8 +379,8 @@ dma1p: dma-controller@10500000 {
+ 		usb3: usb@104c0000 {
+ 			compatible = "cdns,usb3";
+ 			reg = <0x0 0x104c0000 0x0 0x10000>,	// memory area for HOST registers
+-			      <0x0 0x104d0000 0x0 0x10000>,	// memory area for DEVICE registers
+-			      <0x0 0x104e0000 0x0 0x10000>;	// memory area for OTG/DRD registers
++				<0x0 0x104d0000 0x0 0x10000>,	// memory area for DEVICE registers
++				<0x0 0x104e0000 0x0 0x10000>;	// memory area for OTG/DRD registers
+ 			reg-names = "otg", "xhci", "dev";
+ 			interrupt-parent = <&plic>;
+ 			interrupts = <43>, <44>, <52>;
+@@ -466,7 +466,7 @@ trng: trng@118d0000 {
+ 		crypto: crypto@100d0000 {
+ 			compatible = "starfive,vic-sec";
+ 			reg = <0x0 0x100d0000 0x0 0x20000>,
+-			      <0x0 0x11800234 0x0 0xc>;
++				<0x0 0x11800234 0x0 0xc>;
+ 			reg-names = "secmem", "secclk";
+ 			interrupt-parent = <&plic>;
+ 			interrupts = <31>;
+@@ -559,7 +559,7 @@ qspi: spi@11860000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <0x0 0x11860000 0x0 0x10000>,
+-			      <0x0 0x20000000 0x0 0x20000000>;
++				<0x0 0x20000000 0x0 0x20000000>;
+ 			interrupts = <3>;
+ 			interrupt-parent = <&plic>;
+ 			clocks = <&qspi_clk>;
+@@ -608,9 +608,9 @@ spi2: spi@12410000 {
+ 		xrp@f0000000 {
+ 			compatible = "cdns,xrp";
+ 			reg = <0x0  0xf0000000 0x0 0x01ffffff>,
+-			      <0x10 0x72000000 0x0 0x00001000>,
+-			      <0x10 0x72001000 0x0 0x00fff000>,
+-			      <0x0  0x124b0000 0x0 0x00010000>;
++				<0x10 0x72000000 0x0 0x00001000>,
++				<0x10 0x72001000 0x0 0x00fff000>,
++				<0x0  0x124b0000 0x0 0x00010000>;
+ 			clocks = <&hfclk>;
+ 			interrupt-parent = <&plic>;
+ 			firmware-name = "vp6_elf";
+@@ -622,7 +622,7 @@ xrp@f0000000 {
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			ranges = <0x40000000 0x0  0x40000000 0x01000000
+-			          0xb0000000 0x10 0x70000000 0x3000000>;
++					0xb0000000 0x10 0x70000000 0x3000000>;
+ 			dsp@0 {
+ 			};
+ 		};
+@@ -681,17 +681,17 @@ sfivefb: sfivefb@12000000 {
+ 		vin_sysctl: vin_sysctl@19800000 {
+ 			compatible = "starfive,stf-vin";
+ 			reg = <0x0 0x19800000 0x0 0x10000>,
+-			      <0x0 0x19810000 0x0 0x10000>,
+-			      <0x0 0x19820000 0x0 0x10000>,
+-			      <0x0 0x19830000 0x0 0x10000>,
+-			      <0x0 0x19840000 0x0 0x10000>,
+-			      <0x0 0x19870000 0x0 0x30000>,
+-			      <0x0 0x198a0000 0x0 0x30000>,
+-			      <0x0 0x11800000 0x0 0x10000>,
+-			      <0x0 0x11840000 0x0 0x10000>,
+-			      <0x0 0x11858000 0x0 0x10000>;
++				<0x0 0x19810000 0x0 0x10000>,
++				<0x0 0x19820000 0x0 0x10000>,
++				<0x0 0x19830000 0x0 0x10000>,
++				<0x0 0x19840000 0x0 0x10000>,
++				<0x0 0x19870000 0x0 0x30000>,
++				<0x0 0x198a0000 0x0 0x30000>,
++				<0x0 0x11800000 0x0 0x10000>,
++				<0x0 0x11840000 0x0 0x10000>,
++				<0x0 0x11858000 0x0 0x10000>;
+ 			reg-names = "mipi0", "vclk", "vrst", "mipi1", "sctrl",
+-			            "isp0", "isp1", "tclk", "trst", "iopad";
++						"isp0", "isp1", "tclk", "trst", "iopad";
+ 			interrupt-parent = <&plic>;
+ 			interrupts = <119 109>;
+ 			memory-region = <&vin_reserved>;
+@@ -711,12 +711,40 @@ vin_sysctl: vin_sysctl@19800000 {
+ 			csi-dt = <0x2b>;
+ 		};
+ 
+-		sfc_tmp: tmpsensor@124a0000 {
++		sfc_tmp: thermal-sensor@124a0000 {
+ 			compatible = "sfc,tempsensor";
+ 			reg = <0x0 0x124a0000 0x0 0x1000>;
++			#thermal-sensor-cells = <0>;
+ 			interrupt-parent = <&plic>;
+ 			interrupts = <122>;
+-			status = "okay";
++		};
++
++		thermal-zones {
++			cpu_thermal: cpu-thermal {
++				polling-delay-passive = <250>;
++				polling-delay = <15000>;
++
++				thermal-sensors = <&sfc_tmp>;
++
++				cooling-maps {
++				};
++
++				trips {
++					cpu_alert0: cpu_alert0 {
++						/* milliCelsius */
++						temperature = <75000>;
++						hysteresis = <2000>;
++						type = "passive";
++					};
++
++					cpu_crit: cpu_crit {
++						/* milliCelsius */
++						temperature = <90000>;
++						hysteresis = <2000>;
++						type = "critical";
++					};
++				};
++			};
+ 		};
+ 
+ 		otp: otp@11810000 {
+diff --git a/drivers/hwmon/sfctmp.c b/drivers/hwmon/sfctmp.c
+index b253c2b375c6..38aff6356e8b 100644
+--- a/drivers/hwmon/sfctmp.c
++++ b/drivers/hwmon/sfctmp.c
+@@ -22,7 +22,6 @@
+ #include <linux/of.h>
+ #include <linux/err.h>
+ #include <linux/mutex.h>
+-#include <linux/device.h>
+ #include <asm-generic/io.h>
+ #include <linux/regmap.h>
+ 
+@@ -59,7 +58,7 @@ struct sfc_temp{
+ 	int clk;
+ };
+ 
+-static ssize_t sfctmp_get_temp(struct device *dev, struct device_attribute *devattr,char *buf)
++static ssize_t sfctmp_get_temp(struct device *dev, struct device_attribute *devattr, char *buf)
+ {
+ 	long temp;
+ 	const long Y100 = 23750, K100 = 8110, Z100 = 409400;
+@@ -76,7 +75,7 @@ static ssize_t sfctmp_temp_show(void)
+ {
+ 	char buf[10];
+ 	sfctmp_get_temp(NULL, NULL, buf);
+-	printk("temp(mdeg C): %s",buf);
++	printk("temp(milliCelcius): %s",buf);
+ 	return 0;
+ }
+ 
+@@ -160,7 +159,7 @@ static int sfc_temp_probe(struct platform_device *pdev)
+ 		return PTR_ERR(sfc_temp->regs);
+ 	}
+ 
+-	sfc_temp->name = "sfc_tempsnsor";
++	sfc_temp->name = "sfc_tempsensor";
+ 
+ 	ret = devm_request_irq(temp_dev, sfc_temp->irq, sfc_temp_isr,
+ 			       IRQF_SHARED, sfc_temp->name, sfc_temp);
+@@ -198,7 +197,7 @@ MODULE_DEVICE_TABLE(of, sfc_temp_of_match);
+ 
+ static struct platform_driver sfc_temp_sensor_driver = {
+ 	.driver = {
+-		.name	= "sfc_temp_sensor",
++		.name	= "sfc_tempsensor",
+ 		.of_match_table = of_match_ptr(sfc_temp_of_match),
+ 	},
+ 	.probe		= sfc_temp_probe,
+-- 
+2.30.0
+
