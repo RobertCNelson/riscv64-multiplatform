@@ -1,7 +1,7 @@
 From 4c01a1e0e01afac0d117d08c32dc31e895cc2af8 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Mon, 3 May 2021 12:20:05 +0200
-Subject: [PATCH 29/31] power: reset: Add TPS65086 restart driver
+Subject: [PATCH 29/37] power: reset: Add TPS65086 restart driver
 
 Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 ---

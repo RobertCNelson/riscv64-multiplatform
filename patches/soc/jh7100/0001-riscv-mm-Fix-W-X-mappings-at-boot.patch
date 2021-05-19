@@ -1,7 +1,7 @@
 From b865eb820db8b9b94a7a2d2619e46cc3251fb90d Mon Sep 17 00:00:00 2001
 From: Jisheng Zhang <jszhang@kernel.org>
 Date: Sun, 16 May 2021 17:00:38 +0800
-Subject: [PATCH 01/31] riscv: mm: Fix W+X mappings at boot
+Subject: [PATCH 01/37] riscv: mm: Fix W+X mappings at boot
 
 When the kernel mapping was moved the last 2GB of the address space,
 (__va(PFN_PHYS(max_low_pfn))) is much smaller than the .data section

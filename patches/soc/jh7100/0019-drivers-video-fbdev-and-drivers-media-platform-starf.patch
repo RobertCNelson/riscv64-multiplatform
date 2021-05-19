@@ -1,7 +1,7 @@
 From ff76d633fd1fcc65037af860aa54b91cac544d2d Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Mon, 11 Jan 2021 04:06:22 +0800
-Subject: [PATCH 19/31] drivers/video/fbdev and drivers/media/platform:
+Subject: [PATCH 19/37] drivers/video/fbdev and drivers/media/platform:
  starfive drivers added
 
 1, add ov5640&sc2235 drivers, update stf_isp

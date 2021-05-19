@@ -1,7 +1,7 @@
 From cf692db70371488f663dfe00b56cd72dc9d904a4 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 6 May 2021 21:17:08 +0200
-Subject: [PATCH 23/31] drivers/video/fbdev/starfive: improve error handling
+Subject: [PATCH 23/37] drivers/video/fbdev/starfive: improve error handling
 
 Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 ---

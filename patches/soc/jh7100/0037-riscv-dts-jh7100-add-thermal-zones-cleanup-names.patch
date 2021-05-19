@@ -1,14 +1,14 @@
-From 8cdb92888c2df8e77a2c9d91b14b07fa829c88ba Mon Sep 17 00:00:00 2001
+From 224c501e7e2beac32071f4669c38ab979eb2fdcc Mon Sep 17 00:00:00 2001
 From: Stephen L Arnold <nerdboy@gentoo.org>
 Date: Sun, 16 May 2021 21:44:59 -0700
-Subject: [PATCH] arch: riscv: dts: jh7100-starlight: add thermal bindings,
+Subject: [PATCH 2/2] arch: riscv: dts: jh7100-starlight: add thermal bindings,
  cleanup
 
 Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
 ---
  arch/riscv/boot/dts/starfive/jh7100.dtsi | 74 ++++++++++++++++--------
- drivers/hwmon/sfctmp.c                   |  9 ++-
- 2 files changed, 55 insertions(+), 28 deletions(-)
+ drivers/hwmon/sfctmp.c                   |  2 +-
+ 2 files changed, 52 insertions(+), 24 deletions(-)
 
 diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
 index 3935ef694635..afb93056857f 100644
@@ -164,18 +164,10 @@ index 3935ef694635..afb93056857f 100644
  
  		otp: otp@11810000 {
 diff --git a/drivers/hwmon/sfctmp.c b/drivers/hwmon/sfctmp.c
-index b253c2b375c6..38aff6356e8b 100644
+index 698e129de935..cbeb0fd449fe 100644
 --- a/drivers/hwmon/sfctmp.c
 +++ b/drivers/hwmon/sfctmp.c
-@@ -22,7 +22,6 @@
- #include <linux/of.h>
- #include <linux/err.h>
- #include <linux/mutex.h>
--#include <linux/device.h>
- #include <asm-generic/io.h>
- #include <linux/regmap.h>
- 
-@@ -59,7 +58,7 @@ struct sfc_temp{
+@@ -58,7 +58,7 @@ struct sfc_temp{
  	int clk;
  };
  
@@ -184,33 +176,6 @@ index b253c2b375c6..38aff6356e8b 100644
  {
  	long temp;
  	const long Y100 = 23750, K100 = 8110, Z100 = 409400;
-@@ -76,7 +75,7 @@ static ssize_t sfctmp_temp_show(void)
- {
- 	char buf[10];
- 	sfctmp_get_temp(NULL, NULL, buf);
--	printk("temp(mdeg C): %s",buf);
-+	printk("temp(milliCelcius): %s",buf);
- 	return 0;
- }
- 
-@@ -160,7 +159,7 @@ static int sfc_temp_probe(struct platform_device *pdev)
- 		return PTR_ERR(sfc_temp->regs);
- 	}
- 
--	sfc_temp->name = "sfc_tempsnsor";
-+	sfc_temp->name = "sfc_tempsensor";
- 
- 	ret = devm_request_irq(temp_dev, sfc_temp->irq, sfc_temp_isr,
- 			       IRQF_SHARED, sfc_temp->name, sfc_temp);
-@@ -198,7 +197,7 @@ MODULE_DEVICE_TABLE(of, sfc_temp_of_match);
- 
- static struct platform_driver sfc_temp_sensor_driver = {
- 	.driver = {
--		.name	= "sfc_temp_sensor",
-+		.name	= "sfc_tempsensor",
- 		.of_match_table = of_match_ptr(sfc_temp_of_match),
- 	},
- 	.probe		= sfc_temp_probe,
 -- 
-2.30.0
+2.29.2
 

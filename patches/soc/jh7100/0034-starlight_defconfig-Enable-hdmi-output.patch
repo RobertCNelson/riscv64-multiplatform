@@ -1,0 +1,37 @@
+From dcac28c4c368ab46a9e74a45b9ebd292144e8025 Mon Sep 17 00:00:00 2001
+From: Emil Renner Berthing <kernel@esmil.dk>
+Date: Tue, 18 May 2021 18:44:59 +0200
+Subject: [PATCH 34/37] starlight_defconfig: Enable hdmi output
+
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+---
+ arch/riscv/configs/starlight_defconfig | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/arch/riscv/configs/starlight_defconfig b/arch/riscv/configs/starlight_defconfig
+index 5daf445b3153..9a6ea4af2abe 100644
+--- a/arch/riscv/configs/starlight_defconfig
++++ b/arch/riscv/configs/starlight_defconfig
+@@ -99,7 +99,6 @@ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+ CONFIG_SERIAL_8250_DW=y
+ # CONFIG_DEVMEM is not set
+-CONFIG_I2C=y
+ # CONFIG_I2C_COMPAT is not set
+ CONFIG_I2C_CHARDEV=y
+ CONFIG_I2C_MUX=y
+@@ -121,7 +120,11 @@ CONFIG_POWER_RESET=y
+ CONFIG_POWER_RESET_TPS65086=y
+ CONFIG_SENSORS_SFCTMP=y
+ CONFIG_MFD_TPS65086=y
++CONFIG_DRM=y
++CONFIG_FB_STARFIVE=y
++CONFIG_FB_STARFIVE_HDMI_TDA998X=y
+ # CONFIG_VGA_CONSOLE is not set
++CONFIG_FRAMEBUFFER_CONSOLE=y
+ # CONFIG_HID is not set
+ # CONFIG_USB_HID is not set
+ CONFIG_USB=y
+-- 
+2.30.0
+

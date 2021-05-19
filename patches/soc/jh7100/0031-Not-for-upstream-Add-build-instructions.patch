@@ -1,7 +1,7 @@
 From 584b0f7182cf1e34990f90fc30c41d29802c4abc Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Wed, 5 May 2021 20:03:04 +0200
-Subject: [PATCH 31/31] [Not for upstream] Add build instructions
+Subject: [PATCH 31/37] [Not for upstream] Add build instructions
 
 For convenience this also adds a small starlight_defconfig and the
 firmware needed for the brcmfmac driver along with the signed regulatory

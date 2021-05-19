@@ -1,0 +1,26 @@
+From 165818ad1fbffdf08bd0320d7be159e814cb8d12 Mon Sep 17 00:00:00 2001
+From: Emil Renner Berthing <kernel@esmil.dk>
+Date: Tue, 18 May 2021 21:00:27 +0200
+Subject: [PATCH 35/37] starlight_defconfig: Enable USB HID
+
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+---
+ arch/riscv/configs/starlight_defconfig | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/arch/riscv/configs/starlight_defconfig b/arch/riscv/configs/starlight_defconfig
+index 9a6ea4af2abe..ee237e8838fc 100644
+--- a/arch/riscv/configs/starlight_defconfig
++++ b/arch/riscv/configs/starlight_defconfig
+@@ -125,8 +125,6 @@ CONFIG_FB_STARFIVE=y
+ CONFIG_FB_STARFIVE_HDMI_TDA998X=y
+ # CONFIG_VGA_CONSOLE is not set
+ CONFIG_FRAMEBUFFER_CONSOLE=y
+-# CONFIG_HID is not set
+-# CONFIG_USB_HID is not set
+ CONFIG_USB=y
+ CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
+ CONFIG_USB_MON=y
+-- 
+2.30.0
+

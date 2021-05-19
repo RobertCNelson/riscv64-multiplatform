@@ -1,7 +1,7 @@
 From eb1c3c7d70ee34a4f65bf77035c8c557caf559ac Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Sat, 6 Mar 2021 03:25:36 +0800
-Subject: [PATCH 20/31] drivers/media and video: update fb driver(flush cache)
+Subject: [PATCH 20/37] drivers/media and video: update fb driver(flush cache)
  and cam sensor drivers
 
 ---

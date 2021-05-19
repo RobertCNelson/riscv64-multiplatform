@@ -1,7 +1,7 @@
 From e306a79bb1b0c9284457dfe13e7b57b2c1c988c5 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Sat, 13 Mar 2021 15:22:38 +0800
-Subject: [PATCH 13/31] drivers/i2c: Add GPIO configuration for VIC7100.
+Subject: [PATCH 13/37] drivers/i2c: Add GPIO configuration for VIC7100.
 
 [FIXME] why we can not do it in U-boot?
 

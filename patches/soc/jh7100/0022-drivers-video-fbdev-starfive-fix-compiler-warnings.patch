@@ -1,7 +1,7 @@
 From 16f27d44ff8bc33d5f6b98de503eb7a6a20f7632 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 6 May 2021 21:16:33 +0200
-Subject: [PATCH 22/31] drivers/video/fbdev/starfive: fix compiler warnings
+Subject: [PATCH 22/37] drivers/video/fbdev/starfive: fix compiler warnings
 
 Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 ---

@@ -1,7 +1,7 @@
 From 4d721f173208f672c846b60c9e04728e5b11ca81 Mon Sep 17 00:00:00 2001
 From: "yiming.li" <yiming.li@starfivetech.com>
 Date: Tue, 16 Mar 2021 01:45:19 +0800
-Subject: [PATCH 10/31] drivers/pwm/pwm-sifive-ptc: Clear PWM CNTR
+Subject: [PATCH 10/37] drivers/pwm/pwm-sifive-ptc: Clear PWM CNTR
 
 Clear CNTR of PWM after setting period & duty_cycle
 ---

@@ -1,7 +1,7 @@
 From 1ab9c4c0f8e3d3ad2199e6f43b11fc25d3080919 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Fri, 8 Jan 2021 19:51:05 +0800
-Subject: [PATCH 17/31] drivers/usb: Add dcache flush(VIC7100 ONLY)
+Subject: [PATCH 17/37] drivers/usb: Add dcache flush(VIC7100 ONLY)
 
 drivers/usb/cdns3/
 drivers/usb/core/
