@@ -208,9 +208,9 @@ reverts () {
 	fi
 }
 
-#drivers () {
-#
-#}
+drivers () {
+	dir 'drivers/ethernet'
+}
 
 soc () {
 	dir 'soc/jh7100'
@@ -219,8 +219,8 @@ soc () {
 ###
 #backports
 #reverts
-#drivers
 soc
+drivers
 
 packaging () {
 	#do_backport="enable"
