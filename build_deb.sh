@@ -25,6 +25,11 @@ git_bin=$(which git)
 
 mkdir -p "${DIR}/deploy/"
 
+config_patch_build_salt () {
+	sed -i -e 's:CONFIG_BUILD_SALT:#CONFIG_BUILD_SALT:g' .config
+	echo "CONFIG_BUILD_SALT=\"v${KERNEL_TAG}${BUILD}\"" >> .config
+}
+
 patch_kernel () {
 	cd "${DIR}/KERNEL" || exit
 
@@ -56,6 +61,9 @@ copy_defconfig () {
 
 make_menuconfig () {
 	cd "${DIR}/KERNEL" || exit
+	if [ ! -f "${DIR}/.yakbuild" ] ; then
+		config_patch_build_salt
+	fi
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" oldconfig
 	make ARCH=${KERNEL_ARCH} CROSS_COMPILE="${CC}" menuconfig
 	if [ ! -f "${DIR}/.yakbuild" ] ; then
