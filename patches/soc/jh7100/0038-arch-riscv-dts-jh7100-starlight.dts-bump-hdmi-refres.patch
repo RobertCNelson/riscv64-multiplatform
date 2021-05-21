@@ -1,0 +1,27 @@
+From d0357990d9f6a610ad63d04d280bd8adf6ea4deb Mon Sep 17 00:00:00 2001
+From: Stephen L Arnold <nerdboy@gentoo.org>
+Date: Wed, 19 May 2021 13:39:42 -0700
+Subject: [PATCH] arch: riscv: dts: jh7100-starlight.dts: bump hdmi refresh
+ rate
+
+Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
+---
+ arch/riscv/boot/dts/starfive/jh7100-starlight.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/boot/dts/starfive/jh7100-starlight.dts b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
+index 59d2d0a54f38..b7265bf7af9e 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
++++ b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
+@@ -180,7 +180,7 @@ tda_998x_1080p {
+ 		physical-height = <114>;
+ 		panel-width = <1920>;
+ 		panel-height = <1080>;
+-		pixel-clock = <78000000>;
++		pixel-clock = <148500000>;
+ 		/*dyn_fps;*/		/*dynamic frame rate support*/
+ 
+ 		/*.flags = PREFER_CMD_SEND_MONOLITHIC | CE_CMD_SEND_MONOLITHIC | RESUME_WITH_PREFER | RESUME_WITH_CE*/
+-- 
+2.30.0
+
