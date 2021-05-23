@@ -262,11 +262,16 @@ soc () {
 	dir 'soc/jh7100'
 }
 
+dts () {
+	dir 'dts/jh7100'
+}
+
 ###
 #backports
 #reverts
 soc
 drivers
+#dts
 
 packaging () {
 	#do_backport="enable"
