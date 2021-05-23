@@ -1,95 +1,398 @@
-From 23c65ba4d256d369f102755fbef424e66c6184c4 Mon Sep 17 00:00:00 2001
-From: Stephen L Arnold <nerdboy@gentoo.org>
-Date: Tue, 18 May 2021 12:37:03 -0700
-Subject: [PATCH 1/2] drivers/hwmon/sfctemp: add hwmon device registration
+From 9322abd743bfe67c039b8da4c78645e9147a2fe7 Mon Sep 17 00:00:00 2001
+From: Emil Renner Berthing <kernel@esmil.dk>
+Date: Sat, 22 May 2021 19:55:45 +0200
+Subject: [PATCH] hwmon: sfctemp: Use hwmon_device_register_with_info
 
-Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 ---
- drivers/hwmon/sfctmp.c | 34 +++++++++++++++++++---------------
- 1 file changed, 19 insertions(+), 15 deletions(-)
+ drivers/hwmon/sfctmp.c | 312 ++++++++++++++++++++++++++---------------
+ 1 file changed, 199 insertions(+), 113 deletions(-)
 
 diff --git a/drivers/hwmon/sfctmp.c b/drivers/hwmon/sfctmp.c
-index 901f92f8dd2d..698e129de935 100644
+index 901f92f8dd2d..d9583ea47b6e 100644
 --- a/drivers/hwmon/sfctmp.c
 +++ b/drivers/hwmon/sfctmp.c
-@@ -22,7 +22,6 @@
- #include <linux/of.h>
- #include <linux/err.h>
- #include <linux/mutex.h>
--#include <linux/device.h>
+@@ -26,186 +26,272 @@
  #include <asm-generic/io.h>
  #include <linux/regmap.h>
  
-@@ -61,22 +60,29 @@ struct sfc_temp{
+-typedef union
+-{
+-	uint32_t v;
++#define SFCTEMP_Y100  23750L
++#define SFCTEMP_Z100 409400L
++#define SFCTEMP_K100   8110L
++
++union sfctemp_reg {
++	u32 v;
+ 	struct {
+-		uint32_t rstn   : 1; /* TempSensor reset.The RSTN can be de-asserted once the analog core has powered up. Trst(min 100ns)                                0: reset    1: de-assert */
+-		uint32_t pd     : 1; /* TempSensor analog core power down.the analog core will be power up when PD de-asserted after Tpu(min 50us) has elapsed. the RSTN should be held low until the analog core is powered up.                                0:power up     1: power down */
+-		uint32_t run    : 1; /* TempSensor start conversion enable
+-								0:disable    1:enable */
+-		uint32_t rsvd_0 : 1;
+-		uint32_t cal    : 1; /* TempSensor calibration mode enable
+-								0:disable    1:enable */
+-		uint32_t sgn    : 1; /* TempSensor signature enable,generate a toggle value outputting on DOUT for test purposes.
+-								0:disable    1:enable */
+-		uint32_t rsvd_1 : 6;
+-		uint32_t tm     : 4; /* TempSensor test access control
+-								0000:normal     0001:Test 1  0010:Test 2  0011:Test 3
+-								0100:Test4      1000:Test 8  1001:Test 9 */
+-		uint32_t dout   : 12; /* TempSensor conversion value output
+-								Temp(c)=DOUT/4094*Y-K */
+-		uint32_t rsvd_2 : 3;
+-		uint32_t digo   : 1;  /* TempSensor digital test output */
++		/* TempSensor reset. The RSTN can be de-asserted once the
++		 * analog core has powered up. Trst(min 100ns)
++		 * 0:reset  1:de-assert */
++		u32 rstn   : 1;
++		/* TempSensor analog core power down. The analog core will be
++		 * power up when PD de-asserted after Tpu(min 50us) has
++		 * elapsed. the RSTN should be held low until the analog core
++		 * is powered up.
++		 * 0:power up  1:power down */
++		u32 pd     : 1;
++		/* TempSensor start conversion enable.
++		 * 0:disable  1:enable */
++		u32 run    : 1;
++		u32 rsvd_0 : 1;
++		/* TempSensor calibration mode enable.
++		 * 0:disable  1:enable */
++		u32 cal    : 1;
++		/* TempSensor signature enable. Generate a toggle value
++		 * outputting on DOUT for test purpose.
++		 * 0:disable  1:enable */
++		u32 sgn    : 1;
++		u32 rsvd_1 : 6;
++		/* TempSensor test access control.
++		 * 0000:normal 0001:Test1  0010:Test2  0011:Test3
++		 * 0100:Test4  1000:Test8  1001:Test9 */
++		u32 tm     : 4;
++		/* TempSensor conversion value output.
++		 * Temp(c)=DOUT/4094*Y-K */
++		u32 dout   : 12;
++		u32 rsvd_2 : 3;
++		/* TempSensor digital test output. */
++		u32 digo   : 1;
+ 	} bits;
+-} sfc_temp_sensor_reg_t;
+-
+-static uint32_t s_temp_sensor_dout;
++};
  
- static ssize_t sfctmp_get_temp(struct device *dev, struct device_attribute *devattr,char *buf)
- {
+-struct sfc_temp{
+-	const char *name;
++struct sfctemp {
+ 	void __iomem *regs;
+-	int irq;
+-	int clk;
++	u32 dout;
++	bool enabled;
+ };
+ 
+-static ssize_t sfctmp_get_temp(struct device *dev, struct device_attribute *devattr,char *buf)
+-{
 -	long temp,temp_z,temp_x;
 -	const long Y100 = 23750, K100 = 8110,Z100 = 409400;
-+	long temp;
-+	const long Y100 = 23750, K100 = 8110, Z100 = 409400;
- 
- 	temp  = ((long)s_temp_sensor_dout*100)*Y100/Z100-K100;
+-
+-	temp  = ((long)s_temp_sensor_dout*100)*Y100/Z100-K100;
 -	temp_z = temp/100;
 -	temp_x = temp%100;
 -	return	sprintf(buf, "%ld.%ld\n", temp_z,temp_x);
-+
-+	// multiply by 10 so we can return a value in millideg C
-+	return	sprintf(buf, "%ld\n", temp*10);
+-}
+-
+-static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, sfctmp_get_temp, NULL, 0);
+-
+-static ssize_t sfctmp_temp_show(void)
+-{
+-	char buf[10];
+-	sfctmp_get_temp(NULL, NULL, buf);
+-	printk("temp(c): %s",buf);
+-	return 0;
+-}
+-
+-static irqreturn_t sfc_temp_isr(int irq, void *priv)
++static irqreturn_t sfctemp_isr(int irq, void *data)
+ {
+-	struct sfc_temp *sfc_temp = (struct sfc_temp *)priv;
+-	sfc_temp_sensor_reg_t reg;
++	struct sfctemp *sfctemp = data;
++	union sfctemp_reg reg;
+ 
+-	reg.v = readl(sfc_temp->regs);
+-	s_temp_sensor_dout = reg.bits.dout;
++	reg.v = readl(sfctemp->regs);
++	sfctemp->dout = reg.bits.dout;
+ 	return IRQ_HANDLED;
  }
  
- static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, sfctmp_get_temp, NULL, 0);
- 
-+static struct attribute *sfc_attrs[] = {
-+	&sensor_dev_attr_temp1_input.dev_attr.attr,
-+	NULL
-+};
-+
-+ATTRIBUTE_GROUPS(sfc);
-+
- static ssize_t sfctmp_temp_show(void)
+-static void temp_sensor_power_up(struct sfc_temp *sfc_temp)
++static void sfctemp_power_up(struct sfctemp *sfctemp)
  {
- 	char buf[10];
- 	sfctmp_get_temp(NULL, NULL, buf);
--	printk("temp(c): %s",buf);
-+	printk("temp(milliCelcius): %s",buf);
+-	sfc_temp_sensor_reg_t init;
++	union sfctemp_reg init;
++
+ 	init.v = 0;
+ 	init.bits.pd = 1;
+-	writel(init.v, sfc_temp->regs);
++	writel(init.v, sfctemp->regs);
+ 	udelay(1);
+ 
+ 	init.bits.pd = 0;
+-	writel(init.v, sfc_temp->regs);
+-	// wait t_pu(50us) + t_rst(100ns)
++	writel(init.v, sfctemp->regs);
++	/* wait t_pu(50us) + t_rst(100ns) */
+ 	udelay(60);
+ 
+ 	init.bits.rstn = 1;
+-	writel(init.v, sfc_temp->regs);
+-	// wait t_su(500ps)
++	writel(init.v, sfctemp->regs);
++	/* wait t_su(500ps) */
+ 	udelay(1);
+ 
+ 	init.bits.run = 1;
+-	writel(init.v, sfc_temp->regs);
+-	// wait 1st sample (8192 temp_sense clk: ~2MHz)
++	writel(init.v, sfctemp->regs);
++	/* wait 1st sample (8192 temp_sense clk: ~2MHz) */
+ 	mdelay(10);
+ }
+ 
+-static void temp_sensor_power_down(struct sfc_temp *sfc_temp)
++static void sfctemp_power_down(struct sfctemp *sfctemp)
+ {
+-	sfc_temp_sensor_reg_t init;
++	union sfctemp_reg init;
+ 
+-	init.v = readl(sfc_temp->regs);
++	init.v = readl(sfctemp->regs);
+ 	init.bits.run = 0;
+-	writel(init.v, sfc_temp->regs);
++	writel(init.v, sfctemp->regs);
+ 	udelay(1);
+ 
+ 	init.bits.pd   = 1;
+ 	init.bits.rstn = 0;
+-	writel(init.v, sfc_temp->regs);
++	writel(init.v, sfctemp->regs);
+ 	udelay(1);
+ }
+ 
+-int temp_sensor_deinit(struct sfc_temp *sfc_temp)
++static int sfctemp_enable(struct sfctemp *sfctemp)
++{
++	if (sfctemp->enabled)
++		return 0;
++
++	sfctemp_power_up(sfctemp);
++	sfctemp->enabled = true;
++	return 0;
++}
++
++static int sfctemp_disable(struct sfctemp *sfctemp)
+ {
+-	temp_sensor_power_down(sfc_temp);
++	if (!sfctemp->enabled)
++		return 0;
++
++	sfctemp_power_down(sfctemp);
++	sfctemp->enabled = false;
  	return 0;
  }
  
-@@ -160,7 +166,7 @@ static int sfc_temp_probe(struct platform_device *pdev)
- 		return PTR_ERR(sfc_temp->regs);
- 	}
+-static int sfc_temp_probe(struct platform_device *pdev)
++static umode_t sfctemp_is_visible(const void *data, enum hwmon_sensor_types type,
++				  u32 attr, int channel)
++{
++	switch (type) {
++	case hwmon_temp:
++		switch (attr) {
++		case hwmon_temp_enable:
++			return 0644;
++		case hwmon_temp_input:
++			return 0444;
++		}
++		return 0;
++	default:
++		return 0;
++	}
++}
++
++static int sfctemp_read(struct device *dev, enum hwmon_sensor_types type,
++			u32 attr, int channel, long *val)
++{
++	struct sfctemp *sfctemp = dev_get_drvdata(dev);
++
++	switch (type) {
++	case hwmon_temp:
++		switch (attr) {
++		case hwmon_temp_enable:
++			*val = sfctemp->enabled;
++			return 0;
++		case hwmon_temp_input:
++			if (!sfctemp->enabled)
++				return -ENODATA;
++			/* calculate temperature in milli Celcius */
++			*val  = (1000 * SFCTEMP_Y100 * (long)sfctemp->dout) / SFCTEMP_Z100
++				- 10 * SFCTEMP_K100;
++			return 0;
++		}
++		return -EINVAL;
++	default:
++		return -EINVAL;
++	}
++}
++
++static int sfctemp_write(struct device *dev, enum hwmon_sensor_types type,
++			 u32 attr, int channel, long val)
+ {
+-	struct device *temp_dev = &pdev->dev;
++	struct sfctemp *sfctemp = dev_get_drvdata(dev);
++
++	switch (type) {
++	case hwmon_temp:
++		switch (attr) {
++		case hwmon_temp_enable:
++			if (val == 0)
++				return sfctemp_disable(sfctemp);
++			if (val == 1)
++				return sfctemp_enable(sfctemp);
++		}
++		return -EINVAL;
++	default:
++		return -EINVAL;
++	}
++}
++
++static const struct hwmon_channel_info *sfctemp_info[] = {
++	HWMON_CHANNEL_INFO(chip, HWMON_C_REGISTER_TZ),
++	HWMON_CHANNEL_INFO(temp, HWMON_T_ENABLE | HWMON_T_INPUT),
++	NULL
++};
++
++static const struct hwmon_ops sfctemp_hwmon_ops = {
++	.is_visible = sfctemp_is_visible,
++	.read = sfctemp_read,
++	.write = sfctemp_write,
++};
++
++static const struct hwmon_chip_info sfctemp_chip_info = {
++	.ops = &sfctemp_hwmon_ops,
++	.info = sfctemp_info,
++};
++
++static int sfctemp_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
+ 	struct device *hwmon_dev;
+ 	struct resource *mem;
+-	struct sfc_temp *sfc_temp;
++	struct sfctemp *sfctemp;
+ 	int ret;
+ 
+-	dev_info(temp_dev,"probe\n");
+-	sfc_temp = devm_kzalloc(&pdev->dev, sizeof(*sfc_temp), GFP_KERNEL);
+-	if (!sfc_temp)
++	sfctemp = devm_kzalloc(dev, sizeof(*sfctemp), GFP_KERNEL);
++	if (!sfctemp)
+ 		return -ENOMEM;
+ 
+-	temp_dev->driver_data = (void *)sfc_temp;
+-
+-	sfc_temp->irq = platform_get_irq(pdev, 0);
+-	if (sfc_temp->irq < 0)
+-		return sfc_temp->irq;
++	dev_set_drvdata(dev, sfctemp);
+ 
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	sfc_temp->regs = devm_ioremap_resource(temp_dev, mem);
+-	if(IS_ERR(sfc_temp->regs)){
+-		return PTR_ERR(sfc_temp->regs);
+-	}
++	sfctemp->regs = devm_ioremap_resource(dev, mem);
++	if (IS_ERR(sfctemp->regs))
++		return PTR_ERR(sfctemp->regs);
  
 -	sfc_temp->name = "sfc_tempsnsor";
-+	sfc_temp->name = "sfc_tempsensor";
++	ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		return ret;
  
- 	ret = devm_request_irq(temp_dev, sfc_temp->irq, sfc_temp_isr,
- 			       IRQF_SHARED, sfc_temp->name, sfc_temp);
-@@ -172,11 +178,9 @@ static int sfc_temp_probe(struct platform_device *pdev)
- 	temp_sensor_power_up(sfc_temp);
- 	sfctmp_temp_show();
+-	ret = devm_request_irq(temp_dev, sfc_temp->irq, sfc_temp_isr,
+-			       IRQF_SHARED, sfc_temp->name, sfc_temp);
+-	if(ret){
+-		printk("request_irq failed.\n");
++	ret = devm_request_irq(dev, ret, sfctemp_isr,
++			       IRQF_SHARED, pdev->name, sfctemp);
++	if (ret) {
++		dev_err(dev, "request irq failed: %d\n", ret);
+ 		return ret;
+ 	}
  
+-	temp_sensor_power_up(sfc_temp);
+-	sfctmp_temp_show();
+-
 -	ret = device_create_file(temp_dev, &sensor_dev_attr_temp1_input.dev_attr);
 -	if (ret){
--		return ret;
++	ret = sfctemp_enable(sfctemp);
++	if (ret)
+ 		return ret;
 -	}
 -	hwmon_device_register(temp_dev);
-+	hwmon_dev = devm_hwmon_device_register_with_groups(temp_dev,
-+						"sfc", sfc_temp, sfc_groups);
+-	return PTR_ERR_OR_ZERO(hwmon_dev);
 +
- 	return PTR_ERR_OR_ZERO(hwmon_dev);
++	hwmon_dev = hwmon_device_register_with_info(dev, pdev->name, sfctemp,
++						    &sfctemp_chip_info, NULL);
++	if (IS_ERR(hwmon_dev))
++		return PTR_ERR(hwmon_dev);
++
++	dev_info(dev, "%s: sensor '%s'\n", dev_name(hwmon_dev), pdev->name);
++	return 0;
  }
  
-@@ -198,7 +202,7 @@ MODULE_DEVICE_TABLE(of, sfc_temp_of_match);
+-static int sfc_temp_remove(struct platform_device *pdev)
++static int sfctemp_remove(struct platform_device *pdev)
+ {
+-	struct device *tmp_dev = &pdev->dev;
+-	struct sfc_temp *sfc_temp = (struct sfc_temp *)tmp_dev->driver_data;
+-	hwmon_device_unregister(tmp_dev);
+-	temp_sensor_deinit(sfc_temp);
+-	return 0;
++	struct device *dev = &pdev->dev;
++	struct sfctemp *sfctemp = dev_get_drvdata(dev);
++
++	hwmon_device_unregister(dev);
++	return sfctemp_disable(sfctemp);
+ }
  
- static struct platform_driver sfc_temp_sensor_driver = {
+-static const struct of_device_id sfc_temp_of_match[] = {
++static const struct of_device_id sfctemp_of_match[] = {
+ 	{ .compatible = "sfc,tempsensor" },
+-	{ }
++	{ /* sentinel */ }
+ };
+ 
+-MODULE_DEVICE_TABLE(of, sfc_temp_of_match);
++MODULE_DEVICE_TABLE(of, sfctemp_of_match);
+ 
+-static struct platform_driver sfc_temp_sensor_driver = {
++static struct platform_driver sfctemp_driver = {
  	.driver = {
 -		.name	= "sfc_temp_sensor",
-+		.name	= "sfc_tempsensor",
- 		.of_match_table = of_match_ptr(sfc_temp_of_match),
+-		.of_match_table = of_match_ptr(sfc_temp_of_match),
++		.name = "sfctemp",
++		.of_match_table = of_match_ptr(sfctemp_of_match),
  	},
- 	.probe		= sfc_temp_probe,
-@@ -208,4 +212,4 @@ module_platform_driver(sfc_temp_sensor_driver);
+-	.probe		= sfc_temp_probe,
+-	.remove		= sfc_temp_remove,
++	.probe  = sfctemp_probe,
++	.remove = sfctemp_remove,
+ };
+-module_platform_driver(sfc_temp_sensor_driver);
++module_platform_driver(sfctemp_driver);
  
  MODULE_AUTHOR("samin.guo");
  MODULE_DESCRIPTION("SFC temperature sensor driver");
@@ -97,5 +400,5 @@ index 901f92f8dd2d..698e129de935 100644
 \ No newline at end of file
 +MODULE_LICENSE("GPL");
 -- 
-2.29.2
+2.31.1
 

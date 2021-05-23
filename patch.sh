@@ -271,7 +271,7 @@ dts () {
 #reverts
 soc
 drivers
-#dts
+dts
 
 packaging () {
 	#do_backport="enable"
