@@ -1,0 +1,36 @@
+From 420a6bb25b47419884cbd929993dc0081dd23b8e Mon Sep 17 00:00:00 2001
+From: Stephen L Arnold <nerdboy@gentoo.org>
+Date: Sun, 23 May 2021 18:39:04 -0700
+Subject: [PATCH] arch: riscv: enable cupuidle menu
+
+Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
+---
+ arch/riscv/Kconfig | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index a8ad8eb76120..493cd3652c10 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -41,6 +41,7 @@ config RISCV
+ 	select CLONE_BACKWARDS
+ 	select CLINT_TIMER if !MMU
+ 	select COMMON_CLK
++	select CPU_PM if CPU_IDLE
+ 	select EDAC_SUPPORT
+ 	select GENERIC_ARCH_TOPOLOGY if SMP
+ 	select GENERIC_ATOMIC64 if !64BIT
+@@ -554,4 +555,10 @@ source "kernel/power/Kconfig"
+ 
+ endmenu
+ 
++menu "CPU Power Management"
++
++source "drivers/cpuidle/Kconfig"
++
++endmenu
++
+ source "drivers/firmware/Kconfig"
+-- 
+2.30.0
+
