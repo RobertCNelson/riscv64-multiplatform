@@ -1,0 +1,110 @@
+From 0cfc800cccb63cbfaae84a2539f48da71a3830cb Mon Sep 17 00:00:00 2001
+From: Matteo Croce <mcroce@microsoft.com>
+Date: Fri, 4 Oct 2019 13:27:44 +0300
+Subject: [PATCH 03/40] skbuff: add a parameter to __skb_frag_unref
+
+This is a prerequisite patch, the next one is enabling recycling of
+skbs and fragments. Add an extra argument on __skb_frag_unref() to
+handle recycling, and update the current users of the function with that.
+
+Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+---
+ drivers/net/ethernet/marvell/sky2.c        | 2 +-
+ drivers/net/ethernet/mellanox/mlx4/en_rx.c | 2 +-
+ include/linux/skbuff.h                     | 8 +++++---
+ net/core/skbuff.c                          | 4 ++--
+ net/tls/tls_device.c                       | 2 +-
+ 5 files changed, 10 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/net/ethernet/marvell/sky2.c b/drivers/net/ethernet/marvell/sky2.c
+index 222c32367b2c..aa0cde1dc5c0 100644
+--- a/drivers/net/ethernet/marvell/sky2.c
++++ b/drivers/net/ethernet/marvell/sky2.c
+@@ -2503,7 +2503,7 @@ static void skb_put_frags(struct sk_buff *skb, unsigned int hdr_space,
+ 
+ 		if (length == 0) {
+ 			/* don't need this page */
+-			__skb_frag_unref(frag);
++			__skb_frag_unref(frag, false);
+ 			--skb_shinfo(skb)->nr_frags;
+ 		} else {
+ 			size = min(length, (unsigned) PAGE_SIZE);
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_rx.c b/drivers/net/ethernet/mellanox/mlx4/en_rx.c
+index e35e4d7ef4d1..cea62b8f554c 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_rx.c
+@@ -526,7 +526,7 @@ static int mlx4_en_complete_rx_desc(struct mlx4_en_priv *priv,
+ fail:
+ 	while (nr > 0) {
+ 		nr--;
+-		__skb_frag_unref(skb_shinfo(skb)->frags + nr);
++		__skb_frag_unref(skb_shinfo(skb)->frags + nr, false);
+ 	}
+ 	return 0;
+ }
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index dbf820a50a39..7fcfea7e7b21 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -3081,10 +3081,12 @@ static inline void skb_frag_ref(struct sk_buff *skb, int f)
+ /**
+  * __skb_frag_unref - release a reference on a paged fragment.
+  * @frag: the paged fragment
++ * @recycle: recycle the page if allocated via page_pool
+  *
+- * Releases a reference on the paged fragment @frag.
++ * Releases a reference on the paged fragment @frag
++ * or recycles the page via the page_pool API.
+  */
+-static inline void __skb_frag_unref(skb_frag_t *frag)
++static inline void __skb_frag_unref(skb_frag_t *frag, bool recycle)
+ {
+ 	put_page(skb_frag_page(frag));
+ }
+@@ -3098,7 +3100,7 @@ static inline void __skb_frag_unref(skb_frag_t *frag)
+  */
+ static inline void skb_frag_unref(struct sk_buff *skb, int f)
+ {
+-	__skb_frag_unref(&skb_shinfo(skb)->frags[f]);
++	__skb_frag_unref(&skb_shinfo(skb)->frags[f], false);
+ }
+ 
+ /**
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 3ad22870298c..12b7e90dd2b5 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -664,7 +664,7 @@ static void skb_release_data(struct sk_buff *skb)
+ 	skb_zcopy_clear(skb, true);
+ 
+ 	for (i = 0; i < shinfo->nr_frags; i++)
+-		__skb_frag_unref(&shinfo->frags[i]);
++		__skb_frag_unref(&shinfo->frags[i], false);
+ 
+ 	if (shinfo->frag_list)
+ 		kfree_skb_list(shinfo->frag_list);
+@@ -3495,7 +3495,7 @@ int skb_shift(struct sk_buff *tgt, struct sk_buff *skb, int shiftlen)
+ 		fragto = &skb_shinfo(tgt)->frags[merge];
+ 
+ 		skb_frag_size_add(fragto, skb_frag_size(fragfrom));
+-		__skb_frag_unref(fragfrom);
++		__skb_frag_unref(fragfrom, false);
+ 	}
+ 
+ 	/* Reposition in the original skb */
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 76a6f8c2eec4..ad11db2c4f63 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -127,7 +127,7 @@ static void destroy_record(struct tls_record_info *record)
+ 	int i;
+ 
+ 	for (i = 0; i < record->num_frags; i++)
+-		__skb_frag_unref(&record->frags[i]);
++		__skb_frag_unref(&record->frags[i], false);
+ 	kfree(record);
+ }
+ 
+-- 
+2.30.0
+

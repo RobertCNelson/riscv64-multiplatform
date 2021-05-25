@@ -1,91 +1,23 @@
-From b5bc7665d7928b3ca6527d02d22fb0584df88de3 Mon Sep 17 00:00:00 2001
+From 76cc630ed59d8465bd63f8b3c4eeecd73f1972de Mon Sep 17 00:00:00 2001
 From: Stephen L Arnold <nerdboy@gentoo.org>
-Date: Sun, 23 May 2021 14:11:48 -0700
+Date: Sun, 23 May 2021 16:51:24 -0700
 Subject: [PATCH] arch: riscv: dts: jh7100-starlight: add thermal bindings
-
-* add cpu_thermal node with 2 trips
 
 Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
 ---
- arch/riscv/boot/dts/starfive/jh7100.dtsi | 40 +++++++++++++++++++-----
- 1 file changed, 33 insertions(+), 7 deletions(-)
+ arch/riscv/boot/dts/starfive/jh7100.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
-index 3935ef694635..e9f5fb4ee1e4 100644
+index 792ff880cf70..042d9522bcce 100644
 --- a/arch/riscv/boot/dts/starfive/jh7100.dtsi
 +++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
-@@ -13,7 +13,7 @@ chosen {
- 	cpus {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		cpu@0 {
-+		cpu0: cpu@0 {
- 			compatible = "sifive,u74-mc", "riscv";
- 			d-cache-block-size = <64>;
- 			d-cache-sets = <64>;
-@@ -40,7 +40,7 @@ cpu0_intc: interrupt-controller {
- 			};
- 		};
+@@ -1,4 +1,5 @@
+ /dts-v1/;
++#include <dt-bindings/thermal/thermal.h>
+ #include <dt-bindings/starfive_fb.h>
+ #include <dt-bindings/gpio/gpio.h>
  
--		cpu@1 {
-+		cpu1: cpu@1 {
- 			compatible = "sifive,u74-mc", "riscv";
- 			d-cache-block-size = <64>;
- 			d-cache-sets = <64>;
-@@ -384,9 +384,7 @@ usb3: usb@104c0000 {
- 			reg-names = "otg", "xhci", "dev";
- 			interrupt-parent = <&plic>;
- 			interrupts = <43>, <44>, <52>;
--			interrupt-names = "otg",
--					"host",
--					"peripheral";
-+			interrupt-names = "otg", "host", "peripheral";
- 			phy-names = "cdns3,usb3-phy", "cdns3,usb2-phy";
- 			maximum-speed = "super-speed";
- 			status = "disabled";
-@@ -711,12 +709,40 @@ vin_sysctl: vin_sysctl@19800000 {
- 			csi-dt = <0x2b>;
- 		};
- 
--		sfc_tmp: tmpsensor@124a0000 {
-+		sfc_tmp: sfctemp@124a0000 {
- 			compatible = "sfc,tempsensor";
- 			reg = <0x0 0x124a0000 0x0 0x1000>;
-+			#thermal-sensor-cells = <0>;
- 			interrupt-parent = <&plic>;
- 			interrupts = <122>;
--			status = "okay";
-+		};
-+
-+		thermal-zones {
-+			cpu_thermal: cpu-thermal {
-+				polling-delay-passive = <250>;
-+				polling-delay = <15000>;
-+
-+				thermal-sensors = <&sfc_tmp>;
-+
-+				cooling-maps {
-+				};
-+
-+				trips {
-+					cpu_alert0: cpu_alert0 {
-+						/* milliCelsius */
-+						temperature = <75000>;
-+						hysteresis = <2000>;
-+						type = "passive";
-+					};
-+
-+					cpu_crit: cpu_crit {
-+						/* milliCelsius */
-+						temperature = <90000>;
-+						hysteresis = <2000>;
-+						type = "critical";
-+					};
-+				};
-+			};
- 		};
- 
- 		otp: otp@11810000 {
 -- 
-2.29.2
+2.30.0
 

@@ -1,0 +1,60 @@
+From 8c24396a867edbba102fca8d4d0a170fddc94fd4 Mon Sep 17 00:00:00 2001
+From: Emil Renner Berthing <kernel@esmil.dk>
+Date: Mon, 24 May 2021 11:49:30 +0200
+Subject: [PATCH] riscv: dts: jh7100-starlight: Raise SDcard max frequency
+
+Michael Zhu found that raising the max frequency on the
+SD Card controller to 50MHz seems to work and improve
+performance:
+
+https://github.com/starfive-tech/Fedora_on_StarFive/issues/23
+
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+---
+ arch/riscv/boot/dts/starfive/jh7100-starlight.dts | 2 ++
+ arch/riscv/boot/dts/starfive/jh7100.dtsi          | 2 --
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/boot/dts/starfive/jh7100-starlight.dts b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
+index 531553875672..30e20688cec5 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
++++ b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
+@@ -135,6 +135,7 @@ &sdio0 {
+ 	broken-cd;
+ 	bus-width = <4>;
+ 	cap-sd-highspeed;
++	max-frequency = <50000000>;
+ 	status = "okay";
+ };
+ 
+@@ -145,6 +146,7 @@ &sdio1 {
+ 	cap-sd-highspeed;
+ 	cap-sdio-irq;
+ 	cap-power-off-card;
++	max-frequency = <10000000>;
+ 	mmc-pwrseq = <&wifi_pwrseq>;
+ 	non-removable;
+ 	status = "okay";
+diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+index 792ff880cf70..b04a1c0a54e4 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+@@ -636,7 +636,6 @@ sdio0: mmc@10000000 {
+ 			data-addr = <0>;
+ 			fifo-depth = <32>;
+ 			fifo-watermark-aligned;
+-			max-frequency = <10000000>;
+ 			status = "disabled";
+ 		};
+ 
+@@ -651,7 +650,6 @@ sdio1: mmc@10010000 {
+ 			data-addr = <0>;
+ 			fifo-depth = <32>;
+ 			fifo-watermark-aligned;
+-			max-frequency = <10000000>;
+ 			status = "disabled";
+ 		};
+ 
+-- 
+2.29.2
+
