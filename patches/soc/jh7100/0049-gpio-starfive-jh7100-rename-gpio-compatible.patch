@@ -1,0 +1,29 @@
+From 8590af82ab89580069cb2ff640be315bade58692 Mon Sep 17 00:00:00 2001
+From: Drew Fustini <drew@beagleboard.org>
+Date: Sun, 30 May 2021 14:15:12 -0700
+Subject: [PATCH 49/56] gpio: starfive-jh7100: rename gpio compatible
+
+Rename gpio controller compatible from "starfive,gpio0" to
+"starfive,jh7100"
+
+Signed-off-by: Drew Fustini <drew@beagleboard.org>
+---
+ drivers/gpio/gpio-starfive-jh7100.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/gpio/gpio-starfive-jh7100.c b/drivers/gpio/gpio-starfive-jh7100.c
+index 277975a0dc2b..d1a8d1a517b3 100755
+--- a/drivers/gpio/gpio-starfive-jh7100.c
++++ b/drivers/gpio/gpio-starfive-jh7100.c
+@@ -516,7 +516,7 @@ static int starfive_gpio_probe(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id starfive_gpio_match[] = {
+-	{ .compatible = "starfive,gpio0", },
++	{ .compatible = "starfive,jh7100-gpio", },
+ 	{ },
+ };
+ 
+-- 
+2.30.2
+

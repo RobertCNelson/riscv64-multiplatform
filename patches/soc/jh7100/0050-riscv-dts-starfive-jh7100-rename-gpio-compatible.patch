@@ -1,0 +1,29 @@
+From d567ae834776aa08b59548a1416c8da96caf3389 Mon Sep 17 00:00:00 2001
+From: Drew Fustini <drew@beagleboard.org>
+Date: Sun, 30 May 2021 14:12:56 -0700
+Subject: [PATCH 50/56] riscv: dts: starfive-jh7100: rename gpio compatible
+
+Rename gpio controller compatible from "starfive,gpio0" to
+"starfive,jh7100"
+
+Signed-off-by: Drew Fustini <drew@beagleboard.org>
+---
+ arch/riscv/boot/dts/starfive/jh7100.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+index 7fd9b4ee7471..413455b8d14f 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100.dtsi
++++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
+@@ -343,7 +343,7 @@ usb3: usb@104c0000 {
+ 		};
+ 
+ 		gpio: gpio@11910000 {
+-			compatible = "starfive,gpio0";
++			compatible = "starfive,jh7100-gpio";
+ 			interrupts = <32>;
+ 			reg = <0x0 0x11910000 0x0 0x10000>;
+ 			reg-names = "control";
+-- 
+2.30.2
+

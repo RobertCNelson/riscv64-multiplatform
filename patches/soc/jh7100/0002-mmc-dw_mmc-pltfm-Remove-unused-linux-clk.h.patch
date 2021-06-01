@@ -1,0 +1,28 @@
+From b6e46948f518f18018f54a5ab6c94ff86f31087f Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 27 May 2021 20:03:18 +0200
+Subject: [PATCH 02/56] mmc: dw_mmc-pltfm: Remove unused <linux/clk.h>
+
+As of commit 4cdc2ec1da322776 ("mmc: dw_mmc: move rockchip related code
+to a separate file"), dw_mmc-pltfm.c no longer uses the clock API.
+
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/mmc/host/dw_mmc-pltfm.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/mmc/host/dw_mmc-pltfm.c b/drivers/mmc/host/dw_mmc-pltfm.c
+index 73731cd3ba23..9901208be797 100644
+--- a/drivers/mmc/host/dw_mmc-pltfm.c
++++ b/drivers/mmc/host/dw_mmc-pltfm.c
+@@ -17,7 +17,6 @@
+ #include <linux/mmc/host.h>
+ #include <linux/mmc/mmc.h>
+ #include <linux/of.h>
+-#include <linux/clk.h>
+ 
+ #include "dw_mmc.h"
+ #include "dw_mmc-pltfm.h"
+-- 
+2.30.2
+

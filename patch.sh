@@ -182,7 +182,6 @@ local_patch () {
 
 #external_git
 #rt
-wireless_regdb
 #local_patch
 
 pre_backports () {
@@ -269,9 +268,11 @@ dts () {
 ###
 #backports
 #reverts
+
 soc
-#drivers
 dts
+
+wireless_regdb
 
 packaging () {
 	#do_backport="enable"
