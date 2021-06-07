@@ -33,8 +33,8 @@ DEBARCH=riscv64
 #toolchain="gcc_7_riscv64"
 #toolchain="gcc_8_riscv64"
 #toolchain="gcc_9_riscv64"
-toolchain="gcc_10_riscv64"
-#toolchain="gcc_11_riscv64"
+#toolchain="gcc_10_riscv64"
+toolchain="gcc_11_riscv64"
 
 #Kernel
 KERNEL_REL=5.13
