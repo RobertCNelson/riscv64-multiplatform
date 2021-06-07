@@ -1,0 +1,995 @@
+From 54976b64f70cc477a11c1d18e3225c6f16282cf2 Mon Sep 17 00:00:00 2001
+From: Huan Feng <huan.feng@starfivetech.com>
+Date: Fri, 8 Jan 2021 03:19:19 +0800
+Subject: [PATCH 24/59] gpio: starfive-jh7100: Add StarFive JH7100 GPIO driver
+
+This SoC is used on the BeagleV Starlight JH7100 board [1].
+
+[1] https://github.com/beagleboard/beaglev-starlight
+
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+Signed-off-by: Drew Fustini <drew@beagleboard.org>
+---
+ drivers/gpio/Kconfig                |   8 +
+ drivers/gpio/Makefile               |   1 +
+ drivers/gpio/gpio-starfive-jh7100.c | 545 ++++++++++++++++++++++++++++
+ include/linux/gpio-starfive-vic.h   | 384 ++++++++++++++++++++
+ 4 files changed, 938 insertions(+)
+ create mode 100755 drivers/gpio/gpio-starfive-jh7100.c
+ create mode 100644 include/linux/gpio-starfive-vic.h
+
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 1dd0ec6727fd..26630e4852c0 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -542,6 +542,14 @@ config GPIO_SIFIVE
+ 	help
+ 	  Say yes here to support the GPIO device on SiFive SoCs.
+ 
++config GPIO_STARFIVE_JH7100
++	bool "StarFive JH7100 GPIO support"
++	depends on OF_GPIO
++	select GPIOLIB_IRQCHIP
++	default y if SOC_STARFIVE_VIC7100
++	help
++	  Say yes here to support the GPIO device on StarFive JH7100 SoC.
++
+ config GPIO_SIOX
+ 	tristate "SIOX GPIO support"
+ 	depends on SIOX
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index d7c81e1611a4..939922eaf5f3 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -132,6 +132,7 @@ obj-$(CONFIG_GPIO_SAMA5D2_PIOBU)	+= gpio-sama5d2-piobu.o
+ obj-$(CONFIG_GPIO_SCH311X)		+= gpio-sch311x.o
+ obj-$(CONFIG_GPIO_SCH)			+= gpio-sch.o
+ obj-$(CONFIG_GPIO_SIFIVE)		+= gpio-sifive.o
++obj-$(CONFIG_GPIO_STARFIVE_JH7100)	+= gpio-starfive-jh7100.o
+ obj-$(CONFIG_GPIO_SIOX)			+= gpio-siox.o
+ obj-$(CONFIG_GPIO_SL28CPLD)		+= gpio-sl28cpld.o
+ obj-$(CONFIG_GPIO_SODAVILLE)		+= gpio-sodaville.o
+diff --git a/drivers/gpio/gpio-starfive-jh7100.c b/drivers/gpio/gpio-starfive-jh7100.c
+new file mode 100755
+index 000000000000..d1a8d1a517b3
+--- /dev/null
++++ b/drivers/gpio/gpio-starfive-jh7100.c
+@@ -0,0 +1,545 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * GPIO driver for StarFive JH7100 SoC
++ *
++ * Copyright (C) 2020 Shanghai StarFive Technology Co., Ltd.
++ */
++
++#include <linux/module.h>
++#include <linux/gpio/driver.h>
++#include <linux/platform_device.h>
++#include <linux/spinlock.h>
++
++#define GPIO_EN		0x0
++#define GPIO_IS_LOW	0x10
++#define GPIO_IS_HIGH	0x14
++#define GPIO_IBE_LOW	0x18
++#define GPIO_IBE_HIGH	0x1c
++#define GPIO_IEV_LOW	0x20
++#define GPIO_IEV_HIGH	0x24
++#define GPIO_IE_LOW	0x28
++#define GPIO_IE_HIGH	0x2c
++#define GPIO_IC_LOW	0x30
++#define GPIO_IC_HIGH	0x34
++//read only
++#define GPIO_RIS_LOW	0x38
++#define GPIO_RIS_HIGH	0x3c
++#define GPIO_MIS_LOW	0x40
++#define GPIO_MIS_HIGH	0x44
++#define GPIO_DIN_LOW	0x48
++#define GPIO_DIN_HIGH	0x4c
++
++#define GPIO_DOUT_X_REG	0x50
++#define GPIO_DOEN_X_REG	0x54
++
++#define MAX_GPIO	 64
++
++struct starfive_gpio {
++	raw_spinlock_t		lock;
++	void __iomem		*base;
++	struct gpio_chip	gc;
++	unsigned long		enabled;
++	unsigned int		trigger[MAX_GPIO];
++	unsigned int		irq_parent[MAX_GPIO];
++};
++
++static DEFINE_SPINLOCK(sfg_lock);
++
++static void __iomem *gpio_base;
++
++static int starfive_direction_input(struct gpio_chip *gc, unsigned int offset)
++{
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	unsigned long flags;
++
++	if (offset >= gc->ngpio)
++		return -EINVAL;
++
++	raw_spin_lock_irqsave(&chip->lock, flags);
++	writel_relaxed(0x1, chip->base + GPIO_DOEN_X_REG + offset * 8);
++	raw_spin_unlock_irqrestore(&chip->lock, flags);
++
++	return 0;
++}
++
++static int starfive_direction_output(struct gpio_chip *gc, unsigned int offset, int value)
++{
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	unsigned long flags;
++
++	if (offset >= gc->ngpio)
++		return -EINVAL;
++
++	raw_spin_lock_irqsave(&chip->lock, flags);
++	writel_relaxed(0x0, chip->base + GPIO_DOEN_X_REG + offset * 8);
++	writel_relaxed(value, chip->base + GPIO_DOUT_X_REG + offset * 8);
++	raw_spin_unlock_irqrestore(&chip->lock, flags);
++
++	return 0;
++}
++
++static int starfive_get_direction(struct gpio_chip *gc, unsigned int offset)
++{
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++
++	if (offset >= gc->ngpio)
++		return -EINVAL;
++
++	return readl_relaxed(chip->base + GPIO_DOEN_X_REG + offset * 8) & 0x1;
++}
++
++static int starfive_get_value(struct gpio_chip *gc, unsigned int offset)
++{
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	int value;
++
++	if (offset >= gc->ngpio)
++		return -EINVAL;
++
++	if (offset < 32) {
++		value = readl_relaxed(chip->base + GPIO_DIN_LOW);
++		value = (value >> offset) & 0x1;
++	} else {
++		value = readl_relaxed(chip->base + GPIO_DIN_HIGH);
++		value = (value >> (offset - 32)) & 0x1;
++	}
++
++	return value;
++}
++
++static void starfive_set_value(struct gpio_chip *gc, unsigned int offset, int value)
++{
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	unsigned long flags;
++
++	if (offset >= gc->ngpio)
++		return;
++
++	raw_spin_lock_irqsave(&chip->lock, flags);
++	writel_relaxed(value, chip->base + GPIO_DOUT_X_REG + offset * 8);
++	raw_spin_unlock_irqrestore(&chip->lock, flags);
++}
++
++static void starfive_set_ie(struct starfive_gpio *chip, int offset)
++{
++	unsigned long flags;
++	int old_value, new_value;
++	int reg_offset, index;
++
++	if (offset < 32) {
++		reg_offset = 0;
++		index = offset;
++	} else {
++		reg_offset = 4;
++		index = offset - 32;
++	}
++	raw_spin_lock_irqsave(&chip->lock, flags);
++	old_value = readl_relaxed(chip->base + GPIO_IE_LOW + reg_offset);
++	new_value = old_value | (1 << index);
++	writel_relaxed(new_value, chip->base + GPIO_IE_LOW + reg_offset);
++	raw_spin_unlock_irqrestore(&chip->lock, flags);
++}
++
++static int starfive_irq_set_type(struct irq_data *d, unsigned int trigger)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	int offset = irqd_to_hwirq(d);
++	unsigned int reg_is, reg_ibe, reg_iev;
++	int reg_offset, index;
++
++	if (offset < 0 || offset >= gc->ngpio)
++		return -EINVAL;
++
++	if (offset < 32) {
++		reg_offset = 0;
++		index = offset;
++	} else {
++		reg_offset = 4;
++		index = offset - 32;
++	}
++	switch (trigger) {
++	case IRQ_TYPE_LEVEL_HIGH:
++		reg_is = readl_relaxed(chip->base + GPIO_IS_LOW + reg_offset);
++		reg_ibe = readl_relaxed(chip->base + GPIO_IBE_LOW + reg_offset);
++		reg_iev = readl_relaxed(chip->base + GPIO_IEV_LOW + reg_offset);
++		reg_is  &= ~(1 << index);
++		reg_ibe &= ~(1 << index);
++		reg_iev |= (1 << index);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		break;
++	case IRQ_TYPE_LEVEL_LOW:
++		reg_is = readl_relaxed(chip->base + GPIO_IS_LOW + reg_offset);
++		reg_ibe = readl_relaxed(chip->base + GPIO_IBE_LOW + reg_offset);
++		reg_iev = readl_relaxed(chip->base + GPIO_IEV_LOW + reg_offset);
++		reg_is  &= ~(1 << index);
++		reg_ibe &= ~(1 << index);
++		reg_iev &= (1 << index);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		break;
++	case IRQ_TYPE_EDGE_BOTH:
++		reg_is = readl_relaxed(chip->base + GPIO_IS_LOW + reg_offset);
++		reg_ibe = readl_relaxed(chip->base + GPIO_IBE_LOW + reg_offset);
++		//reg_iev = readl_relaxed(chip->base + GPIO_IEV_LOW + reg_offset);
++		reg_is  |= ~(1 << index);
++		reg_ibe |= ~(1 << index);
++		//reg_iev |= (1 << index);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		//writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		break;
++	case IRQ_TYPE_EDGE_RISING:
++		reg_is = readl_relaxed(chip->base + GPIO_IS_LOW + reg_offset);
++		reg_ibe = readl_relaxed(chip->base + GPIO_IBE_LOW + reg_offset);
++		reg_iev = readl_relaxed(chip->base + GPIO_IEV_LOW + reg_offset);
++		reg_is  |= ~(1 << index);
++		reg_ibe &= ~(1 << index);
++		reg_iev |= (1 << index);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		break;
++	case IRQ_TYPE_EDGE_FALLING:
++		reg_is = readl_relaxed(chip->base + GPIO_IS_LOW + reg_offset);
++		reg_ibe = readl_relaxed(chip->base + GPIO_IBE_LOW + reg_offset);
++		reg_iev = readl_relaxed(chip->base + GPIO_IEV_LOW + reg_offset);
++		reg_is  |= ~(1 << index);
++		reg_ibe &= ~(1 << index);
++		reg_iev &= (1 << index);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		writel_relaxed(reg_is, chip->base + GPIO_IS_LOW + reg_offset);
++		break;
++	}
++
++	chip->trigger[offset] = trigger;
++	starfive_set_ie(chip, offset);
++	return 0;
++}
++
++/* chained_irq_{enter,exit} already mask the parent */
++static void starfive_irq_mask(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	unsigned int value;
++	int offset = irqd_to_hwirq(d);
++	int reg_offset, index;
++
++	if (offset < 0 || offset >= gc->ngpio)
++		return;
++
++	if (offset < 32) {
++		reg_offset = 0;
++		index = offset;
++	} else {
++		reg_offset = 4;
++		index = offset - 32;
++	}
++
++	value = readl_relaxed(chip->base + GPIO_IE_LOW + reg_offset);
++	value &= ~(0x1 << index);
++	writel_relaxed(value, chip->base + GPIO_IE_LOW + reg_offset);
++}
++
++static void starfive_irq_unmask(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	unsigned int value;
++	int offset = irqd_to_hwirq(d);
++	int reg_offset, index;
++
++	if (offset < 0 || offset >= gc->ngpio)
++		return;
++
++	if (offset < 32) {
++		reg_offset = 0;
++		index = offset;
++	} else {
++		reg_offset = 4;
++		index = offset - 32;
++	}
++
++	value = readl_relaxed(chip->base + GPIO_IE_LOW + reg_offset);
++	value |= (0x1 << index);
++	writel_relaxed(value, chip->base + GPIO_IE_LOW + reg_offset);
++}
++
++static void starfive_irq_enable(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	int offset = irqd_to_hwirq(d);
++
++	starfive_irq_unmask(d);
++	assign_bit(offset, &chip->enabled, 1);
++}
++
++static void starfive_irq_disable(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct starfive_gpio *chip = gpiochip_get_data(gc);
++	int offset = irqd_to_hwirq(d) % MAX_GPIO; // must not fail
++
++	assign_bit(offset, &chip->enabled, 0);
++	starfive_set_ie(chip, offset);
++}
++
++static struct irq_chip starfive_irqchip = {
++	.name		= "starfive-jh7100-gpio",
++	.irq_set_type	= starfive_irq_set_type,
++	.irq_mask	= starfive_irq_mask,
++	.irq_unmask	= starfive_irq_unmask,
++	.irq_enable	= starfive_irq_enable,
++	.irq_disable	= starfive_irq_disable,
++};
++
++static irqreturn_t starfive_irq_handler(int irq, void *gc)
++{
++	int offset;
++	int reg_offset, index;
++	unsigned int value;
++	unsigned long flags;
++	struct starfive_gpio *chip = gc;
++
++	for (offset = 0; offset < 64; offset++) {
++		if (offset < 32) {
++			reg_offset = 0;
++			index = offset;
++		} else {
++			reg_offset = 4;
++			index = offset - 32;
++		}
++
++		raw_spin_lock_irqsave(&chip->lock, flags);
++		value = readl_relaxed(chip->base + GPIO_MIS_LOW + reg_offset);
++		if (value & BIT(index))
++			writel_relaxed(BIT(index), chip->base + GPIO_IC_LOW +
++					reg_offset);
++
++		/* generic_handle_irq(irq_find_mapping(chip->gc.irq.domain, offset)); */
++		raw_spin_unlock_irqrestore(&chip->lock, flags);
++	}
++
++	return IRQ_HANDLED;
++}
++
++void sf_vic_gpio_dout_reverse(int gpio, int en)
++{
++	unsigned int value;
++	int offset;
++
++	if (!gpio_base)
++		return;
++
++	offset = gpio * 8 + GPIO_DOUT_X_REG;
++
++	spin_lock(&sfg_lock);
++	value = ioread32(gpio_base + offset);
++	value &= ~(0x1 << 31);
++	value |= (en & 0x1) << 31;
++	iowrite32(value, gpio_base + offset);
++	spin_unlock(&sfg_lock);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_dout_reverse);
++
++void sf_vic_gpio_dout_value(int gpio, int v)
++{
++	unsigned int value;
++	int offset;
++
++	if (!gpio_base)
++		return;
++
++	offset = gpio * 8 + GPIO_DOUT_X_REG;
++	spin_lock(&sfg_lock);
++	value = ioread32(gpio_base + offset);
++	value &= ~(0xFF);
++	value |= (v&0xFF);
++	iowrite32(value, gpio_base + offset);
++	spin_unlock(&sfg_lock);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_dout_value);
++
++void sf_vic_gpio_dout_low(int gpio)
++{
++	sf_vic_gpio_dout_value(gpio, 0);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_dout_low);
++
++void sf_vic_gpio_dout_high(int gpio)
++{
++	sf_vic_gpio_dout_value(gpio, 1);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_dout_high);
++
++void sf_vic_gpio_doen_reverse(int gpio, int en)
++{
++	unsigned int value;
++	int offset;
++
++	if (!gpio_base)
++		return;
++
++	offset = gpio * 8 + GPIO_DOEN_X_REG;
++
++	spin_lock(&sfg_lock);
++	value = ioread32(gpio_base + offset);
++	value &= ~(0x1 << 31);
++	value |= (en & 0x1) << 31;
++	iowrite32(value, gpio_base + offset);
++	spin_unlock(&sfg_lock);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_doen_reverse);
++
++void sf_vic_gpio_doen_value(int gpio, int v)
++{
++	unsigned int value;
++	int offset;
++
++	if (!gpio_base)
++		return;
++
++	offset = gpio * 8 + GPIO_DOEN_X_REG;
++
++	spin_lock(&sfg_lock);
++	value = ioread32(gpio_base + offset);
++	value &= ~(0xFF);
++	value |= (v&0xFF);
++	iowrite32(value, gpio_base + offset);
++	spin_unlock(&sfg_lock);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_doen_value);
++
++void sf_vic_gpio_doen_low(int gpio)
++{
++	sf_vic_gpio_doen_value(gpio, 0);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_doen_low);
++
++void sf_vic_gpio_doen_high(int gpio)
++{
++	sf_vic_gpio_doen_value(gpio, 1);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_doen_high);
++
++void sf_vic_gpio_manual(int offset, int v)
++{
++	unsigned int value;
++
++	if (!gpio_base)
++		return;
++
++	spin_lock(&sfg_lock);
++	value = ioread32(gpio_base + offset);
++	value &= ~(0xFF);
++	value |= (v&0xFF);
++	iowrite32(value, gpio_base + offset);
++	spin_unlock(&sfg_lock);
++}
++EXPORT_SYMBOL_GPL(sf_vic_gpio_manual);
++
++static int starfive_gpio_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct starfive_gpio *chip;
++	struct gpio_irq_chip *girq;
++	struct resource *res;
++	int irq, ret, ngpio;
++
++	chip = devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
++	if (!chip)
++		return -ENOMEM;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	chip->base = devm_ioremap_resource(dev, res);
++	if (IS_ERR(chip->base)) {
++		dev_err(dev, "failed to allocate device memory\n");
++		return PTR_ERR(chip->base);
++	}
++	gpio_base = chip->base;
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		dev_err(dev, "Cannot get IRQ resource\n");
++		return irq;
++	}
++
++	raw_spin_lock_init(&chip->lock);
++	chip->gc.direction_input = starfive_direction_input;
++	chip->gc.direction_output = starfive_direction_output;
++	chip->gc.get_direction = starfive_get_direction;
++	chip->gc.get = starfive_get_value;
++	chip->gc.set = starfive_set_value;
++	chip->gc.base = 0;
++	chip->gc.ngpio = 64;
++	chip->gc.label = dev_name(dev);
++	chip->gc.parent = dev;
++	chip->gc.owner = THIS_MODULE;
++
++	girq = &chip->gc.irq;
++	girq->chip = &starfive_irqchip;
++	girq->parent_handler = NULL;
++	girq->num_parents = 0;
++	girq->parents = NULL;
++	girq->default_type = IRQ_TYPE_NONE;
++	girq->handler = handle_simple_irq;
++
++	ret = gpiochip_add_data(&chip->gc, chip);
++	if (ret) {
++		dev_err(dev, "gpiochip_add_data ret=%d!\n", ret);
++		return ret;
++	}
++
++	/* Disable all GPIO interrupts before enabling parent interrupts */
++	iowrite32(0, chip->base + GPIO_IE_HIGH);
++	iowrite32(0, chip->base + GPIO_IE_LOW);
++	chip->enabled = 0;
++
++	ret = devm_request_irq(dev, irq, starfive_irq_handler, IRQF_SHARED,
++			dev_name(dev), chip);
++	if (ret) {
++		dev_err(dev, "IRQ handler registering failed (%d)\n", ret);
++		return ret;
++	}
++
++	writel_relaxed(1, chip->base + GPIO_EN);
++
++	dev_info(dev, "StarFive GPIO chip registered %d GPIOs\n", ngpio);
++
++	return 0;
++}
++
++static const struct of_device_id starfive_gpio_match[] = {
++	{ .compatible = "starfive,jh7100-gpio", },
++	{ },
++};
++
++static struct platform_driver starfive_gpio_driver = {
++	.probe	= starfive_gpio_probe,
++	.driver	= {
++		.name = "gpio_starfive_jh7100",
++		.of_match_table = of_match_ptr(starfive_gpio_match),
++	},
++};
++
++static int __init starfive_gpio_init(void)
++{
++	return platform_driver_register(&starfive_gpio_driver);
++}
++subsys_initcall(starfive_gpio_init);
++
++static void __exit starfive_gpio_exit(void)
++{
++	platform_driver_unregister(&starfive_gpio_driver);
++}
++module_exit(starfive_gpio_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Huan Feng <huan.feng@starfivetech.com>");
++MODULE_DESCRIPTION("StarFive JH7100 GPIO driver");
+diff --git a/include/linux/gpio-starfive-vic.h b/include/linux/gpio-starfive-vic.h
+new file mode 100644
+index 000000000000..0afcaf1876fb
+--- /dev/null
++++ b/include/linux/gpio-starfive-vic.h
+@@ -0,0 +1,384 @@
++#ifndef __GPIO_STARFIVE_VIC_H
++#define __GPIO_STARFIVE_VIC_H
++
++extern void sf_vic_gpio_dout_reverse(int gpio, int en);
++/*
++ * #define SET_GPIO_0_dout_cpu_jtag_tdo {				\
++ *	uint32_t _ezchip_macro_read_value_=MA_INW(gpio_0_dout_REG_ADDR); \
++ *	_ezchip_macro_read_value_ &= ~(0xFF);				\
++ *	_ezchip_macro_read_value_ |= (0x3&0xFF);			\
++ *	MA_OUTW(gpio_0_dout_REG_ADDR,_ezchip_macro_read_value_);	\
++ * }
++ * in this example gpio is: 0, and v is: 0x3
++ */
++extern void sf_vic_gpio_dout_value(int gpio, int v);
++extern void sf_vic_gpio_dout_low(int gpio);
++extern void sf_vic_gpio_dout_high(int gpio);
++
++extern void sf_vic_gpio_doen_reverse(int gpio, int en);
++/*
++ * the same as sf_vic_gpio_dout_value
++ */
++extern void sf_vic_gpio_doen_value(int gpio, int v);
++extern void sf_vic_gpio_doen_low(int gpio);
++extern void sf_vic_gpio_doen_high(int gpio);
++
++/*
++ *#define SET_GPIO_uart2_pad_sin(gpio) { \
++ *	uint32_t _ezchip_macro_read_value_=MA_INW(gpio_uart2_pad_sin_REG_ADDR); \
++ *	_ezchip_macro_read_value_ &= ~(0xFF);				\
++ *	_ezchip_macro_read_value_ |= ((gpio+2)&0xFF);			\
++ *	MA_OUTW(gpio_uart2_pad_sin_REG_ADDR,_ezchip_macro_read_value_); \
++ *}
++ * in this example offset is: 0x370, the offset of gpio_uart2_pad_sin_REG_ADDR
++ * and v is: gpio + 2
++ */
++extern void sf_vic_gpio_manual(int offset, int v);
++
++#define SET_GPIO_dout_reverse_(gpionum, en)                      sf_vic_gpio_dout_reverse(gpionum, en)
++#define SET_GPIO_dout_LOW(gpionum)                               sf_vic_gpio_dout_value(gpionum, 0x0)
++#define SET_GPIO_dout_HIGH(gpionum)                              sf_vic_gpio_dout_value(gpionum, 0x1)
++#define SET_GPIO_dout_clk_gmac_tophyref(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x2)
++#define SET_GPIO_dout_cpu_jtag_tdo(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x3)
++#define SET_GPIO_dout_cpu_jtag_tdo_oen(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x4)
++#define SET_GPIO_dout_dmic_clk_out(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x5)
++#define SET_GPIO_dout_dsp_JTDOEn_pad(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x6)
++#define SET_GPIO_dout_dsp_JTDO_pad(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x7)
++#define SET_GPIO_dout_i2c0_pad_sck_oe(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x8)
++#define SET_GPIO_dout_i2c0_pad_sda_oe(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x9)
++#define SET_GPIO_dout_i2c1_pad_sck_oe(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0xa)
++#define SET_GPIO_dout_i2c1_pad_sda_oe(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0xb)
++#define SET_GPIO_dout_i2c2_pad_sck_oe(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0xc)
++#define SET_GPIO_dout_i2c2_pad_sda_oe(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0xd)
++#define SET_GPIO_dout_i2c3_pad_sck_oe(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0xe)
++#define SET_GPIO_dout_i2c3_pad_sda_oe(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0xf)
++#define SET_GPIO_dout_i2srx_bclk_out(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x10)
++#define SET_GPIO_dout_i2srx_bclk_out_oen(gpionum)                sf_vic_gpio_dout_value(gpionum, 0x11)
++#define SET_GPIO_dout_i2srx_lrck_out(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x12)
++#define SET_GPIO_dout_i2srx_lrck_out_oen(gpionum)                sf_vic_gpio_dout_value(gpionum, 0x13)
++#define SET_GPIO_dout_i2srx_mclk_out(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x14)
++#define SET_GPIO_dout_i2stx_bclk_out(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x15)
++#define SET_GPIO_dout_i2stx_bclk_out_oen(gpionum)                sf_vic_gpio_dout_value(gpionum, 0x16)
++#define SET_GPIO_dout_i2stx_lrck_out(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x17)
++#define SET_GPIO_dout_i2stx_lrckout_oen(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x18)
++#define SET_GPIO_dout_i2stx_mclk_out(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x19)
++#define SET_GPIO_dout_i2stx_sdout0(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x1a)
++#define SET_GPIO_dout_i2stx_sdout1(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x1b)
++#define SET_GPIO_dout_lcd_pad_csm_n(gpionum)                     sf_vic_gpio_dout_value(gpionum, 0x1c)
++#define SET_GPIO_dout_pwm_pad_oe_n_bit0(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x1d)
++#define SET_GPIO_dout_pwm_pad_oe_n_bit1(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x1e)
++#define SET_GPIO_dout_pwm_pad_oe_n_bit2(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x1f)
++#define SET_GPIO_dout_pwm_pad_oe_n_bit3(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x20)
++#define SET_GPIO_dout_pwm_pad_oe_n_bit4(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x21)
++#define SET_GPIO_dout_pwm_pad_oe_n_bit5(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x22)
++#define SET_GPIO_dout_pwm_pad_oe_n_bit6(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x23)
++#define SET_GPIO_dout_pwm_pad_oe_n_bit7(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x24)
++#define SET_GPIO_dout_pwm_pad_out_bit0(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x25)
++#define SET_GPIO_dout_pwm_pad_out_bit1(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x26)
++#define SET_GPIO_dout_pwm_pad_out_bit2(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x27)
++#define SET_GPIO_dout_pwm_pad_out_bit3(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x28)
++#define SET_GPIO_dout_pwm_pad_out_bit4(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x29)
++#define SET_GPIO_dout_pwm_pad_out_bit5(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x2a)
++#define SET_GPIO_dout_pwm_pad_out_bit6(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x2b)
++#define SET_GPIO_dout_pwm_pad_out_bit7(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x2c)
++#define SET_GPIO_dout_pwmdac_left_out(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x2d)
++#define SET_GPIO_dout_pwmdac_right_out(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x2e)
++#define SET_GPIO_dout_qspi_csn1_out(gpionum)                     sf_vic_gpio_dout_value(gpionum, 0x2f)
++#define SET_GPIO_dout_qspi_csn2_out(gpionum)                     sf_vic_gpio_dout_value(gpionum, 0x30)
++#define SET_GPIO_dout_qspi_csn3_out(gpionum)                     sf_vic_gpio_dout_value(gpionum, 0x31)
++#define SET_GPIO_dout_register23_SCFG_cmsensor_rst0(gpionum)     sf_vic_gpio_dout_value(gpionum, 0x32)
++#define SET_GPIO_dout_register23_SCFG_cmsensor_rst1(gpionum)     sf_vic_gpio_dout_value(gpionum, 0x33)
++#define SET_GPIO_dout_register32_SCFG_gmac_phy_rstn(gpionum)     sf_vic_gpio_dout_value(gpionum, 0x34)
++#define SET_GPIO_dout_sdio0_pad_card_power_en(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x35)
++#define SET_GPIO_dout_sdio0_pad_cclk_out(gpionum)                sf_vic_gpio_dout_value(gpionum, 0x36)
++#define SET_GPIO_dout_sdio0_pad_ccmd_oe(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x37)
++#define SET_GPIO_dout_sdio0_pad_ccmd_out(gpionum)                sf_vic_gpio_dout_value(gpionum, 0x38)
++#define SET_GPIO_dout_sdio0_pad_cdata_oe_bit0(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x39)
++#define SET_GPIO_dout_sdio0_pad_cdata_oe_bit1(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x3a)
++#define SET_GPIO_dout_sdio0_pad_cdata_oe_bit2(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x3b)
++#define SET_GPIO_dout_sdio0_pad_cdata_oe_bit3(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x3c)
++#define SET_GPIO_dout_sdio0_pad_cdata_oe_bit4(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x3d)
++#define SET_GPIO_dout_sdio0_pad_cdata_oe_bit5(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x3e)
++#define SET_GPIO_dout_sdio0_pad_cdata_oe_bit6(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x3f)
++#define SET_GPIO_dout_sdio0_pad_cdata_oe_bit7(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x40)
++#define SET_GPIO_dout_sdio0_pad_cdata_out_bit0(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x41)
++#define SET_GPIO_dout_sdio0_pad_cdata_out_bit1(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x42)
++#define SET_GPIO_dout_sdio0_pad_cdata_out_bit2(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x43)
++#define SET_GPIO_dout_sdio0_pad_cdata_out_bit3(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x44)
++#define SET_GPIO_dout_sdio0_pad_cdata_out_bit4(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x45)
++#define SET_GPIO_dout_sdio0_pad_cdata_out_bit5(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x46)
++#define SET_GPIO_dout_sdio0_pad_cdata_out_bit6(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x47)
++#define SET_GPIO_dout_sdio0_pad_cdata_out_bit7(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x48)
++#define SET_GPIO_dout_sdio0_pad_rst_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x49)
++#define SET_GPIO_dout_sdio1_pad_card_power_en(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x4a)
++#define SET_GPIO_dout_sdio1_pad_cclk_out(gpionum)                sf_vic_gpio_dout_value(gpionum, 0x4b)
++#define SET_GPIO_dout_sdio1_pad_ccmd_oe(gpionum)                 sf_vic_gpio_dout_value(gpionum, 0x4c)
++#define SET_GPIO_dout_sdio1_pad_ccmd_out(gpionum)                sf_vic_gpio_dout_value(gpionum, 0x4d)
++#define SET_GPIO_dout_sdio1_pad_cdata_oe_bit0(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x4e)
++#define SET_GPIO_dout_sdio1_pad_cdata_oe_bit1(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x4f)
++#define SET_GPIO_dout_sdio1_pad_cdata_oe_bit2(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x50)
++#define SET_GPIO_dout_sdio1_pad_cdata_oe_bit3(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x51)
++#define SET_GPIO_dout_sdio1_pad_cdata_oe_bit4(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x52)
++#define SET_GPIO_dout_sdio1_pad_cdata_oe_bit5(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x53)
++#define SET_GPIO_dout_sdio1_pad_cdata_oe_bit6(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x54)
++#define SET_GPIO_dout_sdio1_pad_cdata_oe_bit7(gpionum)           sf_vic_gpio_dout_value(gpionum, 0x55)
++#define SET_GPIO_dout_sdio1_pad_cdata_out_bit0(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x56)
++#define SET_GPIO_dout_sdio1_pad_cdata_out_bit1(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x57)
++#define SET_GPIO_dout_sdio1_pad_cdata_out_bit2(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x58)
++#define SET_GPIO_dout_sdio1_pad_cdata_out_bit3(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x59)
++#define SET_GPIO_dout_sdio1_pad_cdata_out_bit4(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x5a)
++#define SET_GPIO_dout_sdio1_pad_cdata_out_bit5(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x5b)
++#define SET_GPIO_dout_sdio1_pad_cdata_out_bit6(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x5c)
++#define SET_GPIO_dout_sdio1_pad_cdata_out_bit7(gpionum)          sf_vic_gpio_dout_value(gpionum, 0x5d)
++#define SET_GPIO_dout_sdio1_pad_rst_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x5e)
++#define SET_GPIO_dout_spdif_tx_sdout(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x5f)
++#define SET_GPIO_dout_spdif_tx_sdout_oen(gpionum)                sf_vic_gpio_dout_value(gpionum, 0x60)
++#define SET_GPIO_dout_spi0_pad_oe_n(gpionum)                     sf_vic_gpio_dout_value(gpionum, 0x61)
++#define SET_GPIO_dout_spi0_pad_sck_out(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x62)
++#define SET_GPIO_dout_spi0_pad_ss_0_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x63)
++#define SET_GPIO_dout_spi0_pad_ss_1_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x64)
++#define SET_GPIO_dout_spi0_pad_txd(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x65)
++#define SET_GPIO_dout_spi1_pad_oe_n(gpionum)                     sf_vic_gpio_dout_value(gpionum, 0x66)
++#define SET_GPIO_dout_spi1_pad_sck_out(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x67)
++#define SET_GPIO_dout_spi1_pad_ss_0_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x68)
++#define SET_GPIO_dout_spi1_pad_ss_1_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x69)
++#define SET_GPIO_dout_spi1_pad_txd(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x6a)
++#define SET_GPIO_dout_spi2_pad_oe_n(gpionum)                     sf_vic_gpio_dout_value(gpionum, 0x6b)
++#define SET_GPIO_dout_spi2_pad_sck_out(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x6c)
++#define SET_GPIO_dout_spi2_pad_ss_0_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x6d)
++#define SET_GPIO_dout_spi2_pad_ss_1_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x6e)
++#define SET_GPIO_dout_spi2_pad_txd(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x6f)
++#define SET_GPIO_dout_spi2ahb_pad_oe_n_bit0(gpionum)             sf_vic_gpio_dout_value(gpionum, 0x70)
++#define SET_GPIO_dout_spi2ahb_pad_oe_n_bit1(gpionum)             sf_vic_gpio_dout_value(gpionum, 0x71)
++#define SET_GPIO_dout_spi2ahb_pad_oe_n_bit2(gpionum)             sf_vic_gpio_dout_value(gpionum, 0x72)
++#define SET_GPIO_dout_spi2ahb_pad_oe_n_bit3(gpionum)             sf_vic_gpio_dout_value(gpionum, 0x73)
++#define SET_GPIO_dout_spi2ahb_pad_txd_bit0(gpionum)              sf_vic_gpio_dout_value(gpionum, 0x74)
++#define SET_GPIO_dout_spi2ahb_pad_txd_bit1(gpionum)              sf_vic_gpio_dout_value(gpionum, 0x75)
++#define SET_GPIO_dout_spi2ahb_pad_txd_bit2(gpionum)              sf_vic_gpio_dout_value(gpionum, 0x76)
++#define SET_GPIO_dout_spi2ahb_pad_txd_bit3(gpionum)              sf_vic_gpio_dout_value(gpionum, 0x77)
++#define SET_GPIO_dout_spi3_pad_oe_n(gpionum)                     sf_vic_gpio_dout_value(gpionum, 0x78)
++#define SET_GPIO_dout_spi3_pad_sck_out(gpionum)                  sf_vic_gpio_dout_value(gpionum, 0x79)
++#define SET_GPIO_dout_spi3_pad_ss_0_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x7a)
++#define SET_GPIO_dout_spi3_pad_ss_1_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x7b)
++#define SET_GPIO_dout_spi3_pad_txd(gpionum)                      sf_vic_gpio_dout_value(gpionum, 0x7c)
++#define SET_GPIO_dout_uart0_pad_dtrn(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x7d)
++#define SET_GPIO_dout_uart0_pad_rtsn(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x7e)
++#define SET_GPIO_dout_uart0_pad_sout(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x7f)
++#define SET_GPIO_dout_uart1_pad_sout(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x80)
++#define SET_GPIO_dout_uart2_pad_dtr_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x81)
++#define SET_GPIO_dout_uart2_pad_rts_n(gpionum)                   sf_vic_gpio_dout_value(gpionum, 0x82)
++#define SET_GPIO_dout_uart2_pad_sout(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x83)
++#define SET_GPIO_dout_uart3_pad_sout(gpionum)                    sf_vic_gpio_dout_value(gpionum, 0x84)
++#define SET_GPIO_dout_usb_drv_bus(gpionum)                       sf_vic_gpio_dout_value(gpionum, 0x85)
++#define SET_GPIO_doen_reverse_(gpionum, en)                      sf_vic_gpio_doen_reverse(gpionum, en)
++#define SET_GPIO_doen_LOW(gpionum)                               sf_vic_gpio_doen_value(gpionum, 0x0)
++#define SET_GPIO_doen_HIGH(gpionum)                              sf_vic_gpio_doen_value(gpionum, 0x1)
++#define SET_GPIO_doen_clk_gmac_tophyref(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x2)
++#define SET_GPIO_doen_cpu_jtag_tdo(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x3)
++#define SET_GPIO_doen_cpu_jtag_tdo_oen(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x4)
++#define SET_GPIO_doen_dmic_clk_out(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x5)
++#define SET_GPIO_doen_dsp_JTDOEn_pad(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x6)
++#define SET_GPIO_doen_dsp_JTDO_pad(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x7)
++#define SET_GPIO_doen_i2c0_pad_sck_oe(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x8)
++#define SET_GPIO_doen_i2c0_pad_sda_oe(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x9)
++#define SET_GPIO_doen_i2c1_pad_sck_oe(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0xa)
++#define SET_GPIO_doen_i2c1_pad_sda_oe(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0xb)
++#define SET_GPIO_doen_i2c2_pad_sck_oe(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0xc)
++#define SET_GPIO_doen_i2c2_pad_sda_oe(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0xd)
++#define SET_GPIO_doen_i2c3_pad_sck_oe(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0xe)
++#define SET_GPIO_doen_i2c3_pad_sda_oe(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0xf)
++#define SET_GPIO_doen_i2srx_bclk_out(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x10)
++#define SET_GPIO_doen_i2srx_bclk_out_oen(gpionum)                sf_vic_gpio_doen_value(gpionum, 0x11)
++#define SET_GPIO_doen_i2srx_lrck_out(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x12)
++#define SET_GPIO_doen_i2srx_lrck_out_oen(gpionum)                sf_vic_gpio_doen_value(gpionum, 0x13)
++#define SET_GPIO_doen_i2srx_mclk_out(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x14)
++#define SET_GPIO_doen_i2stx_bclk_out(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x15)
++#define SET_GPIO_doen_i2stx_bclk_out_oen(gpionum)                sf_vic_gpio_doen_value(gpionum, 0x16)
++#define SET_GPIO_doen_i2stx_lrck_out(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x17)
++#define SET_GPIO_doen_i2stx_lrckout_oen(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x18)
++#define SET_GPIO_doen_i2stx_mclk_out(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x19)
++#define SET_GPIO_doen_i2stx_sdout0(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x1a)
++#define SET_GPIO_doen_i2stx_sdout1(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x1b)
++#define SET_GPIO_doen_lcd_pad_csm_n(gpionum)                     sf_vic_gpio_doen_value(gpionum, 0x1c)
++#define SET_GPIO_doen_pwm_pad_oe_n_bit0(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x1d)
++#define SET_GPIO_doen_pwm_pad_oe_n_bit1(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x1e)
++#define SET_GPIO_doen_pwm_pad_oe_n_bit2(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x1f)
++#define SET_GPIO_doen_pwm_pad_oe_n_bit3(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x20)
++#define SET_GPIO_doen_pwm_pad_oe_n_bit4(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x21)
++#define SET_GPIO_doen_pwm_pad_oe_n_bit5(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x22)
++#define SET_GPIO_doen_pwm_pad_oe_n_bit6(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x23)
++#define SET_GPIO_doen_pwm_pad_oe_n_bit7(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x24)
++#define SET_GPIO_doen_pwm_pad_out_bit0(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x25)
++#define SET_GPIO_doen_pwm_pad_out_bit1(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x26)
++#define SET_GPIO_doen_pwm_pad_out_bit2(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x27)
++#define SET_GPIO_doen_pwm_pad_out_bit3(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x28)
++#define SET_GPIO_doen_pwm_pad_out_bit4(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x29)
++#define SET_GPIO_doen_pwm_pad_out_bit5(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x2a)
++#define SET_GPIO_doen_pwm_pad_out_bit6(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x2b)
++#define SET_GPIO_doen_pwm_pad_out_bit7(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x2c)
++#define SET_GPIO_doen_pwmdac_left_out(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x2d)
++#define SET_GPIO_doen_pwmdac_right_out(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x2e)
++#define SET_GPIO_doen_qspi_csn1_out(gpionum)                     sf_vic_gpio_doen_value(gpionum, 0x2f)
++#define SET_GPIO_doen_qspi_csn2_out(gpionum)                     sf_vic_gpio_doen_value(gpionum, 0x30)
++#define SET_GPIO_doen_qspi_csn3_out(gpionum)                     sf_vic_gpio_doen_value(gpionum, 0x31)
++#define SET_GPIO_doen_register23_SCFG_cmsensor_rst0(gpionum)     sf_vic_gpio_doen_value(gpionum, 0x32)
++#define SET_GPIO_doen_register23_SCFG_cmsensor_rst1(gpionum)     sf_vic_gpio_doen_value(gpionum, 0x33)
++#define SET_GPIO_doen_register32_SCFG_gmac_phy_rstn(gpionum)     sf_vic_gpio_doen_value(gpionum, 0x34)
++#define SET_GPIO_doen_sdio0_pad_card_power_en(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x35)
++#define SET_GPIO_doen_sdio0_pad_cclk_out(gpionum)                sf_vic_gpio_doen_value(gpionum, 0x36)
++#define SET_GPIO_doen_sdio0_pad_ccmd_oe(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x37)
++#define SET_GPIO_doen_sdio0_pad_ccmd_out(gpionum)                sf_vic_gpio_doen_value(gpionum, 0x38)
++#define SET_GPIO_doen_sdio0_pad_cdata_oe_bit0(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x39)
++#define SET_GPIO_doen_sdio0_pad_cdata_oe_bit1(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x3a)
++#define SET_GPIO_doen_sdio0_pad_cdata_oe_bit2(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x3b)
++#define SET_GPIO_doen_sdio0_pad_cdata_oe_bit3(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x3c)
++#define SET_GPIO_doen_sdio0_pad_cdata_oe_bit4(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x3d)
++#define SET_GPIO_doen_sdio0_pad_cdata_oe_bit5(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x3e)
++#define SET_GPIO_doen_sdio0_pad_cdata_oe_bit6(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x3f)
++#define SET_GPIO_doen_sdio0_pad_cdata_oe_bit7(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x40)
++#define SET_GPIO_doen_sdio0_pad_cdata_out_bit0(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x41)
++#define SET_GPIO_doen_sdio0_pad_cdata_out_bit1(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x42)
++#define SET_GPIO_doen_sdio0_pad_cdata_out_bit2(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x43)
++#define SET_GPIO_doen_sdio0_pad_cdata_out_bit3(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x44)
++#define SET_GPIO_doen_sdio0_pad_cdata_out_bit4(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x45)
++#define SET_GPIO_doen_sdio0_pad_cdata_out_bit5(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x46)
++#define SET_GPIO_doen_sdio0_pad_cdata_out_bit6(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x47)
++#define SET_GPIO_doen_sdio0_pad_cdata_out_bit7(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x48)
++#define SET_GPIO_doen_sdio0_pad_rst_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x49)
++#define SET_GPIO_doen_sdio1_pad_card_power_en(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x4a)
++#define SET_GPIO_doen_sdio1_pad_cclk_out(gpionum)                sf_vic_gpio_doen_value(gpionum, 0x4b)
++#define SET_GPIO_doen_sdio1_pad_ccmd_oe(gpionum)                 sf_vic_gpio_doen_value(gpionum, 0x4c)
++#define SET_GPIO_doen_sdio1_pad_ccmd_out(gpionum)                sf_vic_gpio_doen_value(gpionum, 0x4d)
++#define SET_GPIO_doen_sdio1_pad_cdata_oe_bit0(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x4e)
++#define SET_GPIO_doen_sdio1_pad_cdata_oe_bit1(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x4f)
++#define SET_GPIO_doen_sdio1_pad_cdata_oe_bit2(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x50)
++#define SET_GPIO_doen_sdio1_pad_cdata_oe_bit3(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x51)
++#define SET_GPIO_doen_sdio1_pad_cdata_oe_bit4(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x52)
++#define SET_GPIO_doen_sdio1_pad_cdata_oe_bit5(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x53)
++#define SET_GPIO_doen_sdio1_pad_cdata_oe_bit6(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x54)
++#define SET_GPIO_doen_sdio1_pad_cdata_oe_bit7(gpionum)           sf_vic_gpio_doen_value(gpionum, 0x55)
++#define SET_GPIO_doen_sdio1_pad_cdata_out_bit0(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x56)
++#define SET_GPIO_doen_sdio1_pad_cdata_out_bit1(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x57)
++#define SET_GPIO_doen_sdio1_pad_cdata_out_bit2(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x58)
++#define SET_GPIO_doen_sdio1_pad_cdata_out_bit3(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x59)
++#define SET_GPIO_doen_sdio1_pad_cdata_out_bit4(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x5a)
++#define SET_GPIO_doen_sdio1_pad_cdata_out_bit5(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x5b)
++#define SET_GPIO_doen_sdio1_pad_cdata_out_bit6(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x5c)
++#define SET_GPIO_doen_sdio1_pad_cdata_out_bit7(gpionum)          sf_vic_gpio_doen_value(gpionum, 0x5d)
++#define SET_GPIO_doen_sdio1_pad_rst_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x5e)
++#define SET_GPIO_doen_spdif_tx_sdout(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x5f)
++#define SET_GPIO_doen_spdif_tx_sdout_oen(gpionum)                sf_vic_gpio_doen_value(gpionum, 0x60)
++#define SET_GPIO_doen_spi0_pad_oe_n(gpionum)                     sf_vic_gpio_doen_value(gpionum, 0x61)
++#define SET_GPIO_doen_spi0_pad_sck_out(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x62)
++#define SET_GPIO_doen_spi0_pad_ss_0_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x63)
++#define SET_GPIO_doen_spi0_pad_ss_1_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x64)
++#define SET_GPIO_doen_spi0_pad_txd(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x65)
++#define SET_GPIO_doen_spi1_pad_oe_n(gpionum)                     sf_vic_gpio_doen_value(gpionum, 0x66)
++#define SET_GPIO_doen_spi1_pad_sck_out(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x67)
++#define SET_GPIO_doen_spi1_pad_ss_0_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x68)
++#define SET_GPIO_doen_spi1_pad_ss_1_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x69)
++#define SET_GPIO_doen_spi1_pad_txd(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x6a)
++#define SET_GPIO_doen_spi2_pad_oe_n(gpionum)                     sf_vic_gpio_doen_value(gpionum, 0x6b)
++#define SET_GPIO_doen_spi2_pad_sck_out(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x6c)
++#define SET_GPIO_doen_spi2_pad_ss_0_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x6d)
++#define SET_GPIO_doen_spi2_pad_ss_1_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x6e)
++#define SET_GPIO_doen_spi2_pad_txd(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x6f)
++#define SET_GPIO_doen_spi2ahb_pad_oe_n_bit0(gpionum)             sf_vic_gpio_doen_value(gpionum, 0x70)
++#define SET_GPIO_doen_spi2ahb_pad_oe_n_bit1(gpionum)             sf_vic_gpio_doen_value(gpionum, 0x71)
++#define SET_GPIO_doen_spi2ahb_pad_oe_n_bit2(gpionum)             sf_vic_gpio_doen_value(gpionum, 0x72)
++#define SET_GPIO_doen_spi2ahb_pad_oe_n_bit3(gpionum)             sf_vic_gpio_doen_value(gpionum, 0x73)
++#define SET_GPIO_doen_spi2ahb_pad_txd_bit0(gpionum)              sf_vic_gpio_doen_value(gpionum, 0x74)
++#define SET_GPIO_doen_spi2ahb_pad_txd_bit1(gpionum)              sf_vic_gpio_doen_value(gpionum, 0x75)
++#define SET_GPIO_doen_spi2ahb_pad_txd_bit2(gpionum)              sf_vic_gpio_doen_value(gpionum, 0x76)
++#define SET_GPIO_doen_spi2ahb_pad_txd_bit3(gpionum)              sf_vic_gpio_doen_value(gpionum, 0x77)
++#define SET_GPIO_doen_spi3_pad_oe_n(gpionum)                     sf_vic_gpio_doen_value(gpionum, 0x78)
++#define SET_GPIO_doen_spi3_pad_sck_out(gpionum)                  sf_vic_gpio_doen_value(gpionum, 0x79)
++#define SET_GPIO_doen_spi3_pad_ss_0_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x7a)
++#define SET_GPIO_doen_spi3_pad_ss_1_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x7b)
++#define SET_GPIO_doen_spi3_pad_txd(gpionum)                      sf_vic_gpio_doen_value(gpionum, 0x7c)
++#define SET_GPIO_doen_uart0_pad_dtrn(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x7d)
++#define SET_GPIO_doen_uart0_pad_rtsn(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x7e)
++#define SET_GPIO_doen_uart0_pad_sout(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x7f)
++#define SET_GPIO_doen_uart1_pad_sout(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x80)
++#define SET_GPIO_doen_uart2_pad_dtr_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x81)
++#define SET_GPIO_doen_uart2_pad_rts_n(gpionum)                   sf_vic_gpio_doen_value(gpionum, 0x82)
++#define SET_GPIO_doen_uart2_pad_sout(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x83)
++#define SET_GPIO_doen_uart3_pad_sout(gpionum)                    sf_vic_gpio_doen_value(gpionum, 0x84)
++#define SET_GPIO_doen_usb_drv_bus(gpionum)                       sf_vic_gpio_doen_value(gpionum, 0x85)
++#define SET_GPIO_cpu_jtag_tck(gpionum)                           sf_vic_gpio_manual(0x250, gpionum + 2)
++#define SET_GPIO_cpu_jtag_tdi(gpionum)                           sf_vic_gpio_manual(0x254, gpionum + 2)
++#define SET_GPIO_cpu_jtag_tms(gpionum)                           sf_vic_gpio_manual(0x258, gpionum + 2)
++#define SET_GPIO_cpu_jtag_trst(gpionum)                          sf_vic_gpio_manual(0x25c, gpionum + 2)
++#define SET_GPIO_dmic_sdin_bit0(gpionum)                         sf_vic_gpio_manual(0x260, gpionum + 2)
++#define SET_GPIO_dmic_sdin_bit1(gpionum)                         sf_vic_gpio_manual(0x264, gpionum + 2)
++#define SET_GPIO_dsp_JTCK_pad(gpionum)                           sf_vic_gpio_manual(0x268, gpionum + 2)
++#define SET_GPIO_dsp_JTDI_pad(gpionum)                           sf_vic_gpio_manual(0x26c, gpionum + 2)
++#define SET_GPIO_dsp_JTMS_pad(gpionum)                           sf_vic_gpio_manual(0x270, gpionum + 2)
++#define SET_GPIO_dsp_TRST_pad(gpionum)                           sf_vic_gpio_manual(0x274, gpionum + 2)
++#define SET_GPIO_i2c0_pad_sck_in(gpionum)                        sf_vic_gpio_manual(0x278, gpionum + 2)
++#define SET_GPIO_i2c0_pad_sda_in(gpionum)                        sf_vic_gpio_manual(0x27c, gpionum + 2)
++#define SET_GPIO_i2c1_pad_sck_in(gpionum)                        sf_vic_gpio_manual(0x280, gpionum + 2)
++#define SET_GPIO_i2c1_pad_sda_in(gpionum)                        sf_vic_gpio_manual(0x284, gpionum + 2)
++#define SET_GPIO_i2c2_pad_sck_in(gpionum)                        sf_vic_gpio_manual(0x288, gpionum + 2)
++#define SET_GPIO_i2c2_pad_sda_in(gpionum)                        sf_vic_gpio_manual(0x28c, gpionum + 2)
++#define SET_GPIO_i2c3_pad_sck_in(gpionum)                        sf_vic_gpio_manual(0x290, gpionum + 2)
++#define SET_GPIO_i2c3_pad_sda_in(gpionum)                        sf_vic_gpio_manual(0x294, gpionum + 2)
++#define SET_GPIO_i2srx_bclk_in(gpionum)                          sf_vic_gpio_manual(0x298, gpionum + 2)
++#define SET_GPIO_i2srx_lrck_in(gpionum)                          sf_vic_gpio_manual(0x29c, gpionum + 2)
++#define SET_GPIO_i2srx_sdin_bit0(gpionum)                        sf_vic_gpio_manual(0x2a0, gpionum + 2)
++#define SET_GPIO_i2srx_sdin_bit1(gpionum)                        sf_vic_gpio_manual(0x2a4, gpionum + 2)
++#define SET_GPIO_i2srx_sdin_bit2(gpionum)                        sf_vic_gpio_manual(0x2a8, gpionum + 2)
++#define SET_GPIO_i2stx_bclk_in(gpionum)                          sf_vic_gpio_manual(0x2ac, gpionum + 2)
++#define SET_GPIO_i2stx_lrck_in(gpionum)                          sf_vic_gpio_manual(0x2b0, gpionum + 2)
++#define SET_GPIO_sdio0_pad_card_detect_n(gpionum)                sf_vic_gpio_manual(0x2b4, gpionum + 2)
++#define SET_GPIO_sdio0_pad_card_write_prt(gpionum)               sf_vic_gpio_manual(0x2b8, gpionum + 2)
++#define SET_GPIO_sdio0_pad_ccmd_in(gpionum)                      sf_vic_gpio_manual(0x2bc, gpionum + 2)
++#define SET_GPIO_sdio0_pad_cdata_in_bit0(gpionum)                sf_vic_gpio_manual(0x2c0, gpionum + 2)
++#define SET_GPIO_sdio0_pad_cdata_in_bit1(gpionum)                sf_vic_gpio_manual(0x2c4, gpionum + 2)
++#define SET_GPIO_sdio0_pad_cdata_in_bit2(gpionum)                sf_vic_gpio_manual(0x2c8, gpionum + 2)
++#define SET_GPIO_sdio0_pad_cdata_in_bit3(gpionum)                sf_vic_gpio_manual(0x2cc, gpionum + 2)
++#define SET_GPIO_sdio0_pad_cdata_in_bit4(gpionum)                sf_vic_gpio_manual(0x2d0, gpionum + 2)
++#define SET_GPIO_sdio0_pad_cdata_in_bit5(gpionum)                sf_vic_gpio_manual(0x2d4, gpionum + 2)
++#define SET_GPIO_sdio0_pad_cdata_in_bit6(gpionum)                sf_vic_gpio_manual(0x2d8, gpionum + 2)
++#define SET_GPIO_sdio0_pad_cdata_in_bit7(gpionum)                sf_vic_gpio_manual(0x2dc, gpionum + 2)
++#define SET_GPIO_sdio1_pad_card_detect_n(gpionum)                sf_vic_gpio_manual(0x2e0, gpionum + 2)
++#define SET_GPIO_sdio1_pad_card_write_prt(gpionum)               sf_vic_gpio_manual(0x2e4, gpionum + 2)
++#define SET_GPIO_sdio1_pad_ccmd_in(gpionum)                      sf_vic_gpio_manual(0x2e8, gpionum + 2)
++#define SET_GPIO_sdio1_pad_cdata_in_bit0(gpionum)                sf_vic_gpio_manual(0x2ec, gpionum + 2)
++#define SET_GPIO_sdio1_pad_cdata_in_bit1(gpionum)                sf_vic_gpio_manual(0x2f0, gpionum + 2)
++#define SET_GPIO_sdio1_pad_cdata_in_bit2(gpionum)                sf_vic_gpio_manual(0x2f4, gpionum + 2)
++#define SET_GPIO_sdio1_pad_cdata_in_bit3(gpionum)                sf_vic_gpio_manual(0x2f8, gpionum + 2)
++#define SET_GPIO_sdio1_pad_cdata_in_bit4(gpionum)                sf_vic_gpio_manual(0x2fc, gpionum + 2)
++#define SET_GPIO_sdio1_pad_cdata_in_bit5(gpionum)                sf_vic_gpio_manual(0x300, gpionum + 2)
++#define SET_GPIO_sdio1_pad_cdata_in_bit6(gpionum)                sf_vic_gpio_manual(0x304, gpionum + 2)
++#define SET_GPIO_sdio1_pad_cdata_in_bit7(gpionum)                sf_vic_gpio_manual(0x308, gpionum + 2)
++#define SET_GPIO_spdif_rx_sdin(gpionum)                          sf_vic_gpio_manual(0x30c, gpionum + 2)
++#define SET_GPIO_spi0_pad_rxd(gpionum)                           sf_vic_gpio_manual(0x310, gpionum + 2)
++#define SET_GPIO_spi0_pad_ss_in_n(gpionum)                       sf_vic_gpio_manual(0x314, gpionum + 2)
++#define SET_GPIO_spi1_pad_rxd(gpionum)                           sf_vic_gpio_manual(0x318, gpionum + 2)
++#define SET_GPIO_spi1_pad_ss_in_n(gpionum)                       sf_vic_gpio_manual(0x31c, gpionum + 2)
++#define SET_GPIO_spi2_pad_rxd(gpionum)                           sf_vic_gpio_manual(0x320, gpionum + 2)
++#define SET_GPIO_spi2_pad_ss_in_n(gpionum)                       sf_vic_gpio_manual(0x324, gpionum + 2)
++#define SET_GPIO_spi2ahb_pad_rxd_bit0(gpionum)                   sf_vic_gpio_manual(0x328, gpionum + 2)
++#define SET_GPIO_spi2ahb_pad_rxd_bit1(gpionum)                   sf_vic_gpio_manual(0x32c, gpionum + 2)
++#define SET_GPIO_spi2ahb_pad_rxd_bit2(gpionum)                   sf_vic_gpio_manual(0x330, gpionum + 2)
++#define SET_GPIO_spi2ahb_pad_rxd_bit3(gpionum)                   sf_vic_gpio_manual(0x334, gpionum + 2)
++#define SET_GPIO_spi2ahb_pad_ss_n(gpionum)                       sf_vic_gpio_manual(0x338, gpionum + 2)
++#define SET_GPIO_spi2ahb_slv_sclkin(gpionum)                     sf_vic_gpio_manual(0x33c, gpionum + 2)
++#define SET_GPIO_spi3_pad_rxd(gpionum)                           sf_vic_gpio_manual(0x340, gpionum + 2)
++#define SET_GPIO_spi3_pad_ss_in_n(gpionum)                       sf_vic_gpio_manual(0x344, gpionum + 2)
++#define SET_GPIO_uart0_pad_ctsn(gpionum)                         sf_vic_gpio_manual(0x348, gpionum + 2)
++#define SET_GPIO_uart0_pad_dcdn(gpionum)                         sf_vic_gpio_manual(0x34c, gpionum + 2)
++#define SET_GPIO_uart0_pad_dsrn(gpionum)                         sf_vic_gpio_manual(0x350, gpionum + 2)
++#define SET_GPIO_uart0_pad_rin(gpionum)                          sf_vic_gpio_manual(0x354, gpionum + 2)
++#define SET_GPIO_uart0_pad_sin(gpionum)                          sf_vic_gpio_manual(0x358, gpionum + 2)
++#define SET_GPIO_uart1_pad_sin(gpionum)                          sf_vic_gpio_manual(0x35c, gpionum + 2)
++#define SET_GPIO_uart2_pad_cts_n(gpionum)                        sf_vic_gpio_manual(0x360, gpionum + 2)
++#define SET_GPIO_uart2_pad_dcd_n(gpionum)                        sf_vic_gpio_manual(0x364, gpionum + 2)
++#define SET_GPIO_uart2_pad_dsr_n(gpionum)                        sf_vic_gpio_manual(0x368, gpionum + 2)
++#define SET_GPIO_uart2_pad_ri_n(gpionum)                         sf_vic_gpio_manual(0x36c, gpionum + 2)
++#define SET_GPIO_uart2_pad_sin(gpionum)                          sf_vic_gpio_manual(0x370, gpionum + 2)
++#define SET_GPIO_uart3_pad_sin(gpionum)                          sf_vic_gpio_manual(0x374, gpionum + 2)
++#define SET_GPIO_usb_over_current(gpionum)                       sf_vic_gpio_manual(0x378, gpionum + 2)
++
++#endif /* __GPIO_PXA_H */
+-- 
+2.30.2
+

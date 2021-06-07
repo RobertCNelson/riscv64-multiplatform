@@ -1,0 +1,136 @@
+From 4dcd84f60c74032dc82c70524881deee15b55794 Mon Sep 17 00:00:00 2001
+From: Tom <support@vamrs.com>
+Date: Sat, 13 Mar 2021 15:22:38 +0800
+Subject: [PATCH 39/59] drivers/i2c: Add GPIO configuration for VIC7100.
+
+[FIXME] why we can not do it in U-boot?
+
+[geert: Rebase to v5.13-rc1]
+---
+ drivers/i2c/busses/i2c-designware-core.h    |  2 +
+ drivers/i2c/busses/i2c-designware-master.c  | 44 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware-platdrv.c |  5 +++
+ 3 files changed, 51 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 6a53f75abf7c..c8e2c59bc29d 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -286,6 +286,8 @@ struct dw_i2c_dev {
+ 	int			(*init)(struct dw_i2c_dev *dev);
+ 	int			(*set_sda_hold_time)(struct dw_i2c_dev *dev);
+ 	int			mode;
++	int			scl_gpio;
++	int			sda_gpio;
+ 	struct i2c_bus_recovery_info rinfo;
+ 	bool			suspended;
+ };
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 9b08bb5df38d..85d2cddfcdf6 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -20,6 +20,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/regmap.h>
+ #include <linux/reset.h>
++#include <linux/gpio-starfive-vic.h>
+ 
+ #include "i2c-designware-core.h"
+ 
+@@ -164,6 +165,48 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
+ 	return 0;
+ }
+ 
++static void i2c_dw_configure_gpio(struct dw_i2c_dev *dev)
++{
++#ifdef CONFIG_SOC_STARFIVE_VIC7100_I2C_GPIO
++	if((dev->scl_gpio > 0) && (dev->sda_gpio > 0)) {
++		SET_GPIO_dout_LOW(dev->scl_gpio);
++		SET_GPIO_dout_LOW(dev->sda_gpio);
++		SET_GPIO_doen_reverse_(dev->scl_gpio,1);
++		SET_GPIO_doen_reverse_(dev->sda_gpio,1);
++		switch(dev->adapter.nr) {
++		case 0:
++			SET_GPIO_doen_i2c0_pad_sck_oe(dev->scl_gpio);
++			SET_GPIO_doen_i2c0_pad_sda_oe(dev->sda_gpio);
++			SET_GPIO_i2c0_pad_sck_in(dev->scl_gpio);
++			SET_GPIO_i2c0_pad_sda_in(dev->sda_gpio);
++			break;
++		case 1:
++			SET_GPIO_doen_i2c1_pad_sck_oe(dev->scl_gpio);
++			SET_GPIO_doen_i2c1_pad_sda_oe(dev->sda_gpio);
++			SET_GPIO_i2c1_pad_sck_in(dev->scl_gpio);
++			SET_GPIO_i2c1_pad_sda_in(dev->sda_gpio);
++			break;
++		case 2:
++			SET_GPIO_doen_i2c2_pad_sck_oe(dev->scl_gpio);
++			SET_GPIO_doen_i2c2_pad_sda_oe(dev->sda_gpio);
++			SET_GPIO_i2c2_pad_sck_in(dev->scl_gpio);
++			SET_GPIO_i2c2_pad_sda_in(dev->sda_gpio);
++			break;
++		case 3:
++			SET_GPIO_doen_i2c3_pad_sck_oe(dev->scl_gpio);
++			SET_GPIO_doen_i2c3_pad_sda_oe(dev->sda_gpio);
++			SET_GPIO_i2c3_pad_sck_in(dev->scl_gpio);
++			SET_GPIO_i2c3_pad_sda_in(dev->sda_gpio);
++			break;
++		default:
++			dev_err(dev->dev, "i2c adapter number is invalid\n");
++		}
++	} else
++		dev_err(dev->dev, "scl/sda gpio number is invalid !\n");
++#endif
++	return;
++}
++
+ /**
+  * i2c_dw_init_master() - Initialize the designware I2C master hardware
+  * @dev: device private data
+@@ -927,6 +970,7 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
+ 		dev_err(dev->dev, "failure adding adapter: %d\n", ret);
+ 	pm_runtime_put_noidle(dev->dev);
+ 
++	i2c_dw_configure_gpio(dev);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(i2c_dw_probe_master);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 904694a19e51..1388e79bd9ef 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -22,6 +22,7 @@
+ #include <linux/mfd/syscon.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
++#include <linux/of_gpio.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm.h>
+ #include <linux/pm_runtime.h>
+@@ -31,6 +32,7 @@
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/suspend.h>
++#include <linux/gpio-starfive-vic.h>
+ 
+ #include "i2c-designware-core.h"
+ 
+@@ -220,6 +222,7 @@ static const struct dmi_system_id dw_i2c_hwmon_class_dmi[] = {
+ 
+ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ {
++	struct device_node *np = pdev->dev.of_node;
+ 	struct i2c_adapter *adap;
+ 	struct dw_i2c_dev *dev;
+ 	struct i2c_timings *t;
+@@ -236,6 +239,8 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	dev->flags = (uintptr_t)device_get_match_data(&pdev->dev);
+ 	dev->dev = &pdev->dev;
+ 	dev->irq = irq;
++	dev->scl_gpio = of_get_named_gpio(np, "scl-gpio", 0);
++	dev->sda_gpio = of_get_named_gpio(np, "sda-gpio", 0);
+ 	platform_set_drvdata(pdev, dev);
+ 
+ 	ret = dw_i2c_plat_request_regs(dev);
+-- 
+2.30.2
+

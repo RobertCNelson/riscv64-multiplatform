@@ -1,0 +1,75 @@
+From 34714bbe265baa6102a144253dcf971fed7ed786 Mon Sep 17 00:00:00 2001
+From: Nanyong Sun <sunnanyong@huawei.com>
+Date: Fri, 30 Apr 2021 16:28:47 +0800
+Subject: [PATCH 01/59] riscv: mm: add _PAGE_LEAF macro
+
+In riscv, a page table entry is leaf when any bit of read, write,
+or execute bit is set. So add a macro:_PAGE_LEAF instead of
+(_PAGE_READ | _PAGE_WRITE | _PAGE_EXEC), which is frequently used
+to determine if it is a leaf page. This make code easier to read,
+without any functional change.
+
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+---
+ arch/riscv/include/asm/pgtable-64.h   | 3 +--
+ arch/riscv/include/asm/pgtable-bits.h | 5 +++++
+ arch/riscv/include/asm/pgtable.h      | 6 ++----
+ 3 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/arch/riscv/include/asm/pgtable-64.h b/arch/riscv/include/asm/pgtable-64.h
+index f3b0da64c6c8..e3b7c5dd6a80 100644
+--- a/arch/riscv/include/asm/pgtable-64.h
++++ b/arch/riscv/include/asm/pgtable-64.h
+@@ -46,8 +46,7 @@ static inline int pud_bad(pud_t pud)
+ #define pud_leaf	pud_leaf
+ static inline int pud_leaf(pud_t pud)
+ {
+-	return pud_present(pud) &&
+-	       (pud_val(pud) & (_PAGE_READ | _PAGE_WRITE | _PAGE_EXEC));
++	return pud_present(pud) && (pud_val(pud) & _PAGE_LEAF);
+ }
+ 
+ static inline void set_pud(pud_t *pudp, pud_t pud)
+diff --git a/arch/riscv/include/asm/pgtable-bits.h b/arch/riscv/include/asm/pgtable-bits.h
+index bbaeb5d35842..2ee413912926 100644
+--- a/arch/riscv/include/asm/pgtable-bits.h
++++ b/arch/riscv/include/asm/pgtable-bits.h
+@@ -39,5 +39,10 @@
+ #define _PAGE_CHG_MASK  (~(unsigned long)(_PAGE_PRESENT | _PAGE_READ |	\
+ 					  _PAGE_WRITE | _PAGE_EXEC |	\
+ 					  _PAGE_USER | _PAGE_GLOBAL))
++/*
++ * when all of R/W/X are zero, the PTE is a pointer to the next level
++ * of the page table; otherwise, it is a leaf PTE.
++ */
++#define _PAGE_LEAF (_PAGE_READ | _PAGE_WRITE | _PAGE_EXEC)
+ 
+ #endif /* _ASM_RISCV_PGTABLE_BITS_H */
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index 9469f464e71a..dbced7d37768 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -190,8 +190,7 @@ static inline int pmd_bad(pmd_t pmd)
+ #define pmd_leaf	pmd_leaf
+ static inline int pmd_leaf(pmd_t pmd)
+ {
+-	return pmd_present(pmd) &&
+-	       (pmd_val(pmd) & (_PAGE_READ | _PAGE_WRITE | _PAGE_EXEC));
++	return pmd_present(pmd) && (pmd_val(pmd) & _PAGE_LEAF);
+ }
+ 
+ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
+@@ -267,8 +266,7 @@ static inline int pte_exec(pte_t pte)
+ 
+ static inline int pte_huge(pte_t pte)
+ {
+-	return pte_present(pte)
+-		&& (pte_val(pte) & (_PAGE_READ | _PAGE_WRITE | _PAGE_EXEC));
++	return pte_present(pte) && (pte_val(pte) & _PAGE_LEAF);
+ }
+ 
+ static inline int pte_dirty(pte_t pte)
+-- 
+2.30.2
+

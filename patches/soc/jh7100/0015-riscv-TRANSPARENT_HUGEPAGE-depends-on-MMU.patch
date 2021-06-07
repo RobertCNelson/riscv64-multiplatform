@@ -1,0 +1,38 @@
+From af721236e39b5542442e26d4dfbd135339d5fa49 Mon Sep 17 00:00:00 2001
+From: Randy Dunlap <rdunlap@infradead.org>
+Date: Mon, 24 May 2021 17:13:02 -0700
+Subject: [PATCH 15/59] riscv: TRANSPARENT_HUGEPAGE: depends on MMU
+
+Fix a Kconfig warning and many build errors:
+
+WARNING: unmet direct dependencies detected for COMPACTION
+  Depends on [n]: MMU [=n]
+  Selected by [y]:
+  - TRANSPARENT_HUGEPAGE [=y] && HAVE_ARCH_TRANSPARENT_HUGEPAGE [=y]
+
+and the subseqent thousands of build errors and warnings.
+
+Fixes: e88b333142e4 ("riscv: mm: add THP support on 64-bit")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+---
+ arch/riscv/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 1d4d0a9fa794..2eedaf621bc7 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -106,7 +106,7 @@ config RISCV
+ 	select SYSCTL_EXCEPTION_TRACE
+ 	select THREAD_INFO_IN_TASK
+ 	select UACCESS_MEMCPY if !MMU
+-	select HAVE_ARCH_TRANSPARENT_HUGEPAGE if 64BIT
++	select HAVE_ARCH_TRANSPARENT_HUGEPAGE if 64BIT && MMU
+ 
+ config ARCH_MMAP_RND_BITS_MIN
+ 	default 18 if 64BIT
+-- 
+2.30.2
+

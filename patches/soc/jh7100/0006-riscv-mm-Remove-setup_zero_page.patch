@@ -1,0 +1,42 @@
+From 86ecf13739e5a0fd3f321d87e5e71ece5ece352f Mon Sep 17 00:00:00 2001
+From: Jisheng Zhang <jszhang3@mail.ustc.edu.cn>
+Date: Fri, 7 May 2021 22:19:59 +0800
+Subject: [PATCH 06/59] riscv: mm: Remove setup_zero_page()
+
+The empty_zero_page sits at .bss..page_aligned section, so will be
+cleared to zero during clearing bss, we don't need to clear it again.
+
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Reviewed-by: Anup Patel <anup@brainfault.org>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+---
+ arch/riscv/mm/init.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 4c4c92ce0bb8..26c5b290e487 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -67,11 +67,6 @@ static void __init zone_sizes_init(void)
+ 	free_area_init(max_zone_pfns);
+ }
+ 
+-static void __init setup_zero_page(void)
+-{
+-	memset((void *)empty_zero_page, 0, PAGE_SIZE);
+-}
+-
+ #if defined(CONFIG_MMU) && defined(CONFIG_DEBUG_VM)
+ static inline void print_mlk(char *name, unsigned long b, unsigned long t)
+ {
+@@ -871,7 +866,6 @@ RESERVEDMEM_OF_DECLARE(elfcorehdr, "linux,elfcorehdr", elfcore_hdr_setup);
+ void __init paging_init(void)
+ {
+ 	setup_vm_final();
+-	setup_zero_page();
+ }
+ 
+ void __init misc_mem_init(void)
+-- 
+2.30.2
+

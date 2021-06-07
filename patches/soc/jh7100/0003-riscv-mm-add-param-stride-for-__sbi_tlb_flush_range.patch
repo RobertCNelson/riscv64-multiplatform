@@ -1,0 +1,63 @@
+From 80d4af0854550a690dd77d683f94a9ac2da05679 Mon Sep 17 00:00:00 2001
+From: Nanyong Sun <sunnanyong@huawei.com>
+Date: Fri, 30 Apr 2021 16:28:49 +0800
+Subject: [PATCH 03/59] riscv: mm: add param stride for __sbi_tlb_flush_range
+
+Add a parameter: stride for __sbi_tlb_flush_range(),
+represent the page stride between the address of start and end.
+Normally, the stride is PAGE_SIZE, and when flush huge page
+address, the stride can be the huge page size such as:PMD_SIZE,
+then it only need to flush one tlb entry if the address range
+within PMD_SIZE.
+
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+---
+ arch/riscv/mm/tlbflush.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/riscv/mm/tlbflush.c b/arch/riscv/mm/tlbflush.c
+index 720b443c4528..382781abffd0 100644
+--- a/arch/riscv/mm/tlbflush.c
++++ b/arch/riscv/mm/tlbflush.c
+@@ -15,7 +15,7 @@ void flush_tlb_all(void)
+  * Kernel may panic if cmask is NULL.
+  */
+ static void __sbi_tlb_flush_range(struct cpumask *cmask, unsigned long start,
+-				  unsigned long size)
++				  unsigned long size, unsigned long stride)
+ {
+ 	struct cpumask hmask;
+ 	unsigned int cpuid;
+@@ -27,7 +27,7 @@ static void __sbi_tlb_flush_range(struct cpumask *cmask, unsigned long start,
+ 
+ 	if (cpumask_any_but(cmask, cpuid) >= nr_cpu_ids) {
+ 		/* local cpu is the only cpu present in cpumask */
+-		if (size <= PAGE_SIZE)
++		if (size <= stride)
+ 			local_flush_tlb_page(start);
+ 		else
+ 			local_flush_tlb_all();
+@@ -41,16 +41,16 @@ static void __sbi_tlb_flush_range(struct cpumask *cmask, unsigned long start,
+ 
+ void flush_tlb_mm(struct mm_struct *mm)
+ {
+-	__sbi_tlb_flush_range(mm_cpumask(mm), 0, -1);
++	__sbi_tlb_flush_range(mm_cpumask(mm), 0, -1, PAGE_SIZE);
+ }
+ 
+ void flush_tlb_page(struct vm_area_struct *vma, unsigned long addr)
+ {
+-	__sbi_tlb_flush_range(mm_cpumask(vma->vm_mm), addr, PAGE_SIZE);
++	__sbi_tlb_flush_range(mm_cpumask(vma->vm_mm), addr, PAGE_SIZE, PAGE_SIZE);
+ }
+ 
+ void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
+ 		     unsigned long end)
+ {
+-	__sbi_tlb_flush_range(mm_cpumask(vma->vm_mm), start, end - start);
++	__sbi_tlb_flush_range(mm_cpumask(vma->vm_mm), start, end - start, PAGE_SIZE);
+ }
+-- 
+2.30.2
+

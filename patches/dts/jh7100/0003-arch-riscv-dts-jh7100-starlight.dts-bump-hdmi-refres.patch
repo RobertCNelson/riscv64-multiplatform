@@ -6,13 +6,13 @@ Subject: [PATCH] arch: riscv: dts: jh7100-starlight.dts: bump hdmi refresh
 
 Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
 ---
- arch/riscv/boot/dts/starfive/jh7100-starlight.dts | 2 +-
+ arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/boot/dts/starfive/jh7100-starlight.dts b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
+diff --git a/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts b/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts
 index 3698e78d6a21..ccadb0df515c 100644
---- a/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
-+++ b/arch/riscv/boot/dts/starfive/jh7100-starlight.dts
+--- a/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts
++++ b/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts
 @@ -208,7 +208,7 @@ tda_998x_1080p {
  		physical-height = <114>;
  		panel-width = <1920>;

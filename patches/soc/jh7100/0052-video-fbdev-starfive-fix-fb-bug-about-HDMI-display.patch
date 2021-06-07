@@ -1,0 +1,28 @@
+From 5435870668a5d4f56b84941f0da2a6cd9f0f55c4 Mon Sep 17 00:00:00 2001
+From: Qing Zhao <qing.zhao@starfivetech.com>
+Date: Sat, 15 May 2021 23:18:49 +0800
+Subject: [PATCH 52/59] video: fbdev: starfive: fix fb bug about HDMI display
+
+---
+ drivers/video/fbdev/starfive/starfive_fb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/video/fbdev/starfive/starfive_fb.c b/drivers/video/fbdev/starfive/starfive_fb.c
+index f62f4711ec23..1ff9434ea0b3 100755
+--- a/drivers/video/fbdev/starfive/starfive_fb.c
++++ b/drivers/video/fbdev/starfive/starfive_fb.c
+@@ -541,9 +541,10 @@ static int sf_fb_pan_display(struct fb_var_screeninfo *var,
+ 	switch(sf_dev->display_dev->interface_info) {
+ 		case STARFIVEFB_MIPI_IF:
+ 		case STARFIVEFB_HDMI_IF:
+-			//lcdc_run(sf_dev,0x2, 0x1);
++			lcdc_run(sf_dev,0x2, 0x1);
+ 			break;
+ 		case STARFIVEFB_RGB_IF:
++			lcdc_run(sf_dev,0x2, 0x1);
+ 			break;
+ 		default:
+ 			break;
+-- 
+2.30.2
+

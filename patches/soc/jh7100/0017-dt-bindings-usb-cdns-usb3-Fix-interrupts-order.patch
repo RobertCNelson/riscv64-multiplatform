@@ -1,0 +1,32 @@
+From 67a1c37e9fe732450a09f992340e8f2c27d5eb63 Mon Sep 17 00:00:00 2001
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 27 May 2021 19:57:35 +0200
+Subject: [PATCH 17/59] dt-bindings: usb: cdns,usb3: Fix interrupts order
+
+Correct the order of the descriptions for the "interrupts" property to
+match the order of the "interrupt-names" property.
+
+Fixes: 68989fe1c39d9b32 ("dt-bindings: usb: Convert cdns-usb3.txt to YAML schema")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ Documentation/devicetree/bindings/usb/cdns,usb3.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/usb/cdns,usb3.yaml b/Documentation/devicetree/bindings/usb/cdns,usb3.yaml
+index a407e1143cf4..8dedfa16c992 100644
+--- a/Documentation/devicetree/bindings/usb/cdns,usb3.yaml
++++ b/Documentation/devicetree/bindings/usb/cdns,usb3.yaml
+@@ -28,9 +28,9 @@ properties:
+   interrupts:
+     minItems: 3
+     items:
+-      - description: OTG/DRD controller interrupt
+       - description: XHCI host controller interrupt
+       - description: Device controller interrupt
++      - description: OTG/DRD controller interrupt
+       - description: interrupt used to wake up core, e.g when usbcmd.rs is
+                      cleared by xhci core, this interrupt is optional
+ 
+-- 
+2.30.2
+
