@@ -1,0 +1,25 @@
+From 7cad9e6aee43f38e28dc51f5debcf1152559a9b4 Mon Sep 17 00:00:00 2001
+From: Stephen L Arnold <nerdboy@gentoo.org>
+Date: Mon, 14 Jun 2021 10:07:40 -0700
+Subject: [PATCH] riscv: dts: jh7100-starlight: Remove SDcard max frequency
+
+Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>
+---
+ arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts b/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts
+index ccadb0df515c..0a8c80873469 100644
+--- a/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts
++++ b/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight.dts
+@@ -161,7 +161,6 @@ &sdio0 {
+ 	broken-cd;
+ 	bus-width = <4>;
+ 	cap-sd-highspeed;
+-	max-frequency = <10000000>;
+ 	status = "okay";
+ };
+ 
+-- 
+2.31.1
+
