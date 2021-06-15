@@ -277,7 +277,7 @@ wireless_regdb
 packaging () {
 	#do_backport="enable"
 	if [ "x${do_backport}" = "xenable" ] ; then
-		backport_tag="v5.10.42"
+		backport_tag="v5.10.43"
 
 		subsystem="bindeb-pkg"
 		#regenerate="enable"
