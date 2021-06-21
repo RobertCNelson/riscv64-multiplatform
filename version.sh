@@ -2,7 +2,7 @@
 #
 ARCH=$(uname -m)
 
-config="starlight_defconfig"
+config="beaglev_defconfig"
 
 build_prefix="-riscv64-r"
 branch_prefix="v"
@@ -38,10 +38,10 @@ toolchain="gcc_11_riscv64"
 
 #Kernel
 KERNEL_REL=5.13
-KERNEL_TAG=${KERNEL_REL}-rc6
+KERNEL_TAG=${KERNEL_REL}-rc7
 kernel_rt=".X-rtY"
 #Kernel Build
-BUILD=${build_prefix}10
+BUILD=${build_prefix}10.1
 
 #v5.X-rcX + upto SHA
 #prev_KERNEL_SHA=""
