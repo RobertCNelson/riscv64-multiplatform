@@ -1,7 +1,7 @@
 From 936e56128b432942eba440698d00290d3bd393d4 Mon Sep 17 00:00:00 2001
 From: Wong Vee Khee <vee.khee.wong@linux.intel.com>
 Date: Fri, 11 Jun 2021 17:02:38 +0800
-Subject: [PATCH 05/52] net: stmmac: Fix potential integer overflow
+Subject: [PATCH 05/55] net: stmmac: Fix potential integer overflow
 
 The commit d96febedfde2 ("net: stmmac: arrange Tx tail pointer update
 to stmmac_flush_tx_descriptors") introduced the following coverity

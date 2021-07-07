@@ -1,7 +1,7 @@
 From 3bb506f413ecb44d43d1bef4109d3e9bfea9f968 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 22 Jun 2021 15:05:53 +0200
-Subject: [PATCH 47/52] video: fbdev: starfive: Use round_up() instead of
+Subject: [PATCH 47/55] video: fbdev: starfive: Use round_up() instead of
  _ALIGN_UP()
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8

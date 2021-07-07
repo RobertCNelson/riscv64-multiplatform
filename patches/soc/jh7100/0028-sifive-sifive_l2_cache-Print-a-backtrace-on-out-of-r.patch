@@ -1,7 +1,7 @@
 From 2112350b96f84d51fed8a0d841ab68e386967db8 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Fri, 21 May 2021 08:35:33 +0200
-Subject: [PATCH 28/52] sifive/sifive_l2_cache: Print a backtrace on
+Subject: [PATCH 28/55] sifive/sifive_l2_cache: Print a backtrace on
  out-of-range flushes
 
 This makes it easier to find out which driver passes a wrong address

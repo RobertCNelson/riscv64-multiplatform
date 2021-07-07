@@ -1,7 +1,7 @@
 From c8dbd1c467f6602458c1f540eba93c464934686c Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Mon, 3 May 2021 12:09:04 +0200
-Subject: [PATCH 15/52] mfd: tps65086: Make interrupt line optional
+Subject: [PATCH 15/55] mfd: tps65086: Make interrupt line optional
 
 The BeagleV Starlight v0.9 board[1] doesn't have the IRQB line routed to
 the SoC, but it is still useful to be able to reach the PMIC over I2C

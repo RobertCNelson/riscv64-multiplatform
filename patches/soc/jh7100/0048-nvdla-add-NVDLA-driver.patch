@@ -1,7 +1,7 @@
 From ce5cffcc8e618604a0d442758321fc5577751c9d Mon Sep 17 00:00:00 2001
 From: Farzad Farshchi <farzadfr@gmail.com>
 Date: Thu, 20 Sep 2018 19:08:27 -0500
-Subject: [PATCH 48/52] nvdla: add NVDLA driver
+Subject: [PATCH 48/55] nvdla: add NVDLA driver
 
 Additional update from Prashant Gaikwad <pgaikwad@nvidia.com>
 Adapted for Linux 5.13 and the BeagleV Starlight board by

@@ -1,7 +1,7 @@
 From ec1600f5a56bf4b2c8fe39aa18ba77b121a01c4a Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Mon, 14 Jun 2021 04:25:04 +0200
-Subject: [PATCH 06/52] stmmac: align RX buffers
+Subject: [PATCH 06/55] stmmac: align RX buffers
 
 On RX an SKB is allocated and the received buffer is copied into it.
 But on some architectures, the memcpy() needs the source and destination

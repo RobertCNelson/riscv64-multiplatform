@@ -1,7 +1,7 @@
 From ea735a3e2bd5b263dc1186f0f437fbc005dfb2f5 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 24 Jun 2021 17:42:09 +0200
-Subject: [PATCH 14/52] dt-bindings: mfd: convert tps65086.txt to YAML
+Subject: [PATCH 14/55] dt-bindings: mfd: convert tps65086.txt to YAML
 
 This converts the tps65086.txt binding description to YAML schema so
 dts files can be verified automatically.

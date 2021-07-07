@@ -1,7 +1,7 @@
 From 50bfe00eeda42ac3c519646ed78e574d7e36ba1e Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Fri, 8 Jan 2021 02:54:51 +0800
-Subject: [PATCH 25/52] sifive/sifive_l2_cache: Add sifive_l2_flush64_range
+Subject: [PATCH 25/55] sifive/sifive_l2_cache: Add sifive_l2_flush64_range
  function
 
 ---

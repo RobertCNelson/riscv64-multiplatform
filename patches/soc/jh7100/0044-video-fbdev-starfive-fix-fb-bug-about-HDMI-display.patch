@@ -1,7 +1,7 @@
 From 8faa5c6e1d8993788061fff56d6371eafa81a40a Mon Sep 17 00:00:00 2001
 From: Qing Zhao <qing.zhao@starfivetech.com>
 Date: Sat, 15 May 2021 23:18:49 +0800
-Subject: [PATCH 44/52] video: fbdev: starfive: fix fb bug about HDMI display
+Subject: [PATCH 44/55] video: fbdev: starfive: fix fb bug about HDMI display
 
 ---
  drivers/video/fbdev/starfive/starfive_fb.c | 3 ++-

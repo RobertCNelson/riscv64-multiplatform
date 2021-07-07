@@ -1,7 +1,7 @@
 From 6ef057ec8e56e367b2146b51c5e38d0eff34a4b4 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 1 Jun 2021 16:02:23 +0200
-Subject: [PATCH 20/52] [WIP] dt-bindings: clock: starfive: Add preliminary
+Subject: [PATCH 20/55] [WIP] dt-bindings: clock: starfive: Add preliminary
  JH7100 bindings
 
 Add preliminary Device Tree bindings for the StarFive JH7100 Clock

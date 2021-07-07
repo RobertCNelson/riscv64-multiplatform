@@ -1,7 +1,7 @@
 From 10eaf9b1dd98ec7ad0d6318c6bc6356a1073a948 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 1 Jun 2021 15:57:52 +0200
-Subject: [PATCH 22/52] [WIP] clk: starfive: Add preliminary JH7100 Clock
+Subject: [PATCH 22/55] [WIP] clk: starfive: Add preliminary JH7100 Clock
  Generator Driver
 
 Add a preliminary driver for the StarFive JH7100 Clock Generator.

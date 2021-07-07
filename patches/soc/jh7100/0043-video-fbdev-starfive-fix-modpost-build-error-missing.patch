@@ -1,7 +1,7 @@
 From fd4c84fc53de1019ee4c43d42cfcedcbf5733b7e Mon Sep 17 00:00:00 2001
 From: Stephen L Arnold <nerdboy@gentoo.org>
 Date: Wed, 12 May 2021 18:01:36 -0700
-Subject: [PATCH 43/52] video: fbdev: starfive: fix modpost build error
+Subject: [PATCH 43/55] video: fbdev: starfive: fix modpost build error
  (missing license)
 
 Signed-off-by: Stephen L Arnold <nerdboy@gentoo.org>

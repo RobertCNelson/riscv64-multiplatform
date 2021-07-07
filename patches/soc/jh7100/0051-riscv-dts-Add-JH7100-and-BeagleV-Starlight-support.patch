@@ -1,7 +1,7 @@
 From afedf4ee2aba1b29c6b0e60c150a6728be4c18bc Mon Sep 17 00:00:00 2001
 From: TekkamanV <tekkamanv@starfivetech.com>
 Date: Sat, 23 Jan 2021 02:52:17 +0800
-Subject: [PATCH 51/52] riscv: dts: Add JH7100 and BeagleV Starlight support
+Subject: [PATCH 51/55] riscv: dts: Add JH7100 and BeagleV Starlight support
 
 Based on the device tree in https://github.com/starfive-tech/u-boot/
 with contributions from:

@@ -1,7 +1,7 @@
 From 5196efa80b0dfa22ac490a73dcc21d934c0d0727 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Fri, 8 Jan 2021 02:59:40 +0800
-Subject: [PATCH 30/52] riscv/starfive: Add VIC7100 support
+Subject: [PATCH 30/55] riscv/starfive: Add VIC7100 support
 
 ---
  arch/riscv/Kconfig.socs        | 12 ++++++++++++

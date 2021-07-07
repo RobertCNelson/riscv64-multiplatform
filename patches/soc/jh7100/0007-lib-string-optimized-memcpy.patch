@@ -1,7 +1,7 @@
 From cdf109a77a1746de9120e37858a1fc6aab9b64ff Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 25 Jun 2021 00:32:03 +0200
-Subject: [PATCH 07/52] lib/string: optimized memcpy
+Subject: [PATCH 07/55] lib/string: optimized memcpy
 
 Rewrite the generic memcpy() to copy a word at time, without generating
 unaligned accesses.

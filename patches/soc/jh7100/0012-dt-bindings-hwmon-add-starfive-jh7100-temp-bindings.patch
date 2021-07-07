@@ -1,7 +1,7 @@
 From 93f97bd5c1df882ff55fb7e38ea39ad170c8e7f7 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Sun, 6 Jun 2021 22:15:22 +0200
-Subject: [PATCH 12/52] dt-bindings: hwmon: add starfive,jh7100-temp bindings
+Subject: [PATCH 12/55] dt-bindings: hwmon: add starfive,jh7100-temp bindings
 
 Add bindings for the temperature sensor on the StarFive JH7100 SoC.
 

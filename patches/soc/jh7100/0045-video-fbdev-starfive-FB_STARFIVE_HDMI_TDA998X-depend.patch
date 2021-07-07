@@ -1,7 +1,7 @@
 From 7d9f6806610524bf5f7ea2b10890c3fc96c8140f Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 18 May 2021 13:51:33 +0200
-Subject: [PATCH 45/52] video: fbdev: starfive: FB_STARFIVE_HDMI_TDA998X
+Subject: [PATCH 45/55] video: fbdev: starfive: FB_STARFIVE_HDMI_TDA998X
  depends on DRM_FBDEV_EMULATION
 
 riscv64-linux-gnu-ld: drivers/video/fbdev/starfive/tda998x.o: in function `.L0 ':

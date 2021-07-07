@@ -1,7 +1,7 @@
 From 2d77e45f0a5bb6859a5fa0551bff2aece1ec5cf6 Mon Sep 17 00:00:00 2001
 From: Atish Patra <atish.patra@wdc.com>
 Date: Sat, 12 Jun 2021 16:48:31 -0700
-Subject: [PATCH 50/52] RISC-V: Support non-coherent DMA operations
+Subject: [PATCH 50/55] RISC-V: Support non-coherent DMA operations
 
 ** Do not upstream **
 

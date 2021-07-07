@@ -1,7 +1,7 @@
 From 7b61df3123179fc76fb2108c5e1afab8c13ad000 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 1 Jun 2021 15:57:52 +0200
-Subject: [PATCH 21/52] [WIP] dt-bindings: clock: starfive: Add preliminary
+Subject: [PATCH 21/55] [WIP] dt-bindings: clock: starfive: Add preliminary
  JH7100 Clock Definitions
 
 Add all clock outputs for the StarFive JH7100 Clock Generator, based on

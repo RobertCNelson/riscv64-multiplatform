@@ -1,7 +1,7 @@
 From a7a4c54e42d2910e1eddd66b4fea7fdff68f6861 Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Tue, 16 Mar 2021 23:53:55 +0800
-Subject: [PATCH 40/52] video: fbdev: starfive: workaround for unavailable
+Subject: [PATCH 40/55] video: fbdev: starfive: workaround for unavailable
  pointer of dtb
 
 Fix sf_fb_map_video_memory in starfive_fb.c

@@ -1,7 +1,7 @@
 From e9b8995019385ec7893b06d613c7488cf10ed10c Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Sun, 6 Jun 2021 22:31:18 +0200
-Subject: [PATCH 13/52] hwmon: (sfctemp) Add StarFive JH7100 temperature sensor
+Subject: [PATCH 13/55] hwmon: (sfctemp) Add StarFive JH7100 temperature sensor
 
 Register definitions and conversion constants based on sfctemp driver by
 Samin in the StarFive 5.10 kernel.
