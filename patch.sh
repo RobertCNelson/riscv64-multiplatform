@@ -219,14 +219,15 @@ patch_backports (){
 }
 
 backports () {
-	backport_tag="xyz"
+	backport_tag="v4.x-y"
 
 	subsystem="xyz"
 	#regenerate="enable"
 	if [ "x${regenerate}" = "xenable" ] ; then
 		pre_backports
 
-		cp -rv ~/linux-src/drivers/net/wireless/ti/* ./drivers/net/wireless/ti/
+		mkdir -p ./x/
+		cp -v ~/linux-src/x/* ./x/
 
 		post_backports
 		exit 2
@@ -277,7 +278,7 @@ wireless_regdb
 packaging () {
 	#do_backport="enable"
 	if [ "x${do_backport}" = "xenable" ] ; then
-		backport_tag="v5.10.48"
+		backport_tag="v5.10.50"
 
 		subsystem="bindeb-pkg"
 		#regenerate="enable"
