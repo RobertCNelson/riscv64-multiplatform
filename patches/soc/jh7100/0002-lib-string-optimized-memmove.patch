@@ -1,0 +1,50 @@
+From 0a55c960a539c05cd487b5d264a0c86e24b26d7e Mon Sep 17 00:00:00 2001
+From: Matteo Croce <mcroce@microsoft.com>
+Date: Fri, 25 Jun 2021 00:32:17 +0200
+Subject: [PATCH 02/51] lib/string: optimized memmove
+
+When the destination buffer is before the source one, or when the
+buffers doesn't overlap, it's safe to use memcpy() instead, which is
+optimized to use a bigger data size possible.
+
+This "optimization" only covers a common case. In future, proper code
+which does the same thing as memcpy() does but backwards can be done.
+
+Signed-off-by: Matteo Croce <mcroce@microsoft.com>
+---
+ lib/string.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+diff --git a/lib/string.c b/lib/string.c
+index 105304488319..4d3c589897e2 100644
+--- a/lib/string.c
++++ b/lib/string.c
+@@ -975,19 +975,13 @@ EXPORT_SYMBOL(memcpy);
+  */
+ void *memmove(void *dest, const void *src, size_t count)
+ {
+-	char *tmp;
+-	const char *s;
++	if (dest < src || src + count <= dest)
++		return memcpy(dest, src, count);
++
++	if (dest > src) {
++		const char *s = src + count;
++		char *tmp = dest + count;
+ 
+-	if (dest <= src) {
+-		tmp = dest;
+-		s = src;
+-		while (count--)
+-			*tmp++ = *s++;
+-	} else {
+-		tmp = dest;
+-		tmp += count;
+-		s = src;
+-		s += count;
+ 		while (count--)
+ 			*--tmp = *--s;
+ 	}
+-- 
+2.30.2
+

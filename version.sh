@@ -8,7 +8,7 @@ build_prefix="-riscv64-r"
 branch_prefix="v"
 branch_postfix=".x"
 
-#https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation/process/changes.rst?h=v5.13-rc1
+#https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation/process/changes.rst?h=v5.14-rc1
 #arm
 #KERNEL_ARCH=arm
 #DEBARCH=armhf
@@ -37,11 +37,11 @@ DEBARCH=riscv64
 toolchain="gcc_11_riscv64"
 
 #Kernel
-KERNEL_REL=5.13
-KERNEL_TAG=${KERNEL_REL}.2
+KERNEL_REL=5.14
+KERNEL_TAG=${KERNEL_REL}-rc1
 kernel_rt=".X-rtY"
 #Kernel Build
-BUILD=${build_prefix}14
+BUILD=${build_prefix}0
 
 #v5.X-rcX + upto SHA
 #prev_KERNEL_SHA=""
