@@ -262,16 +262,11 @@ soc () {
 	dir 'soc/jh7100'
 }
 
-dts () {
-	dir 'dts/jh7100'
-}
-
 ###
 #backports
 #reverts
 
 soc
-dts
 
 wireless_regdb
 

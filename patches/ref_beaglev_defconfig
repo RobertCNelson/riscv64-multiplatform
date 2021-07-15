@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/riscv 5.13.1 Kernel Configuration
+# Linux/riscv 5.13.2 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="riscv64-linux-gcc (GCC) 11.1.0"
 CONFIG_CC_IS_GCC=y
@@ -323,22 +323,8 @@ CONFIG_CC_HAVE_STACKPROTECTOR_TLS=y
 #
 # Power management options
 #
-CONFIG_PM=y
-# CONFIG_PM_DEBUG is not set
-CONFIG_PM_CLK=y
-# CONFIG_WQ_POWER_EFFICIENT_DEFAULT is not set
+# CONFIG_PM is not set
 # end of Power management options
-
-#
-# CPU Power Management
-#
-
-#
-# CPU Idle
-#
-# CONFIG_CPU_IDLE is not set
-# end of CPU Idle
-# end of CPU Power Management
 
 #
 # Firmware Drivers
@@ -472,8 +458,6 @@ CONFIG_EFI_PARTITION=y
 # CONFIG_SYSV68_PARTITION is not set
 # CONFIG_CMDLINE_PARTITION is not set
 # end of Partition Types
-
-CONFIG_BLK_PM=y
 
 #
 # IO Schedulers
@@ -789,7 +773,6 @@ CONFIG_GENERIC_ARCH_TOPOLOGY=y
 # Bus devices
 #
 # CONFIG_MOXTET is not set
-# CONFIG_SIMPLE_PM_BUS is not set
 # CONFIG_MHI_BUS is not set
 # end of Bus devices
 
@@ -1229,7 +1212,13 @@ CONFIG_WLAN_VENDOR_QUANTENNA=y
 # CONFIG_USB_NET_RNDIS_WLAN is not set
 # CONFIG_VIRT_WIFI is not set
 # CONFIG_WAN is not set
+
+#
+# Wireless WAN
+#
 # CONFIG_WWAN is not set
+# end of Wireless WAN
+
 # CONFIG_NETDEVSIM is not set
 # CONFIG_NET_FAILOVER is not set
 # CONFIG_ISDN is not set
@@ -2138,7 +2127,6 @@ CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
 CONFIG_USB_DEFAULT_PERSIST=y
 # CONFIG_USB_FEW_INIT_RETRIES is not set
 # CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_OTG is not set
 # CONFIG_USB_OTG_PRODUCTLIST is not set
 # CONFIG_USB_OTG_DISABLE_EXTERNAL_HUB is not set
 # CONFIG_USB_LEDS_TRIGGER_USBPORT is not set
