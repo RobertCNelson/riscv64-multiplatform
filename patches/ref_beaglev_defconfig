@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/riscv 5.14.0-rc1 Kernel Configuration
+# Linux/riscv 5.14.0-rc2 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="riscv64-linux-gcc (GCC) 11.1.0"
 CONFIG_CC_IS_GCC=y
@@ -323,10 +323,7 @@ CONFIG_PHYS_RAM_BASE=0x80000000
 #
 # Power management options
 #
-CONFIG_PM=y
-# CONFIG_PM_DEBUG is not set
-CONFIG_PM_CLK=y
-# CONFIG_WQ_POWER_EFFICIENT_DEFAULT is not set
+# CONFIG_PM is not set
 # end of Power management options
 
 #
@@ -467,8 +464,6 @@ CONFIG_EFI_PARTITION=y
 # CONFIG_SYSV68_PARTITION is not set
 # CONFIG_CMDLINE_PARTITION is not set
 # end of Partition Types
-
-CONFIG_BLK_PM=y
 
 #
 # IO Schedulers
@@ -785,7 +780,6 @@ CONFIG_GENERIC_ARCH_TOPOLOGY=y
 # Bus devices
 #
 # CONFIG_MOXTET is not set
-# CONFIG_SIMPLE_PM_BUS is not set
 # CONFIG_MHI_BUS is not set
 # end of Bus devices
 
@@ -1475,7 +1469,7 @@ CONFIG_GPIOLIB_IRQCHIP=y
 # CONFIG_DEBUG_GPIO is not set
 CONFIG_GPIO_SYSFS=y
 CONFIG_GPIO_CDEV=y
-# CONFIG_GPIO_CDEV_V1 is not set
+CONFIG_GPIO_CDEV_V1=y
 
 #
 # Memory mapped GPIO drivers
@@ -2149,7 +2143,6 @@ CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
 CONFIG_USB_DEFAULT_PERSIST=y
 # CONFIG_USB_FEW_INIT_RETRIES is not set
 # CONFIG_USB_DYNAMIC_MINORS is not set
-# CONFIG_USB_OTG is not set
 # CONFIG_USB_OTG_PRODUCTLIST is not set
 # CONFIG_USB_OTG_DISABLE_EXTERNAL_HUB is not set
 # CONFIG_USB_LEDS_TRIGGER_USBPORT is not set

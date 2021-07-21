@@ -1,0 +1,45 @@
+From 36e35cdcaec8c5cc6a2b4adf2ef6f3951cecde64 Mon Sep 17 00:00:00 2001
+From: Qiu Wenbo <qiuwenbo@kylinos.com.cn>
+Date: Sun, 18 Jul 2021 00:12:13 +0800
+Subject: [PATCH 01/53] riscv: __asm_copy_to-from_user: fix out of boundary
+ memory copy
+
+The __asm_copy_to-from_user function will copy extra bytes beyond the
+boundary when two conditions hold:
+
+1. (src - dst) & (SZREG-1) == 0
+2. 8*SZREG <= size < -src & (SZREG-1) + 8*SZREG
+
+The first condition makes the function enter the unrolled word copy code
+path. And the second condition makes the function believe that there is
+enough bytes to do one iteration of 8*SZREG byte copy. That is not true
+since the available bytes is reduced by -src & (SZREG-1) byte to make
+both src and dst aligned to SZREG.
+
+This behavior causes serious issue with exec system call both on RV64
+and RV32. The passed-in command line parameters might be changed
+silently since they are copied to the new process's stack continuously.
+
+Fixes: ca6eaaa210de ("riscv: __asm_copy_to-from_user: Optimize unaligned memory access and pipeline stall")
+Signed-off-by: Qiu Wenbo <qiuwenbo@kylinos.com.cn>
+---
+ arch/riscv/lib/uaccess.S | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/arch/riscv/lib/uaccess.S b/arch/riscv/lib/uaccess.S
+index bceb0629e440..7ab7cb96dcd9 100644
+--- a/arch/riscv/lib/uaccess.S
++++ b/arch/riscv/lib/uaccess.S
+@@ -36,6 +36,9 @@ ENTRY(__asm_copy_from_user)
+ 	 * Use byte copy only if too small.
+ 	 */
+ 	li	a3, 8*SZREG /* size must be larger than size in word_copy */
++	neg	t1, a0
++	andi	t1, t1, SZREG-1
++	add	a3, a3, t1
+ 	bltu	a2, a3, .Lbyte_copy_tail
+ 
+ 	/*
+-- 
+2.30.2
+

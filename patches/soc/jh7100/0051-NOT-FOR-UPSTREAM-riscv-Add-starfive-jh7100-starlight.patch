@@ -1,7 +1,7 @@
-From f630902cac462be6996c6c33c289b71999387fda Mon Sep 17 00:00:00 2001
+From b08fe2696ae9779130eac254d6cc47447d3a48a7 Mon Sep 17 00:00:00 2001
 From: TekkamanV <tekkamanv@starfivetech.com>
 Date: Fri, 2 Jul 2021 17:18:21 +0800
-Subject: [PATCH 51/51] [NOT-FOR-UPSTREAM] riscv: Add starfive jh7100 starlight
+Subject: [PATCH 51/53] [NOT-FOR-UPSTREAM] riscv: Add starfive jh7100 starlight
  fedora defconfig
 
 Note: add POWER_RESET_TPS65086, disable PM for USB3
