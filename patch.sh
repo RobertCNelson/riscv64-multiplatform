@@ -266,6 +266,9 @@ soc () {
 #backports
 #reverts
 
+#exit 2
+#git pull --no-edit https://github.com/starfive-tech/linux beaglev-5.13.y
+
 soc
 
 wireless_regdb

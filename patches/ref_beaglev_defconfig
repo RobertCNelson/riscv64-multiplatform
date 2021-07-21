@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/riscv 5.13.2 Kernel Configuration
+# Linux/riscv 5.13.4 Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="riscv64-linux-gcc (GCC) 11.1.0"
 CONFIG_CC_IS_GCC=y
@@ -1458,7 +1458,7 @@ CONFIG_GPIOLIB_IRQCHIP=y
 # CONFIG_DEBUG_GPIO is not set
 CONFIG_GPIO_SYSFS=y
 CONFIG_GPIO_CDEV=y
-# CONFIG_GPIO_CDEV_V1 is not set
+CONFIG_GPIO_CDEV_V1=y
 
 #
 # Memory mapped GPIO drivers
@@ -2529,8 +2529,6 @@ CONFIG_SIFIVE_PLIC=y
 
 # CONFIG_IPACK_BUS is not set
 CONFIG_RESET_CONTROLLER=y
-# CONFIG_RESET_BRCMSTB_RESCAL is not set
-# CONFIG_RESET_INTEL_GW is not set
 CONFIG_RESET_SIMPLE=y
 # CONFIG_RESET_TI_SYSCON is not set
 

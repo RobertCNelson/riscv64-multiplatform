@@ -1,7 +1,7 @@
-From 2350b85d7a4b55135a9f61fbb9805b014985cabd Mon Sep 17 00:00:00 2001
+From 6542d373b8dbb04e8ea45d33bde32d1262f958b4 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Thu, 27 May 2021 19:57:35 +0200
-Subject: [PATCH 01/56] dt-bindings: usb: cdns,usb3: Fix interrupts order
+Subject: [PATCH 01/61] dt-bindings: usb: cdns,usb3: Fix interrupts order
 
 Correct the order of the descriptions for the "interrupts" property to
 match the order of the "interrupt-names" property.

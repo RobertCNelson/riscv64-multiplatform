@@ -1,7 +1,7 @@
-From cf42ee4694eb247611b67ee085e64a96d63ac297 Mon Sep 17 00:00:00 2001
+From 7d6ad8b5db048141bf3252bd185471c0d3523475 Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@beagleboard.org>
 Date: Sun, 30 May 2021 23:42:44 -0700
-Subject: [PATCH 03/56] dt-bindings: add StarFive Technology Co. Ltd.
+Subject: [PATCH 03/61] dt-bindings: add StarFive Technology Co. Ltd.
 
 Add vendor prefix for StarFive Technology Co. Ltd [1]. StarFive was
 formed in 2018 and has now produced their first SoC, the JH7100, which
