@@ -1,7 +1,9 @@
-From 2c119a589d954113b235d90858d1b0d2a5f30a45 Mon Sep 17 00:00:00 2001
+From 40db4b12339bc0c2fcac84d4b4d80b74d4ae0b29 Mon Sep 17 00:00:00 2001
 From: Akira Tsukamoto <akira.tsukamoto@gmail.com>
-Date: Tue, 20 Jul 2021 15:24:08 +0900
-Subject: [PATCH 06/61] riscv: __asm_copy_to-from_user: Fix: overrun copy
+Date: Tue, 20 Jul 2021 17:50:52 +0900
+Subject: [PATCH 06/62] riscv: __asm_copy_to-from_user: Fix: overrun copy
+
+commit 6010d300f9f7e16d1bf327b4730bcd0c0886d9e6 upstream.
 
 There were two causes for the overrun memory access.
 
@@ -13,9 +15,8 @@ Inside the unrolling copy, the subtracting -(8*SZREG-1) would make
 iteration happening one extra loop. Proper value is -(8*SZREG).
 
 Signed-off-by: Akira Tsukamoto <akira.tsukamoto@gmail.com>
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Qiu Wenbo <qiuwenbo@kylinos.com.cn>
+Fixes: ca6eaaa210de ("riscv: __asm_copy_to-from_user: Optimize unaligned memory access and pipeline stall")
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 ---
  arch/riscv/lib/uaccess.S | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)

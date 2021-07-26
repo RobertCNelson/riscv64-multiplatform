@@ -1,8 +1,10 @@
-From 8d44cd13dcccd49c35fc7bcb8d8da76f8ffe91aa Mon Sep 17 00:00:00 2001
+From 450fd322f8353ed063629fa3b7a8219005b70d12 Mon Sep 17 00:00:00 2001
 From: Akira Tsukamoto <akira.tsukamoto@gmail.com>
 Date: Wed, 23 Jun 2021 21:40:39 +0900
-Subject: [PATCH 05/61] riscv: __asm_copy_to-from_user: Optimize unaligned
+Subject: [PATCH 05/62] riscv: __asm_copy_to-from_user: Optimize unaligned
  memory access and pipeline stall
+
+commit ca6eaaa210deec0e41cbfc380bf89cf079203569 upstream.
 
 This patch will reduce cpu usage dramatically in kernel space especially
 for application which use sys-call with large buffer size, such as

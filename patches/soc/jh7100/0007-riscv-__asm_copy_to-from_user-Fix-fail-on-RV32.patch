@@ -1,19 +1,20 @@
-From 2ef4c08c3161726f85baf3d8e7bb9019c2589cc6 Mon Sep 17 00:00:00 2001
+From 2c8d15b01e91c2f28cc39c27ec1c88c13b615fe4 Mon Sep 17 00:00:00 2001
 From: Akira Tsukamoto <akira.tsukamoto@gmail.com>
-Date: Tue, 20 Jul 2021 15:32:14 +0900
-Subject: [PATCH 07/61] riscv: __asm_copy_to-from_user: Fix: fail on RV32
+Date: Tue, 20 Jul 2021 17:51:45 +0900
+Subject: [PATCH 07/62] riscv: __asm_copy_to-from_user: Fix: fail on RV32
+
+commit 22b5f16ffeff38938ad7420a2bfa3c281c36fd17 upstream.
 
 Had a bug when converting bytes to bits when the cpu was rv32.
 
 The a3 contains the number of bytes and multiple of 8
 would be the bits. The LGREG is holding 2 for RV32 and 3 for
-RV64, so to achieve multiple of 8 it must always be constant 3.
+RV32, so to achieve multiple of 8 it must always be constant 3.
 The 2 was mistakenly used for rv32.
 
 Signed-off-by: Akira Tsukamoto <akira.tsukamoto@gmail.com>
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-Tested-by: Qiu Wenbo <qiuwenbo@kylinos.com.cn>
+Fixes: ca6eaaa210de ("riscv: __asm_copy_to-from_user: Optimize unaligned memory access and pipeline stall")
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 ---
  arch/riscv/lib/uaccess.S | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
