@@ -1,7 +1,7 @@
-From f6d1aaf116dd95739991a461aefceddd40daa09f Mon Sep 17 00:00:00 2001
+From ec5f44a8ca5c7f6e27b46d0dc535e29934df61c9 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Fri, 25 Jun 2021 11:29:51 +0200
-Subject: [PATCH 07/53] [WIP] dt-bindings: clock: starfive: Add JH7100 Clock
+Subject: [PATCH 06/52] [WIP] dt-bindings: clock: starfive: Add JH7100 Clock
  Definitions
 
 Add all clock outputs for the StarFive JH7100 Clock Generator.

@@ -1,7 +1,7 @@
-From 8f1035e7a6f35e38528c8b29c455cf2f092b9f34 Mon Sep 17 00:00:00 2001
+From bd1498496d20ac93d23d11fdbf69460d1ec28e57 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Wed, 5 May 2021 20:03:04 +0200
-Subject: [PATCH 52/53] [NOT-FOR-UPSTREAM] Add build instructions
+Subject: [PATCH 52/52] [NOT-FOR-UPSTREAM] Add build instructions
 
 For convenience this also adds a small beaglev_defconfig and the
 firmware needed for the brcmfmac driver along with the signed regulatory
@@ -14,8 +14,8 @@ Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Drew Fustini <drew@beagleboard.org>
 ---
- README.md                                     | 133 +++++++++++
- arch/riscv/configs/beaglev_defconfig          | 206 ++++++++++++++++++
+ README.md                                     | 133 ++++++++++++
+ arch/riscv/configs/beaglev_defconfig          | 205 ++++++++++++++++++
  firmware/brcm/brcmfmac43430-sdio.AP6212.txt   |  44 ++++
  ...0-sdio.beagle,beaglev-starlight-jh7100.txt |   1 +
  firmware/brcm/brcmfmac43430-sdio.bin          | Bin 0 -> 421158 bytes
@@ -23,7 +23,7 @@ Signed-off-by: Drew Fustini <drew@beagleboard.org>
  firmware/brcm/nvram_ap6236.txt                |  67 ++++++
  firmware/regulatory.db                        | Bin 0 -> 3940 bytes
  firmware/regulatory.db.p7s                    | Bin 0 -> 1182 bytes
- 9 files changed, 451 insertions(+)
+ 9 files changed, 450 insertions(+)
  create mode 100644 README.md
  create mode 100644 arch/riscv/configs/beaglev_defconfig
  create mode 100644 firmware/brcm/brcmfmac43430-sdio.AP6212.txt
@@ -175,10 +175,10 @@ index 000000000000..c2932e2dd397
 +mature enough to be submitted upstream. So expect regular rebases.
 diff --git a/arch/riscv/configs/beaglev_defconfig b/arch/riscv/configs/beaglev_defconfig
 new file mode 100644
-index 000000000000..10eeddaa96b7
+index 000000000000..c6e58f8f4633
 --- /dev/null
 +++ b/arch/riscv/configs/beaglev_defconfig
-@@ -0,0 +1,206 @@
+@@ -0,0 +1,205 @@
 +CONFIG_LOCALVERSION="-beaglev"
 +CONFIG_SYSVIPC=y
 +CONFIG_POSIX_MQUEUE=y
@@ -297,7 +297,6 @@ index 000000000000..10eeddaa96b7
 +CONFIG_GPIOLIB=y
 +CONFIG_GPIOLIB_FASTPATH_LIMIT=256
 +CONFIG_GPIO_SYSFS=y
-+# CONFIG_GPIO_CDEV_V1 is not set
 +CONFIG_GPIO_TPS65086=y
 +CONFIG_POWER_RESET=y
 +CONFIG_POWER_RESET_TPS65086=y

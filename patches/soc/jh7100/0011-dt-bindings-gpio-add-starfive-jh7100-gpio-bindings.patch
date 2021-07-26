@@ -1,7 +1,7 @@
-From 78224806bab1d0834db0557fbd2830d2dcf3e7ba Mon Sep 17 00:00:00 2001
+From 2b6283f0d927db091a15b7efcef4ec46f68fe87a Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@beagleboard.org>
 Date: Mon, 31 May 2021 00:07:38 -0700
-Subject: [PATCH 12/53] dt-bindings: gpio: add starfive,jh7100-gpio bindings
+Subject: [PATCH 11/52] dt-bindings: gpio: add starfive,jh7100-gpio bindings
 
 Add bindings for the GPIO controller in the StarFive JH7100 SoC [1].
 

@@ -1,7 +1,7 @@
-From 4752d25bb7d04c7868f4760cd1377c761edb27c2 Mon Sep 17 00:00:00 2001
+From 32c2142ac4a5ff66b1d2a4ff54575ea60955757f Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Sat, 6 Mar 2021 03:25:36 +0800
-Subject: [PATCH 38/53] video: fbdev: starfive: update fb driver
+Subject: [PATCH 38/52] video: fbdev: starfive: update fb driver
 
 ---
  drivers/video/fbdev/starfive/starfive_fb.c | 30 +++++++++++++++++-----

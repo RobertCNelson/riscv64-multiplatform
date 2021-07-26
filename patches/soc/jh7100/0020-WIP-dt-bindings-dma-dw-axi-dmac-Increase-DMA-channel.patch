@@ -1,7 +1,7 @@
-From efdfe4aeb0174b3d9306f9196fa35a0ca27211d4 Mon Sep 17 00:00:00 2001
+From 3e8c74e232a341bf0adfcae5ff49d32fc3c38c70 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Thu, 27 May 2021 20:13:43 +0200
-Subject: [PATCH 20/53] [WIP] dt-bindings: dma: dw-axi-dmac: Increase DMA
+Subject: [PATCH 20/52] [WIP] dt-bindings: dma: dw-axi-dmac: Increase DMA
  channel limit to 16
 
 The first DMAC instance in the StarFive JH7100 SoC supports 16 DMA

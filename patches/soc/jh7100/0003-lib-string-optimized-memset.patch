@@ -1,7 +1,7 @@
-From 82b4cf5eea80682586fa17f2c8d053c287595a24 Mon Sep 17 00:00:00 2001
+From 4d2f7677f48706c423b3d738b96ee05fbda6d1e8 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 16 Jul 2021 13:45:50 +1000
-Subject: [PATCH 04/53] lib/string: optimized memset
+Subject: [PATCH 03/52] lib/string: optimized memset
 
 The generic memset is defined as a byte at time write.  This is always
 safe, but it's slower than a 4 byte or even 8 byte write.

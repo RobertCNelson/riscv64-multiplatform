@@ -1,7 +1,7 @@
-From a75442c01444723a7baee1a184b3a91d38404c80 Mon Sep 17 00:00:00 2001
+From 7986354e56583c29ff67288130769c8575423b39 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 21 May 2021 03:26:38 +0200
-Subject: [PATCH 35/53] net: stmmac: use GFP_DMA32
+Subject: [PATCH 35/52] net: stmmac: use GFP_DMA32
 
 Signed-off-by: Matteo Croce <mcroce@microsoft.com>
 ---

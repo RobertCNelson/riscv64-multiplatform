@@ -1,7 +1,7 @@
-From 3241e5f3e39bedb0839e7176d8780f2cf14ac448 Mon Sep 17 00:00:00 2001
+From 6da4091a3dfdab508c673eab77ad5819a65da72e Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 18 May 2021 13:57:54 +0200
-Subject: [PATCH 45/53] video: fbdev: starfive: Fix frame buffer reserved
+Subject: [PATCH 45/52] video: fbdev: starfive: Fix frame buffer reserved
  memory resource conflict
 
     starfive,vpp-lcdc 12000000.sfivefb: can't request region for resource [mem 0xfb000000-0xfcffffff]

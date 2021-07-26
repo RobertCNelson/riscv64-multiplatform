@@ -1,7 +1,7 @@
-From bdbbe7c69e79eb18b00f3aaa4672f30188476eec Mon Sep 17 00:00:00 2001
+From 1c6d965f927d33663932cd6a4ebb377d7305bbaf Mon Sep 17 00:00:00 2001
 From: TekkamanV <tekkamanv@starfivetech.com>
 Date: Sat, 23 Jan 2021 02:52:17 +0800
-Subject: [PATCH 50/53] riscv: dts: Add JH7100 and BeagleV Starlight support
+Subject: [PATCH 50/52] riscv: dts: Add JH7100 and BeagleV Starlight support
 
 Based on the device tree in https://github.com/starfive-tech/u-boot/
 with contributions from:
@@ -525,7 +525,7 @@ index 000000000000..6fce98ce3aff
 +};
 diff --git a/arch/riscv/boot/dts/starfive/jh7100.dtsi b/arch/riscv/boot/dts/starfive/jh7100.dtsi
 new file mode 100644
-index 000000000000..21cbb4b23bc8
+index 000000000000..7aa062df8c81
 --- /dev/null
 +++ b/arch/riscv/boot/dts/starfive/jh7100.dtsi
 @@ -0,0 +1,622 @@
@@ -748,7 +748,7 @@ index 000000000000..21cbb4b23bc8
 +				 <&clkgen JH7100_CLK_SGDMA2P_AHB>;
 +			clock-names = "core-clk", "cfgr-clk";
 +			interrupts = <2>;
-+		        #dma-cells = <1>;
++			#dma-cells = <1>;
 +			dma-channels = <4>;
 +			snps,dma-masters = <1>;
 +			snps,data-width = <4>;
@@ -765,7 +765,7 @@ index 000000000000..21cbb4b23bc8
 +				 <&clkgen JH7100_CLK_SGDMA1P_BUS>;
 +			clock-names = "core-clk", "cfgr-clk";
 +			interrupts = <1>;
-+		        #dma-cells = <1>;
++			#dma-cells = <1>;
 +			dma-channels = <16>;
 +			snps,dma-masters = <1>;
 +			snps,data-width = <3>;
@@ -1089,7 +1089,7 @@ index 000000000000..21cbb4b23bc8
 +			      <0x0 0x11840000 0x0 0x10000>,
 +			      <0x0 0x11858000 0x0 0x10000>;
 +			reg-names = "mipi0", "vclk", "vrst", "mipi1", "sctrl",
-+			            "isp0", "isp1", "tclk", "trst", "iopad";
++				    "isp0", "isp1", "tclk", "trst", "iopad";
 +			interrupts = <119 109>;
 +			memory-region = <&vin_reserved>;
 +			/*defaule config for imx219 vin&isp*/

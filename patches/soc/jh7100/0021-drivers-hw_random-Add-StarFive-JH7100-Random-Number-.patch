@@ -1,7 +1,7 @@
-From 4a3dceb059dbf4524e3d413b7f8e7c4247fccd53 Mon Sep 17 00:00:00 2001
+From e4cbf41e80082ff53ee0953a63b0e7a37e00f056 Mon Sep 17 00:00:00 2001
 From: Huan Feng <huan.feng@starfivetech.com>
 Date: Fri, 8 Jan 2021 03:35:42 +0800
-Subject: [PATCH 21/53] drivers/hw_random: Add StarFive JH7100 Random Number
+Subject: [PATCH 21/52] drivers/hw_random: Add StarFive JH7100 Random Number
  Generator driver
 
 ---

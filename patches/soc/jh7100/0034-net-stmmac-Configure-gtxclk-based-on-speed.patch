@@ -1,7 +1,7 @@
-From 4ec6363b4e4dc90903fadc1d8f576cf71ef88acb Mon Sep 17 00:00:00 2001
+From b15042ce09089388874f126e17fbd5564b23eacb Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Tue, 6 Apr 2021 13:30:26 +0800
-Subject: [PATCH 34/53] net: stmmac: Configure gtxclk based on speed
+Subject: [PATCH 34/52] net: stmmac: Configure gtxclk based on speed
 
 ---
  .../ethernet/stmicro/stmmac/dwmac-generic.c   | 47 +++++++++++++++++++

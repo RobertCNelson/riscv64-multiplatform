@@ -1,7 +1,7 @@
-From f4b73908ecc2d127ef70756c1e326bf872540c94 Mon Sep 17 00:00:00 2001
+From 059dd4bc3a2fb247e60a001e4b8517c2577224bb Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 29 Jun 2021 16:04:44 +0200
-Subject: [PATCH 32/53] drivers/dma: dw-axi-dmac-starfive: Remove calls
+Subject: [PATCH 32/52] drivers/dma: dw-axi-dmac-starfive: Remove calls
  specific to ARM64 ACPI
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
