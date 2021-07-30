@@ -1,4 +1,4 @@
-From be20f69fd57ce9b9dc038b8b8c6a26da00db4d7d Mon Sep 17 00:00:00 2001
+From 1802936a5ec019e2e14e46bd79d1f4ae645e3c9f Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Tue, 27 Apr 2021 17:05:57 +0200
 Subject: [PATCH 58/62] spi: cadence-quadspi: Allow compilation on RISC-V

@@ -1,4 +1,4 @@
-From 3c4f39a39c17b4b87f3e6e7d091548928a656f16 Mon Sep 17 00:00:00 2001
+From 1718ba833ef797d7872d8e7fad1c9c810f9b4a35 Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Mon, 11 Jan 2021 04:06:22 +0800
 Subject: [PATCH 46/62] drivers/video/fbdev and drivers/media/platform:

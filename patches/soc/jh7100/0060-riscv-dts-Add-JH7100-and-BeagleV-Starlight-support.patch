@@ -1,4 +1,4 @@
-From f796ae81a0d2259fcc7fd56727da8ec118c20a82 Mon Sep 17 00:00:00 2001
+From ea0da4450394ea7ea6dc298fe2198408499433fe Mon Sep 17 00:00:00 2001
 From: TekkamanV <tekkamanv@starfivetech.com>
 Date: Sat, 23 Jan 2021 02:52:17 +0800
 Subject: [PATCH 60/62] riscv: dts: Add JH7100 and BeagleV Starlight support

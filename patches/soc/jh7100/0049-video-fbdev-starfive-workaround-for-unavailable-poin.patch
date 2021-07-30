@@ -1,4 +1,4 @@
-From dfafa1d68a87b3cc1cf0c6d71ddee536ef9068de Mon Sep 17 00:00:00 2001
+From 1c96f3d7cb779d65d0d9bca148c2a3082990cf7d Mon Sep 17 00:00:00 2001
 From: "jack.zhu" <jack.zhu@starfivetech.com>
 Date: Tue, 16 Mar 2021 23:53:55 +0800
 Subject: [PATCH 49/62] video: fbdev: starfive: workaround for unavailable

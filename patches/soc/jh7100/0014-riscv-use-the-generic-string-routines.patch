@@ -1,4 +1,4 @@
-From e1019a7d9ca21f1b656f21f576aa7704c9e4dc5d Mon Sep 17 00:00:00 2001
+From 23e5749632fb6baabe40e07fbe5b08ed1ec4e567 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 25 Jun 2021 02:08:21 +0200
 Subject: [PATCH 14/62] riscv: use the generic string routines

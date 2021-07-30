@@ -1,4 +1,4 @@
-From b583f2d68d5b01812a0e2652eb29bbd32b46aca7 Mon Sep 17 00:00:00 2001
+From b6d97391fe64e26acae5ad2297a7e1e7dafc3de4 Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@beagleboard.org>
 Date: Mon, 12 Jul 2021 23:30:18 -0700
 Subject: [PATCH 15/62] dt-bindings: riscv: add starfive jh7100 bindings

@@ -1,4 +1,4 @@
-From e123738fed1cc3b2c202a29a7e1f3edc64724ca2 Mon Sep 17 00:00:00 2001
+From a63a98ba26a9064f10d2b9e7795ac0d7f9122493 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Fri, 8 Jan 2021 02:59:40 +0800
 Subject: [PATCH 37/62] riscv/starfive: Add VIC7100 support

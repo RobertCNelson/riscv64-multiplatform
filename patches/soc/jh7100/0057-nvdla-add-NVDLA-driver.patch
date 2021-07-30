@@ -1,4 +1,4 @@
-From 36524256b72cb0c263f8f52639b5b389b3a9a580 Mon Sep 17 00:00:00 2001
+From 9501cdeafeca6b52a2c12d0837fc884a82d5d75b Mon Sep 17 00:00:00 2001
 From: Farzad Farshchi <farzadfr@gmail.com>
 Date: Thu, 20 Sep 2018 19:08:27 -0500
 Subject: [PATCH 57/62] nvdla: add NVDLA driver

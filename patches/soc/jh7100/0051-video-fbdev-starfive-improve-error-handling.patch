@@ -1,4 +1,4 @@
-From c8abecb3995c182186ee0ff3b50d89e981fa6da3 Mon Sep 17 00:00:00 2001
+From 1e889bdfff686e9a781f4b46b602d061376e6741 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 6 May 2021 21:17:08 +0200
 Subject: [PATCH 51/62] video: fbdev: starfive: improve error handling

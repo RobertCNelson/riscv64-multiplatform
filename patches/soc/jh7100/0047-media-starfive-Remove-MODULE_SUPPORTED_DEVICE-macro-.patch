@@ -1,4 +1,4 @@
-From dca7e418a40bc7e2a902ee8bd1f34023fdde456d Mon Sep 17 00:00:00 2001
+From ad8478d22d8f6a58b3ce47e97f69f2d91e2099df Mon Sep 17 00:00:00 2001
 From: TekkamanV <tekkamanv@starfivetech.com>
 Date: Mon, 5 Jul 2021 23:04:29 +0800
 Subject: [PATCH 47/62] media: starfive: Remove MODULE_SUPPORTED_DEVICE macro

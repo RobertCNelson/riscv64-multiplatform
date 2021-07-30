@@ -1,4 +1,4 @@
-From 2c8d15b01e91c2f28cc39c27ec1c88c13b615fe4 Mon Sep 17 00:00:00 2001
+From fc21cf9613af7eb29f4291bf2b940fe9feebb66f Mon Sep 17 00:00:00 2001
 From: Akira Tsukamoto <akira.tsukamoto@gmail.com>
 Date: Tue, 20 Jul 2021 17:51:45 +0900
 Subject: [PATCH 07/62] riscv: __asm_copy_to-from_user: Fix: fail on RV32

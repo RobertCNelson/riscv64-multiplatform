@@ -1,4 +1,4 @@
-From 1d5375519fc178d456b8c8289f5cb2faee38bcdf Mon Sep 17 00:00:00 2001
+From eafeb15f94ef5e8bcbcf338a4798be05ae9b1dff Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 29 Jun 2021 16:04:44 +0200
 Subject: [PATCH 42/62] drivers/dma: dw-axi-dmac-starfive: Remove calls

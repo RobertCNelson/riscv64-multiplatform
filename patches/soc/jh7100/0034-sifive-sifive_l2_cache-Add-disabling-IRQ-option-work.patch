@@ -1,4 +1,4 @@
-From 61dcb98b5af4262ebd452f765520a5aa9ead40f5 Mon Sep 17 00:00:00 2001
+From e0e8b78dd97a250a4a51a84c474421cd611a5e01 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Sat, 13 Feb 2021 22:25:17 +0800
 Subject: [PATCH 34/62] sifive/sifive_l2_cache: Add disabling IRQ option

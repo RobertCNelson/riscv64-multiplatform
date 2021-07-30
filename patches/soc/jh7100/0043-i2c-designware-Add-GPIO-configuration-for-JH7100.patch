@@ -1,4 +1,4 @@
-From 2264e7fc816f1ca2d3ecb9cbf043083496b6fe90 Mon Sep 17 00:00:00 2001
+From 0e00bceb3e844a81c86e038dc35362801bd4c79b Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Sat, 13 Mar 2021 15:22:38 +0800
 Subject: [PATCH 43/62] i2c: designware: Add GPIO configuration for JH7100

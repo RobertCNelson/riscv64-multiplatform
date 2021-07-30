@@ -1,4 +1,4 @@
-From 599204ce74140cfcf8d2dd3a33bd54d77f0bb09e Mon Sep 17 00:00:00 2001
+From 8624c1ba285f92449a18273c3bdcf48ecbcddb7a Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 16 Jul 2021 13:45:49 +1000
 Subject: [PATCH 12/62] lib/string: optimized memmove

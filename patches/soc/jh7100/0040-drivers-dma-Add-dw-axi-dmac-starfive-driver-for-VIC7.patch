@@ -1,4 +1,4 @@
-From 349d052131c74b00b418794866437c81375b866d Mon Sep 17 00:00:00 2001
+From 3188699c87201bc6d46d7dbee6e55db754c7497f Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Fri, 8 Jan 2021 02:57:50 +0800
 Subject: [PATCH 40/62] drivers/dma: Add dw-axi-dmac-starfive driver for

@@ -1,4 +1,4 @@
-From 3970a486ad5ff570df6a5157d5b36048871312d4 Mon Sep 17 00:00:00 2001
+From bdcf1972eb664d50db95fe3c89db6a85edcb84bd Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 18 May 2021 13:51:33 +0200
 Subject: [PATCH 54/62] video: fbdev: starfive: FB_STARFIVE_HDMI_TDA998X

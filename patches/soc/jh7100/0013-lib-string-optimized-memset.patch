@@ -1,4 +1,4 @@
-From 85673c63d39eeab9a88380b1022c5164c91beaef Mon Sep 17 00:00:00 2001
+From 94bbfbef312836f09182ac8060b53f0277d3e082 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 16 Jul 2021 13:45:50 +1000
 Subject: [PATCH 13/62] lib/string: optimized memset

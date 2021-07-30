@@ -1,4 +1,4 @@
-From b030688aedcd1d24268b3ef7980aa2c6433f4909 Mon Sep 17 00:00:00 2001
+From 026d9576ae1d247b68fa831a403b5d09b56c32d4 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 18 May 2021 13:57:54 +0200
 Subject: [PATCH 55/62] video: fbdev: starfive: Fix frame buffer reserved

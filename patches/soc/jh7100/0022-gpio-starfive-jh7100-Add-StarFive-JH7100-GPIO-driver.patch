@@ -1,4 +1,4 @@
-From 4a8f153c90c6d5f6baff0a507ef7769fcc8394e3 Mon Sep 17 00:00:00 2001
+From 3cf670f6fc8dca64db748ed465bc4c8d02dcc382 Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@beagleboard.org>
 Date: Wed, 30 Jun 2021 17:20:39 -0700
 Subject: [PATCH 22/62] gpio: starfive-jh7100: Add StarFive JH7100 GPIO driver

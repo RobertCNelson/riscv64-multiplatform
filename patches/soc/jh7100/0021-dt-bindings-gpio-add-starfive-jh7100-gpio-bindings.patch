@@ -1,4 +1,4 @@
-From f718a45f68900714ea98651ae207902925372d27 Mon Sep 17 00:00:00 2001
+From 9ee0ace64ad8f066c8cb8fdaa8f5863897bdae4c Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@beagleboard.org>
 Date: Mon, 31 May 2021 00:07:38 -0700
 Subject: [PATCH 21/62] dt-bindings: gpio: add starfive,jh7100-gpio bindings

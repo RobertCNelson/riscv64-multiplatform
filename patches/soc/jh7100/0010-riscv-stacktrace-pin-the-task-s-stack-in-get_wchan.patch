@@ -1,4 +1,4 @@
-From c77ded3ff167dd0fcb3061a1c291eaeb1dac6dcb Mon Sep 17 00:00:00 2001
+From 94b031b0b7b5442fabb0de917e3abcf0632debc2 Mon Sep 17 00:00:00 2001
 From: Jisheng Zhang <jszhang@kernel.org>
 Date: Fri, 23 Jul 2021 08:22:26 +0800
 Subject: [PATCH 10/62] riscv: stacktrace: pin the task's stack in get_wchan

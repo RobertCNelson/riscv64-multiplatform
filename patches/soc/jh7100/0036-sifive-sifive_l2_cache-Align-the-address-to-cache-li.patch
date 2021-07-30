@@ -1,4 +1,4 @@
-From c953a5407420ccf40a7de2e6f60c6d7402e1813e Mon Sep 17 00:00:00 2001
+From 8252841bca46261c80e8c09255c5d50ea95feb96 Mon Sep 17 00:00:00 2001
 From: Atish Patra <atish.patra@wdc.com>
 Date: Sat, 12 Jun 2021 16:52:26 -0700
 Subject: [PATCH 36/62] sifive/sifive_l2_cache: Align the address to cache line

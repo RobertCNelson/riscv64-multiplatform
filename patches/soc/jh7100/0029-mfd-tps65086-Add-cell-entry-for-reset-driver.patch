@@ -1,4 +1,4 @@
-From c9cd853eea01d8e423cbdd41faa0fb8865d53245 Mon Sep 17 00:00:00 2001
+From d3bc5ff330315783fbcc7c20cde884f299ceb531 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Mon, 3 May 2021 12:20:05 +0200
 Subject: [PATCH 29/62] mfd: tps65086: Add cell entry for reset driver

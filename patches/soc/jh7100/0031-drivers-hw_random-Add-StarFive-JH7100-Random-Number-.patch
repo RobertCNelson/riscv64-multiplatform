@@ -1,4 +1,4 @@
-From c74eccf776daaed6c2a79c6ddaf2d3b1525be436 Mon Sep 17 00:00:00 2001
+From 0116f1021ba73f4208e80985a73a00e17694cf17 Mon Sep 17 00:00:00 2001
 From: Huan Feng <huan.feng@starfivetech.com>
 Date: Fri, 8 Jan 2021 03:35:42 +0800
 Subject: [PATCH 31/62] drivers/hw_random: Add StarFive JH7100 Random Number

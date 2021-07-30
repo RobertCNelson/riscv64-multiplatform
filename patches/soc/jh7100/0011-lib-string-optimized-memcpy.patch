@@ -1,4 +1,4 @@
-From 9ea88a158e40df1019e62b926103b08c3488e70e Mon Sep 17 00:00:00 2001
+From 9ec95c779c9a184830010315e54a0eed69419165 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 16 Jul 2021 13:45:48 +1000
 Subject: [PATCH 11/62] lib/string: optimized memcpy

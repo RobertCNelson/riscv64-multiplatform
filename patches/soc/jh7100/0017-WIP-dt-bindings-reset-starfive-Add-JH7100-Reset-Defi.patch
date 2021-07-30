@@ -1,4 +1,4 @@
-From c75e1a99cfbd77c3c3e6ec75c75b370f3a5b799f Mon Sep 17 00:00:00 2001
+From da680d4e8e3742a7974f3f7723d322a61cba0fcf Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Fri, 25 Jun 2021 11:30:00 +0200
 Subject: [PATCH 17/62] [WIP] dt-bindings: reset: starfive: Add JH7100 Reset

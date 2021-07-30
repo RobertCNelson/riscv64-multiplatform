@@ -1,4 +1,4 @@
-From 48075c2dc2f85dc932ac3c7b115b0c732e78fbc1 Mon Sep 17 00:00:00 2001
+From 0b882f16aa6803fc2d07a0528399ac947df96031 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Mon, 3 May 2021 12:09:04 +0200
 Subject: [PATCH 27/62] mfd: tps65086: Make interrupt line optional

@@ -1,4 +1,4 @@
-From 0e26c2dd194ae9c755037285600e92d18857be8c Mon Sep 17 00:00:00 2001
+From 24cd9d551722d21a07f73af548db85d55005786d Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Sun, 6 Jun 2021 22:15:22 +0200
 Subject: [PATCH 24/62] dt-bindings: hwmon: add starfive,jh7100-temp bindings

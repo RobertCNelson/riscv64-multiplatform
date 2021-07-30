@@ -1,4 +1,4 @@
-From 48e49d0802ae2712449e5b45cd4a948db23b481e Mon Sep 17 00:00:00 2001
+From 00349ac75a7d81c026b9ec3f3b48470d34e77117 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Fri, 25 Jun 2021 11:29:51 +0200
 Subject: [PATCH 16/62] [WIP] dt-bindings: clock: starfive: Add JH7100 Clock

@@ -1,4 +1,4 @@
-From 6d3e31fa467b227762619abf25081381ca2d9174 Mon Sep 17 00:00:00 2001
+From b9e6d73c84508280f1b5ecac611312e5378780e9 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 21 May 2021 03:26:38 +0200
 Subject: [PATCH 45/62] net: stmmac: use GFP_DMA32
@@ -9,7 +9,7 @@ Signed-off-by: Matteo Croce <mcroce@microsoft.com>
  1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 91cd5073ddb2..025d339c81c0 100644
+index 980a60477b02..f2f8b31d5b86 100644
 --- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
 +++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
 @@ -1431,14 +1431,16 @@ static int stmmac_init_rx_buffers(struct stmmac_priv *priv, struct dma_desc *p,

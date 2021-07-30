@@ -1,4 +1,4 @@
-From 4cf41b41c5e39b6ff74eaee7b643a80cc608043e Mon Sep 17 00:00:00 2001
+From 8bd599e03d0c3d8cba562446c2394688c7a0775c Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Thu, 27 May 2021 20:13:43 +0200
 Subject: [PATCH 30/62] [WIP] dt-bindings: dma: dw-axi-dmac: Increase DMA

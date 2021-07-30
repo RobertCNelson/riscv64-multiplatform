@@ -1,17 +1,21 @@
-From 8310835cc4532aaf92d1f8309353f709f008655d Mon Sep 17 00:00:00 2001
+From 707d25bd6c4294f5e60965e071e836200ef1228f Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@beagleboard.org>
-Date: Sun, 30 May 2021 23:42:44 -0700
+Date: Mon, 31 May 2021 00:04:18 -0700
 Subject: [PATCH 03/62] dt-bindings: add StarFive Technology Co. Ltd.
+
+commit 4071883fd8f386fa070cf82b30909ea5ddd7dcf9 upstream.
 
 Add vendor prefix for StarFive Technology Co. Ltd [1]. StarFive was
 formed in 2018 and has now produced their first SoC, the JH7100, which
 contains 64-bit RISC-V cores [2]. It used in the BeagleV Starlight [3].
 
 [1] https://starfivetech.com/site/company
-[2] https://github.com/beagleboard/beaglev-starlight
-[3] https://github.com/starfive-tech/beaglev_doc
+[2] https://github.com/starfive-tech/beaglev_doc
+[3] https://github.com/beagleboard/beaglev-starlight
 
 Signed-off-by: Drew Fustini <drew@beagleboard.org>
+Link: https://lore.kernel.org/r/20210531070415.269667-1-drew@beagleboard.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 ---
  Documentation/devicetree/bindings/vendor-prefixes.yaml | 2 ++
  1 file changed, 2 insertions(+)

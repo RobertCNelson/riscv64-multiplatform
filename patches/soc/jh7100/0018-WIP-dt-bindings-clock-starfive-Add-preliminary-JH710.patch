@@ -1,4 +1,4 @@
-From 3423a9ba10aaba2bc7472add9037051cfe26f3f0 Mon Sep 17 00:00:00 2001
+From 9e294c6db0baf703c3c7376f54f56c951e5b0080 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 1 Jun 2021 16:02:23 +0200
 Subject: [PATCH 18/62] [WIP] dt-bindings: clock: starfive: Add preliminary

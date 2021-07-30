@@ -1,4 +1,4 @@
-From 07ed246e7b279ba7cb2944c56dab287432ec1aff Mon Sep 17 00:00:00 2001
+From 847bba555b57733493883b42454b962acd044555 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 22 Jun 2021 15:05:53 +0200
 Subject: [PATCH 56/62] video: fbdev: starfive: Use round_up() instead of

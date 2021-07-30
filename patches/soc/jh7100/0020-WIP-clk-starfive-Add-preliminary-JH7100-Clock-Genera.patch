@@ -1,4 +1,4 @@
-From c082bd12d947efdd44a90bbe04693c11bdacd122 Mon Sep 17 00:00:00 2001
+From cbbf7e75b6b90fd7f3044f27927fad9514ebe41d Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Tue, 1 Jun 2021 15:57:52 +0200
 Subject: [PATCH 20/62] [WIP] clk: starfive: Add preliminary JH7100 Clock

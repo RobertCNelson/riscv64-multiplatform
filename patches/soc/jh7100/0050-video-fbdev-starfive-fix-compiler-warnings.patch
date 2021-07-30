@@ -1,4 +1,4 @@
-From 8c32f4482a972d157e628c5caea209b093fdc0ef Mon Sep 17 00:00:00 2001
+From 27259929bf3456c88a3f6c8e2c6dd9331ce6edda Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 6 May 2021 21:16:33 +0200
 Subject: [PATCH 50/62] video: fbdev: starfive: fix compiler warnings

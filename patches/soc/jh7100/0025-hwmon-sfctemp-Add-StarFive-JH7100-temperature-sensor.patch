@@ -1,4 +1,4 @@
-From bf6bfc452d24bf77875d3e36cd1fe52cc402e7d1 Mon Sep 17 00:00:00 2001
+From 87ca9065949bd027d2a62343ac9065a54c1c9b56 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Sun, 6 Jun 2021 22:31:18 +0200
 Subject: [PATCH 25/62] hwmon: (sfctemp) Add StarFive JH7100 temperature sensor

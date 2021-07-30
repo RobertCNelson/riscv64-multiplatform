@@ -1,4 +1,4 @@
-From 659a3c530aa39afdb774413dbb21f79cfd5da3af Mon Sep 17 00:00:00 2001
+From cfc2a9d4c7fc1547569b40839a6233aefabaf516 Mon Sep 17 00:00:00 2001
 From: Stephen L Arnold <nerdboy@gentoo.org>
 Date: Wed, 12 May 2021 18:01:36 -0700
 Subject: [PATCH 52/62] video: fbdev: starfive: fix modpost build error

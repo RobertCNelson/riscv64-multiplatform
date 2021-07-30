@@ -1,4 +1,4 @@
-From 882716080ffbcb023371f0991e1c4989b30e64d8 Mon Sep 17 00:00:00 2001
+From 1ebd25b9186822b6718e4f3c36cbd8fedea17438 Mon Sep 17 00:00:00 2001
 From: Tom <support@vamrs.com>
 Date: Tue, 6 Apr 2021 13:30:26 +0800
 Subject: [PATCH 44/62] net: stmmac: Configure gtxclk based on speed

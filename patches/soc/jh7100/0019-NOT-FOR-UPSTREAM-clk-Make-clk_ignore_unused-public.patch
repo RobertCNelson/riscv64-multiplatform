@@ -1,4 +1,4 @@
-From 2efca8330ca6ccc702ae28cfcb7ebfdbbd44b47c Mon Sep 17 00:00:00 2001
+From 52d3cb03573e27e0c64ef37428b82a90e3e56fc7 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Fri, 25 Jun 2021 11:52:26 +0200
 Subject: [PATCH 19/62] [NOT-FOR-UPSTREAM] clk: Make clk_ignore_unused public

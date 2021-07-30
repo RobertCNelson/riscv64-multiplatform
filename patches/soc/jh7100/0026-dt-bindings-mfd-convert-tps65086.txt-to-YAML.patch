@@ -1,4 +1,4 @@
-From 740de1f1ad22ad33dcf539c5afdee680e2d15451 Mon Sep 17 00:00:00 2001
+From ede93b77a393228860666904e922587a7d187b92 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 24 Jun 2021 17:42:09 +0200
 Subject: [PATCH 26/62] dt-bindings: mfd: convert tps65086.txt to YAML
