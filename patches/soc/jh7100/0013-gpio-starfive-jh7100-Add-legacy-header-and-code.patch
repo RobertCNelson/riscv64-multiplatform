@@ -1,7 +1,7 @@
 From 2c4f56256a46b0899f86b19e90e0c290290cb16f Mon Sep 17 00:00:00 2001
 From: Huan Feng <huan.feng@starfivetech.com>
 Date: Fri, 8 Jan 2021 03:19:19 +0800
-Subject: [PATCH 13/52] gpio: starfive-jh7100: Add legacy header and code
+Subject: [PATCH 13/53] gpio: starfive-jh7100: Add legacy header and code
 
 Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 ---

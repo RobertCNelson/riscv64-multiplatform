@@ -1,7 +1,7 @@
 From f5cffc7f3511d328a440cfa50e6e13460a7c58c7 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Thu, 6 May 2021 21:16:33 +0200
-Subject: [PATCH 40/52] video: fbdev: starfive: fix compiler warnings
+Subject: [PATCH 40/53] video: fbdev: starfive: fix compiler warnings
 
 Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
 ---

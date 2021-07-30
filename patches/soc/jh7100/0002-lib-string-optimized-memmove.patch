@@ -1,7 +1,7 @@
 From 4d53a47e45ef65e8b0dc2a3f672ee7710d05ccb3 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 16 Jul 2021 13:45:49 +1000
-Subject: [PATCH 02/52] lib/string: optimized memmove
+Subject: [PATCH 02/53] lib/string: optimized memmove
 
 When the destination buffer is before the source one, or when the buffers
 doesn't overlap, it's safe to use memcpy() instead, which is optimized to

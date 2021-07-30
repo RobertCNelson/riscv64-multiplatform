@@ -1,7 +1,7 @@
 From ab748cdfebf1973e525cafd7187a7729d047cc95 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 16 Jul 2021 13:45:48 +1000
-Subject: [PATCH 01/52] lib/string: optimized memcpy
+Subject: [PATCH 01/53] lib/string: optimized memcpy
 
 Patch series "lib/string: optimized mem* functions", v2.
 

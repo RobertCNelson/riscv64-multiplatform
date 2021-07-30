@@ -1,7 +1,7 @@
 From 2ef0c7a187ff153aa437255b783b3461eec688a3 Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@beagleboard.org>
 Date: Wed, 30 Jun 2021 17:20:39 -0700
-Subject: [PATCH 12/52] gpio: starfive-jh7100: Add StarFive JH7100 GPIO driver
+Subject: [PATCH 12/53] gpio: starfive-jh7100: Add StarFive JH7100 GPIO driver
 
 Add GPIO driver for the StarFive JH7100 SoC [1] used on the
 BeagleV Starlight JH7100 board [2].

@@ -1,7 +1,7 @@
 From 8329977e23d3e62891ae02e2404d2502e133ab74 Mon Sep 17 00:00:00 2001
 From: Atish Patra <atish.patra@wdc.com>
 Date: Sat, 12 Jun 2021 16:52:26 -0700
-Subject: [PATCH 26/52] sifive/sifive_l2_cache: Align the address to cache line
+Subject: [PATCH 26/53] sifive/sifive_l2_cache: Align the address to cache line
 
 [Emil: fix suggested by Geert Uytterhoeven <geert@linux-m68k.org>]
 

@@ -1,7 +1,7 @@
 From 7023acd04b704c1c4915835692548ce87244eb6a Mon Sep 17 00:00:00 2001
 From: TekkamanV <tekkamanv@starfivetech.com>
 Date: Fri, 2 Jul 2021 17:18:21 +0800
-Subject: [PATCH 51/52] [NOT-FOR-UPSTREAM] riscv: Add starfive jh7100 starlight
+Subject: [PATCH 51/53] [NOT-FOR-UPSTREAM] riscv: Add starfive jh7100 starlight
  fedora defconfig
 
 Signed-off-by: TekkamanV <tekkamanv@starfivetech.com>

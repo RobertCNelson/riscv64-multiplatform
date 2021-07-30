@@ -1,7 +1,7 @@
 From f02a97af1ebe8a1e931e47f94d9c5b425266d6d6 Mon Sep 17 00:00:00 2001
 From: Matteo Croce <mcroce@microsoft.com>
 Date: Fri, 25 Jun 2021 02:08:21 +0200
-Subject: [PATCH 04/52] riscv: use the generic string routines
+Subject: [PATCH 04/53] riscv: use the generic string routines
 
 Use the generic routines which handle alignment properly.
 

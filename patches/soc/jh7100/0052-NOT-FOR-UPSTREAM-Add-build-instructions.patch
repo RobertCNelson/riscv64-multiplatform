@@ -1,7 +1,7 @@
 From bd1498496d20ac93d23d11fdbf69460d1ec28e57 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Wed, 5 May 2021 20:03:04 +0200
-Subject: [PATCH 52/52] [NOT-FOR-UPSTREAM] Add build instructions
+Subject: [PATCH 52/53] [NOT-FOR-UPSTREAM] Add build instructions
 
 For convenience this also adds a small beaglev_defconfig and the
 firmware needed for the brcmfmac driver along with the signed regulatory

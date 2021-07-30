@@ -267,7 +267,7 @@ soc () {
 #reverts
 
 #exit 2
-#git pull --no-edit https://github.com/starfive-tech/linux beaglev
+#git pull --no-edit https://github.com/esmil/linux beaglev
 
 soc
 

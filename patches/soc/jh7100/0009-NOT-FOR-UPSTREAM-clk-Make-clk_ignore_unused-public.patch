@@ -1,7 +1,7 @@
 From 678b1f3aa4d0059cbf34ad30b1538c013de05073 Mon Sep 17 00:00:00 2001
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 Date: Fri, 25 Jun 2021 11:52:26 +0200
-Subject: [PATCH 09/52] [NOT-FOR-UPSTREAM] clk: Make clk_ignore_unused public
+Subject: [PATCH 09/53] [NOT-FOR-UPSTREAM] clk: Make clk_ignore_unused public
 
 Make clk_ignore_unused public, so the StarFive JH7100 Clock Generator
 driver can set the flag.

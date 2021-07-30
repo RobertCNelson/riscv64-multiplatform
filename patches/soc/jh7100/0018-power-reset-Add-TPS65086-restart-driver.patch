@@ -1,7 +1,7 @@
 From 318d80e2cb39ab1ddb49e15cf552a60e0bcbf8d0 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Mon, 3 May 2021 12:20:05 +0200
-Subject: [PATCH 18/52] power: reset: Add TPS65086 restart driver
+Subject: [PATCH 18/53] power: reset: Add TPS65086 restart driver
 
 The only way to reset the BeagleV Starlight v0.9 board[1] properly is to
 tell the PMIC to reset itself which will then assert the external reset

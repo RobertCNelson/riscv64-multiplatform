@@ -1,7 +1,7 @@
 From f7dc80fad142658f2d59592569145e5992de5343 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Tue, 27 Apr 2021 17:05:57 +0200
-Subject: [PATCH 48/52] spi: cadence-quadspi: Allow compilation on RISC-V
+Subject: [PATCH 48/53] spi: cadence-quadspi: Allow compilation on RISC-V
 
 This IP is also used on the StarFive JH7100 riscv64 SoC and presumably
 also the upcoming JH7110 SoC.

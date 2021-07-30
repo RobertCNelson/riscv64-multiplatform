@@ -1,7 +1,7 @@
 From 2b79bde4425dcdb5de9f8c1b9b5a6c1eb718e8c8 Mon Sep 17 00:00:00 2001
 From: Drew Fustini <drew@beagleboard.org>
 Date: Mon, 12 Jul 2021 23:30:18 -0700
-Subject: [PATCH 05/52] dt-bindings: riscv: add starfive jh7100 bindings
+Subject: [PATCH 05/53] dt-bindings: riscv: add starfive jh7100 bindings
 
 Add DT binding documentation for the StarFive JH7100 Soc [1] and the
 BeagleV Starlight JH7100 board [2].

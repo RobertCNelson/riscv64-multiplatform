@@ -1,7 +1,7 @@
 From 3af312f781bd94f0cffa6e2579904c1162dca8d9 Mon Sep 17 00:00:00 2001
 From: Emil Renner Berthing <kernel@esmil.dk>
 Date: Mon, 3 May 2021 12:20:05 +0200
-Subject: [PATCH 19/52] mfd: tps65086: Add cell entry for reset driver
+Subject: [PATCH 19/53] mfd: tps65086: Add cell entry for reset driver
 
 The only way to reset the BeagleV Starlight v0.9 board[1] properly is to
 tell the PMIC to reset itself which will then assert the external reset
