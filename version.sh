@@ -8,7 +8,7 @@ build_prefix="-riscv64-r"
 branch_prefix="v"
 branch_postfix=".x"
 
-#https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation/process/changes.rst?h=v5.13-rc1
+#https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation/process/changes.rst?h=v5.14.6-r1
 #arm
 #KERNEL_ARCH=arm
 #DEBARCH=armhf
@@ -50,5 +50,5 @@ BUILD=${build_prefix}1
 #git branch
 BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
 
-DISTRO=debian
+DISTRO=_sid
 #
