@@ -2,7 +2,7 @@
 #
 ARCH=$(uname -m)
 
-config="beaglev_defconfig"
+config="starlight_defconfig"
 
 build_prefix="-riscv64-r"
 branch_prefix="v"
