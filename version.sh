@@ -41,7 +41,7 @@ KERNEL_REL=5.14
 KERNEL_TAG=${KERNEL_REL}.6
 kernel_rt=".X-rtY"
 #Kernel Build
-BUILD=${build_prefix}1
+BUILD=${build_prefix}2
 
 #v5.X-rcX + upto SHA
 #prev_KERNEL_SHA=""
@@ -50,5 +50,5 @@ BUILD=${build_prefix}1
 #git branch
 BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
 
-DISTRO=_sid
+DISTRO=sid
 #
