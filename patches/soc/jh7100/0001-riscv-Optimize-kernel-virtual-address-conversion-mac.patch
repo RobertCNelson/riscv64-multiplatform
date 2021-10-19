@@ -1,0 +1,36 @@
+From ffbe7f71803b522d50dda799e54f0c7e20046d97 Mon Sep 17 00:00:00 2001
+From: Alexandre Ghiti <alex@ghiti.fr>
+Date: Wed, 21 Jul 2021 09:59:37 +0200
+Subject: [PATCH 01/56] riscv: Optimize kernel virtual address conversion macro
+
+commit 59a27e1122133831111f9e2e40fec2307d742487 upstream.
+
+The current test in kernel_mapping_va_to_pa only applies when
+CONFIG_XIP_KERNEL is set, so use IS_ENABLED to optimize this macro at
+compile-time in standard kernels that do not require this test.
+
+Signed-off-by: Alexandre Ghiti <alex@ghiti.fr>
+Tested-by: Emil Renner Berthing <kernel@esmil.dk>
+Reviewed-by: Jisheng Zhang <jszhang@kernel.org>
+Reviewed-By: Vitaly Wool <vitaly.wool@konsulko.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+---
+ arch/riscv/include/asm/page.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/riscv/include/asm/page.h b/arch/riscv/include/asm/page.h
+index 767852ae5e84..280e5c852e94 100644
+--- a/arch/riscv/include/asm/page.h
++++ b/arch/riscv/include/asm/page.h
+@@ -123,7 +123,7 @@ extern phys_addr_t phys_ram_base;
+ #define linear_mapping_va_to_pa(x)	((unsigned long)(x) - kernel_map.va_pa_offset)
+ #define kernel_mapping_va_to_pa(y) ({						\
+ 	unsigned long _y = y;							\
+-	(_y < kernel_map.virt_addr + XIP_OFFSET) ?					\
++	(IS_ENABLED(CONFIG_XIP_KERNEL) && _y < kernel_map.virt_addr + XIP_OFFSET) ?	\
+ 		((unsigned long)(_y) - kernel_map.va_kernel_xip_pa_offset) :		\
+ 		((unsigned long)(_y) - kernel_map.va_kernel_pa_offset - XIP_OFFSET);	\
+ 	})
+-- 
+2.30.2
+

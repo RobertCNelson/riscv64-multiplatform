@@ -1,0 +1,60 @@
+From 67d76a9cfdc544cffa45e7ad446cc6e5150b60fa Mon Sep 17 00:00:00 2001
+From: Emil Renner Berthing <kernel@esmil.dk>
+Date: Fri, 6 Aug 2021 13:52:16 +0200
+Subject: [PATCH 54/56] riscv: dts: Add early A1 variant of the BeagleV
+ Starlight board
+
+This is an early version of the BeagleV Starlight board that has GPIO63
+wired up to tell the PMIC to reset the whole board rather than just the
+ethernet phy as it does on the later versions sent out as part of the
+BeagleV beta program.
+
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+---
+ arch/riscv/boot/dts/starfive/Makefile         |  2 +-
+ .../starfive/jh7100-beaglev-starlight-a1.dts  | 25 +++++++++++++++++++
+ 2 files changed, 26 insertions(+), 1 deletion(-)
+ create mode 100644 arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight-a1.dts
+
+diff --git a/arch/riscv/boot/dts/starfive/Makefile b/arch/riscv/boot/dts/starfive/Makefile
+index b0a89a15fc5c..82d00d9a67cf 100644
+--- a/arch/riscv/boot/dts/starfive/Makefile
++++ b/arch/riscv/boot/dts/starfive/Makefile
+@@ -1,2 +1,2 @@
+ # SPDX-License-Identifier: GPL-2.0
+-dtb-$(CONFIG_SOC_STARFIVE_VIC7100) += jh7100-beaglev-starlight.dtb
++dtb-$(CONFIG_SOC_STARFIVE_VIC7100) += jh7100-beaglev-starlight.dtb jh7100-beaglev-starlight-a1.dtb
+diff --git a/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight-a1.dts b/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight-a1.dts
+new file mode 100644
+index 000000000000..65c02500952a
+--- /dev/null
++++ b/arch/riscv/boot/dts/starfive/jh7100-beaglev-starlight-a1.dts
+@@ -0,0 +1,25 @@
++// SPDX-License-Identifier: (GPL-2.0 OR MIT)
++/* Copyright (c) 2021 Emil Renner Berthing <kernel@esmil.dk> */
++
++/dts-v1/;
++#include "jh7100-beaglev-starlight.dts"
++#include <dt-bindings/gpio/gpio.h>
++
++/ {
++	model = "BeagleV Starlight Beta A1";
++
++	gpio-restart {
++		compatible = "gpio-restart";
++		gpios = <&gpio 63 GPIO_ACTIVE_HIGH>;
++		priority = <256>;
++	};
++};
++
++&gmac {
++	/delete-property/ snps,reset-gpios;
++};
++
++&gpio {
++	/* don't reset gpio mux for serial console and reset gpio */
++	starfive,keep-gpiomux = <13 14 63>;
++};
+-- 
+2.30.2
+
