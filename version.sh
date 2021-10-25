@@ -2,13 +2,13 @@
 #
 ARCH=$(uname -m)
 
-config="beaglev_defconfig"
+config="starlight_defconfig"
 
 build_prefix="-riscv64-r"
 branch_prefix="v"
 branch_postfix=".x"
 
-#https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation/process/changes.rst?h=v5.14-rc1
+#https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/Documentation/process/changes.rst?h=v5.14.14-r1
 #arm
 #KERNEL_ARCH=arm
 #DEBARCH=armhf
@@ -38,10 +38,10 @@ toolchain="gcc_11_riscv64"
 
 #Kernel
 KERNEL_REL=5.14
-KERNEL_TAG=${KERNEL_REL}-rc3
+KERNEL_TAG=${KERNEL_REL}.14
 kernel_rt=".X-rtY"
 #Kernel Build
-BUILD=${build_prefix}4
+BUILD=${build_prefix}1
 
 #v5.X-rcX + upto SHA
 #prev_KERNEL_SHA=""
@@ -50,5 +50,5 @@ BUILD=${build_prefix}4
 #git branch
 BRANCH="${branch_prefix}${KERNEL_REL}${branch_postfix}"
 
-DISTRO=xross
+DISTRO=sid
 #

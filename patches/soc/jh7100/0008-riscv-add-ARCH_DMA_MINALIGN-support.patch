@@ -1,0 +1,28 @@
+From 917c37e86b5b30dd47c7187a67988b50bd7003db Mon Sep 17 00:00:00 2001
+From: Xianting Tian <xianting.tian@linux.alibaba.com>
+Date: Sat, 7 Aug 2021 22:55:37 +0800
+Subject: [PATCH 08/56] riscv: add ARCH_DMA_MINALIGN support
+
+Introduce ARCH_DMA_MINALIGN to riscv arch.
+
+Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+---
+ arch/riscv/include/asm/cache.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/riscv/include/asm/cache.h b/arch/riscv/include/asm/cache.h
+index 9b58b104559e..2945bbe2b6bc 100644
+--- a/arch/riscv/include/asm/cache.h
++++ b/arch/riscv/include/asm/cache.h
+@@ -11,6 +11,8 @@
+ 
+ #define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
+ 
++#define ARCH_DMA_MINALIGN	L1_CACHE_BYTES
++
+ /*
+  * RISC-V requires the stack pointer to be 16-byte aligned, so ensure that
+  * the flat loader aligns it accordingly.
+-- 
+2.30.2
+
